@@ -23,3 +23,8 @@
 20. drawGame function
 21. create conditions for winning patterns
 22. func to show winner, different colors to show winner
+
+
+### features to add
+1. sounds on win, lose, tie
+2. show what oponent choose hide rest on selection once and wait for to show other choice
