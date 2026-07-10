@@ -8,18 +8,42 @@
 </head>
 <body>
     <h1>Rock Paper Scissor</h1>
-    <div class="choices">
-        <div class="choice" id="rock">
-            <img src="./images/rock.png">
+
+    <div class="game-area">
+
+        <div class="user-side">
+            <h2>You Select</h2>
+    
+            <div class="choices">
+                <div class="choice" id="rock">
+                    <img src="./images/rock.png">
+                </div>
+        
+                <div class="choice" id="paper">
+                    <img src="./images/paper.png">
+                </div>
+        
+                <div class="choice" id="scissors">
+                    <img src="./images/scissors.png">
+                </div>
+            </div>
         </div>
 
-        <div class="choice" id="paper">
-            <img src="./images/paper.png">
+        <div class="computer-side">
+            <h2>Computer choice</h2>
+
+            <div class="computer-choice">
+                <img id="computer-img" src="images/questionMark.jpg">
+                
+            </div>
         </div>
 
-        <div class="choice" id="scissors">
-            <img src="./images/scissors.png">
-        </div>
+
+    </div>
+
+
+    <!-- side div to display computer choice -->
+    <div>
     </div>
 
     <div class="score-board">
@@ -38,6 +62,9 @@
         <p id="msg">Play Your Move</p>
     </div>
 
+    <audio id="winGame" src="sounds/winSound.mp3"></audio>
+    <audio id="loseGame" src="sounds/loseSound.mp3"></audio>
+    <audio id="drawGame" src="sounds/drawSound.mp3"></audio>
     <script src="script.js"></script>
     
 </body>
