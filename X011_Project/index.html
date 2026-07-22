@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XO11 // Ground Control Station</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+/* ============================= TOKENS ============================= */
+:root{
+  --void:#060a10;
+  --panel:#0b121a;
+  --panel-2:#0f1822;
+  --panel-3:#121d29;
+  --border:#1b2938;
+  --border-lit:#254056;
+  --cyan:#00e5ff;
+  --cyan-dim:#0a8ba3;
+  --amber:#ffb300;
+  --red:#ff4545;
+  --green:#33d68a;
+  --text:#dbe6f0;
+  --text-dim:#7891a6;
+  --text-faint:#3d5468;
+  --mono:'JetBrains Mono', monospace;
+  --disp:'Rajdhani', sans-serif;
+  --body:'Inter', sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(ellipse 1200px 800px at 20% -10%, rgba(0,229,255,0.06), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 100% 100%, rgba(51,214,138,0.04), transparent 60%),
+    var(--void);
+  color:var(--text);
+  font-family:var(--body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-track{background:var(--panel);}
+::-webkit-scrollbar-thumb{background:var(--border-lit); border-radius:4px;}
+
+/* ============================= SCANLINE / NOISE AMBIENCE ============================= */
+.scanline-overlay{
+  position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode:overlay;
+}
+
+/* ============================= HUD PANEL FRAME (signature element) ============================= */
+.hud-panel{
+  position:relative;
+  background:linear-gradient(180deg, var(--panel-2), var(--panel));
+  border:1px solid var(--border);
+  border-radius:2px;
+}
+.hud-panel::before, .hud-panel::after,
+.hud-corner-tl, .hud-corner-tr, .hud-corner-bl, .hud-corner-br{
+  content:''; position:absolute; width:14px; height:14px; pointer-events:none; z-index:2;
+}
+.hud-corner-tl{ top:-1px; left:-1px; border-top:2px solid var(--cyan-dim); border-left:2px solid var(--cyan-dim);}
+.hud-corner-tr{ top:-1px; right:-1px; border-top:2px solid var(--cyan-dim); border-right:2px solid var(--cyan-dim);}
+.hud-corner-bl{ bottom:-1px; left:-1px; border-bottom:2px solid var(--cyan-dim); border-left:2px solid var(--cyan-dim);}
+.hud-corner-br{ bottom:-1px; right:-1px; border-bottom:2px solid var(--cyan-dim); border-right:2px solid var(--cyan-dim);}
+
+.panel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; border-bottom:1px solid var(--border);
+  font-family:var(--disp); letter-spacing:0.12em; text-transform:uppercase;
+  font-size:12.5px; font-weight:700; color:var(--text-dim);
+}
+.panel-head .tag{color:var(--cyan); font-size:10px; letter-spacing:0.15em; font-weight:600; opacity:0.8;}
+.panel-body{padding:14px 16px;}
+
+/* ============================= TOP BAR ============================= */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 22px; border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(15,24,34,0.9), rgba(11,18,26,0.9));
+  backdrop-filter:blur(6px);
+  position:sticky; top:0; z-index:100;
+  flex-wrap:wrap; gap:10px;
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-mark{
+  width:38px; height:38px; border-radius:6px;
+  background:conic-gradient(from 220deg, var(--cyan), transparent 60%);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.brand-mark::after{
+  content:''; position:absolute; inset:3px; border-radius:4px; background:var(--void);
+  display:flex;
+}
+.brand-mark svg{position:relative; z-index:1; width:20px; height:20px;}
+.brand-text{font-family:var(--disp); font-weight:700; letter-spacing:0.06em;}
+.brand-text .xo{font-size:19px; color:var(--text);}
+.brand-text .sub{font-size:10px; color:var(--text-dim); letter-spacing:0.2em; text-transform:uppercase; margin-top:-2px;}
+
+.topbar-mid{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+.status-pill{
+  display:flex; align-items:center; gap:7px;
+  padding:6px 12px; border:1px solid var(--border); border-radius:20px;
+  font-family:var(--mono); font-size:11px; color:var(--text-dim);
+  background:var(--panel-2);
+}
+.dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green);}
+.dot.live{animation:pulse-dot 1.6s ease-in-out infinite;}
+.dot.down{background:var(--red); box-shadow:0 0 8px var(--red);}
+@keyframes pulse-dot{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+
+.mode-badge{
+  font-family:var(--disp); font-weight:700; letter-spacing:0.1em; font-size:13px;
+  padding:6px 14px; border-radius:3px; border:1px solid var(--cyan-dim); color:var(--cyan);
+  background:rgba(0,229,255,0.06);
+}
+.clock{font-family:var(--mono); font-size:12.5px; color:var(--text-dim); text-align:right;}
+.clock .t{color:var(--text); font-size:14px; letter-spacing:0.05em;}
+
+/* ============================= LAYOUT ============================= */
+.shell{max-width:1560px; margin:0 auto; padding:18px 22px 60px;}
+.grid{
+  display:grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap:16px;
+  align-items:start;
+}
+@media (max-width:1080px){ .grid{grid-template-columns:1fr;} }
+
+.col{display:flex; flex-direction:column; gap:16px;}
+
+/* ============================= MAP ============================= */
+.map-panel{overflow:hidden;}
+#map{height:520px; width:100%; background:#0a1119;}
+.leaflet-container{font-family:var(--body);}
+.map-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  padding:10px 16px; border-top:1px solid var(--border); background:var(--panel-2);
+}
+.map-hint{font-size:11px; color:var(--text-faint); font-family:var(--mono);}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap;}
+
+.btn{
+  font-family:var(--disp); font-weight:600; letter-spacing:0.06em; font-size:12px; text-transform:uppercase;
+  padding:7px 13px; border-radius:3px; border:1px solid var(--border-lit); background:var(--panel-3);
+  color:var(--text-dim); cursor:pointer; transition:all .15s ease;
+}
+.btn:hover{color:var(--cyan); border-color:var(--cyan-dim); background:rgba(0,229,255,0.06);}
+.btn:active{transform:scale(0.97);}
+.btn.active{color:var(--void); background:var(--cyan); border-color:var(--cyan);}
+.btn.danger:hover{color:var(--red); border-color:var(--red);}
+.btn.small{padding:5px 10px; font-size:10.5px;}
+.btn.ghost{background:transparent;}
+
+/* UAV / waypoint map icons */
+.uav-wrap{position:relative; width:46px; height:46px; display:flex; align-items:center; justify-content:center;}
+.uav-sweep{
+  position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(0,229,255,0.55), transparent 35%);
+  animation:sweep 2.6s linear infinite;
+  filter:blur(0.3px);
+}
+@keyframes sweep{ to{ transform:rotate(360deg); } }
+.uav-ring{position:absolute; inset:8px; border:1px solid rgba(0,229,255,0.4); border-radius:50%;}
+.uav-arrow{position:relative; z-index:2; width:16px; height:16px; transform-origin:center; filter:drop-shadow(0 0 4px rgba(0,229,255,0.9));}
+.wp-icon{
+  width:22px; height:22px; border-radius:50%; background:var(--panel);
+  border:2px solid var(--amber); color:var(--amber); font-family:var(--mono); font-weight:700; font-size:11px;
+  display:flex; align-items:center; justify-content:center;
+}
+.home-icon{
+  width:24px; height:24px; border-radius:4px; background:var(--panel); border:2px solid var(--green);
+  display:flex; align-items:center; justify-content:center; color:var(--green);
+}
+
+/* ============================= TELEMETRY ============================= */
+.tele-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
+.tele-cell{
+  background:var(--panel-3); border:1px solid var(--border); border-radius:3px; padding:10px 12px;
+  display:flex; flex-direction:column; gap:4px; position:relative; overflow:hidden;
+}
+.tele-cell .label{font-family:var(--disp); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); font-weight:600;}
+.tele-cell .value{font-family:var(--mono); font-size:21px; font-weight:700; color:var(--text); line-height:1.1;}
+.tele-cell .unit{font-size:11px; color:var(--text-dim); font-weight:500; margin-left:4px;}
+.tele-cell.warn .value{color:var(--amber);}
+.tele-cell.crit .value{color:var(--red);}
+.tele-cell.good .value{color:var(--green);}
+.tele-cell .bar{margin-top:6px; height:4px; border-radius:2px; background:var(--border); overflow:hidden;}
+.tele-cell .bar > i{display:block; height:100%; background:var(--cyan); border-radius:2px; transition:width .4s ease;}
+.tele-cell.warn .bar > i{background:var(--amber);}
+.tele-cell.crit .bar > i{background:var(--red);}
+
+.sig-bars{display:flex; align-items:flex-end; gap:3px; height:18px; margin-top:2px;}
+.sig-bars i{width:6px; background:var(--border-lit); border-radius:1px;}
+.sig-bars i:nth-child(1){height:25%;} .sig-bars i:nth-child(2){height:50%;}
+.sig-bars i:nth-child(3){height:75%;} .sig-bars i:nth-child(4){height:100%;}
+.sig-bars i.on{background:var(--cyan); box-shadow:0 0 6px rgba(0,229,255,0.5);}
+.sig-bars.weak i.on{background:var(--amber);}
+
+.chart-wrap{padding:12px 16px 6px; border-top:1px solid var(--border);}
+.chart-wrap canvas{max-height:120px;}
+.chart-label{font-family:var(--disp); font-size:10px; letter-spacing:0.1em; color:var(--text-faint); text-transform:uppercase; margin-bottom:6px; font-weight:700;}
+
+/* ============================= MODE CONTROL ============================= */
+.mode-row{display:flex; gap:8px; flex-wrap:wrap;}
+.mode-row .btn{flex:1; min-width:80px;}
+
+/* ============================= ALERTS ============================= */
+.alerts-panel .panel-body{max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-top:10px;}
+.alert-item{
+  display:flex; align-items:flex-start; gap:10px; padding:9px 11px; border-radius:3px;
+  border-left:3px solid var(--border-lit); background:var(--panel-3); font-size:12.5px;
+  animation:slidein .25s ease;
+}
+@keyframes slidein{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);}}
+.alert-item.warn{border-left-color:var(--amber);}
+.alert-item.crit{border-left-color:var(--red); background:rgba(255,69,69,0.06);}
+.alert-item.info{border-left-color:var(--green);}
+.alert-item .a-time{font-family:var(--mono); font-size:10.5px; color:var(--text-faint); min-width:64px;}
+.alert-item .a-msg{color:var(--text-dim);}
+.alert-item.crit .a-msg{color:#ffb8b8;}
+.alert-item.warn .a-msg{color:#ffe0a3;}
+.empty-note{color:var(--text-faint); font-size:12px; font-family:var(--mono); padding:6px 2px;}
+
+/* ============================= MISSION LOG ============================= */
+.log-panel .panel-body{padding:0;}
+.log-list{max-height:260px; overflow-y:auto; font-family:var(--mono); font-size:11.5px;}
+.log-row{display:flex; gap:10px; padding:7px 16px; border-bottom:1px solid rgba(27,41,56,0.6);}
+.log-row:hover{background:rgba(0,229,255,0.03);}
+.log-row .l-time{color:var(--text-faint); min-width:66px;}
+.log-row .l-type{min-width:96px; color:var(--cyan-dim); text-transform:uppercase; font-size:10.5px; font-weight:700; letter-spacing:0.04em;}
+.log-row .l-type.ALERT{color:var(--amber);}
+.log-row .l-type.CRITICAL{color:var(--red);}
+.log-row .l-type.MODE{color:var(--cyan);}
+.log-row .l-type.WAYPOINT{color:var(--green);}
+.log-row .l-msg{color:var(--text-dim);}
+.log-footer{display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-top:1px solid var(--border); background:var(--panel-2);}
+
+/* ============================= MAVLINK CONSOLE ============================= */
+.mav-console{background:#050a0e; font-family:var(--mono); font-size:11px; line-height:1.7; max-height:170px; overflow-y:auto; padding:10px 14px; color:var(--text-dim);}
+.mav-console .mline{white-space:pre-wrap; word-break:break-all;}
+.mav-console .k{color:var(--cyan-dim);}
+.mav-console .mtag{color:var(--green); font-weight:700;}
+.mav-foot{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-top:1px solid var(--border); flex-wrap:wrap; gap:8px;}
+
+footer.foot{text-align:center; color:var(--text-faint); font-family:var(--mono); font-size:11px; padding:26px 0 10px;}
+footer.foot span{color:var(--cyan-dim);}
+</style>
+</head>
+<body>
+<div class="scanline-overlay"></div>
+
+<!-- ============================= TOP BAR ============================= -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L4 14h5l-1 8 9-13h-5l0-7z" fill="#00e5ff"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="xo">XO11 <span style="color:var(--cyan)">GCS</span></div>
+      <div class="sub">Ground Control Station</div>
+    </div>
+  </div>
+
+  <div class="topbar-mid">
+    <div class="status-pill"><span class="dot live" id="linkDot"></span><span id="linkLabel">LINK ACTIVE</span></div>
+    <div class="status-pill"><span id="vehicleId">XO11-ALPHA · MAVLink v2</span></div>
+    <div class="mode-badge" id="modeBadge">MANUAL</div>
+  </div>
+
+  <div class="clock">
+    <div class="t" id="clockTime">00:00:00 UTC</div>
+    <div id="missionElapsed">Mission T+00:00:00</div>
+  </div>
+</div>
+
+<div class="shell">
+<div class="grid">
+
+  <!-- ============================= LEFT COLUMN ============================= -->
+  <div class="col">
+
+    <!-- MODULE 1 — MAP -->
+    <div class="hud-panel map-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Module 01 — Live Map &amp; Mission Route</span><span class="tag">Leaflet.js</span></div>
+      <div id="map"></div>
+      <div class="map-toolbar">
+        <div class="map-hint">Click the map to drop a waypoint · Home = launch point</div>
+        <div class="btnrow">
+          <button class="btn" id="startMissionBtn">▶ Start Mission</button>
+          <button class="btn ghost" id="undoWpBtn">Undo Waypoint</button>
+          <button class="btn ghost danger" id="clearWpBtn">Clear Route</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 4 — MISSION LOG -->
+    <div class="hud-panel log-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Module 04 — Mission Log</span><span class="tag" id="logCount">0 EVENTS</span></div>
+      <div class="log-list" id="logList"></div>
+      <div class="log-footer">
+        <span class="map-hint">Waypoints, mode changes, alerts &amp; link status</span>
+        <div class="btnrow">
+          <button class="btn small" id="exportTxt">Export .TXT</button>
+          <button class="btn small" id="exportCsv">Export .CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 5 — MAVLINK -->
+    <div class="hud-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Module 05 — MAVLink Telemetry Stream</span><span class="tag">pymavlink-compatible</span></div>
+      <div class="mav-console" id="mavConsole"></div>
+      <div class="mav-foot">
+        <span class="map-hint">Simulated HEARTBEAT / GLOBAL_POSITION_INT / SYS_STATUS / GPS_RAW_INT stream</span>
+        <button class="btn small ghost" id="realLinkBtn">Connect Real Vehicle</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================= RIGHT COLUMN ============================= -->
+  <div class="col">
+
+    <!-- MODULE 2 — TELEMETRY -->
+    <div class="hud-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Module 02 — Telemetry</span><span class="tag">Live</span></div>
+      <div class="panel-body">
+        <div class="tele-grid">
+          <div class="tele-cell"><div class="label">Altitude</div><div class="value" id="tAlt">0<span class="unit">m</span></div></div>
+          <div class="tele-cell"><div class="label">Airspeed</div><div class="value" id="tAir">0<span class="unit">km/h</span></div></div>
+          <div class="tele-cell"><div class="label">Ground Speed</div><div class="value" id="tGnd">0<span class="unit">km/h</span></div></div>
+
+          <div class="tele-cell" id="battCell"><div class="label">Battery</div><div class="value" id="tBattPct">100<span class="unit">%</span></div><div class="bar"><i id="battBar" style="width:100%"></i></div></div>
+          <div class="tele-cell"><div class="label">Voltage</div><div class="value" id="tVolt">16.8<span class="unit">V</span></div></div>
+          <div class="tele-cell"><div class="label">Flight Time Left</div><div class="value" id="tFlightTime">24:00</div></div>
+
+          <div class="tele-cell" id="gpsCell"><div class="label">GPS Satellites</div><div class="value" id="tSats">11<span class="unit">locked</span></div></div>
+          <div class="tele-cell" style="grid-column:span 2;"><div class="label">GPS Coordinates</div><div class="value" id="tCoords" style="font-size:14.5px;">--.------, --.------</div></div>
+
+          <div class="tele-cell"><div class="label">Flight Mode</div><div class="value" id="tMode" style="font-size:16px;">MANUAL</div></div>
+          <div class="tele-cell" id="sigCell" style="grid-column:span 2;">
+            <div class="label">Signal Strength</div>
+            <div class="sig-bars" id="sigBars"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-label">Altitude / Battery — Last 60s</div>
+        <canvas id="teleChart" height="60"></canvas>
+      </div>
+    </div>
+
+    <!-- FLIGHT MODE CONTROL -->
+    <div class="hud-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Flight Mode Control</span><span class="tag">Operator Input</span></div>
+      <div class="panel-body">
+        <div class="mode-row">
+          <button class="btn active" data-mode="MANUAL">Manual</button>
+          <button class="btn" data-mode="AUTO">Auto</button>
+          <button class="btn" data-mode="RTH">RTH</button>
+          <button class="btn" data-mode="HOLD">Hold</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 3 — ALERTS -->
+    <div class="hud-panel alerts-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Module 03 — Alert &amp; Safety System</span><span class="tag" id="alertCount">NOMINAL</span></div>
+      <div class="panel-body" id="alertsList">
+        <div class="empty-note">No active alerts. System nominal.</div>
+      </div>
+    </div>
+
+    <!-- DEMO TRIGGERS -->
+    <div class="hud-panel">
+      <div class="hud-corner-tl"></div><div class="hud-corner-tr"></div><div class="hud-corner-bl"></div><div class="hud-corner-br"></div>
+      <div class="panel-head"><span>Demo / Test Triggers</span><span class="tag">For Evaluation</span></div>
+      <div class="panel-body btnrow">
+        <button class="btn small" id="simLowBatt">Simulate Low Battery</button>
+        <button class="btn small" id="simCritBatt">Simulate Critical Battery</button>
+        <button class="btn small" id="simGpsLoss">Simulate GPS Loss</button>
+        <button class="btn small" id="simWeakSig">Simulate Weak Signal</button>
+        <button class="btn small ghost danger" id="simDisconnect">Toggle Link Loss</button>
+        <button class="btn small ghost" id="resetSim">Reset Simulation</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="foot">XO11 UAV Systems &nbsp;·&nbsp; Ground Control Station <span>v0.1</span> &nbsp;·&nbsp; Built for real flight operations</footer>
+</div>
+
+<script>
+/* =====================================================================
+   XO11 GCS — SIMULATION ENGINE
+   All telemetry below is generated locally to demonstrate every module.
+   Module 5 includes an honest hook point for a real pymavlink backend.
+===================================================================== */
+
+/* ---------- STATE ---------- */
+const HOME = { lat: 30.3165, lon: 78.0322 }; // Dehradun, India — launch point
+const state = {
+  pos: { lat: HOME.lat, lon: HOME.lon },
+  heading: 0,
+  altitude: 0,
+  groundspeed: 0,
+  airspeed: 0,
+  battery: 100,
+  satellites: 11,
+  signalBars: 4,
+  linkActive: true,
+  mode: 'MANUAL',
+  waypoints: [],       // {lat, lon, marker}
+  wpIndex: 0,
+  missionRunning: false,
+  startTime: Date.now(),
+  flags: { battLow:false, battCrit:false, gpsLost:false, sigWeak:false },
+  forceUntil: { gps:0, sig:0 },
+};
+
+/* ---------- UTIL ---------- */
+function pad(n){ return n.toString().padStart(2,'0'); }
+function nowStr(){
+  const d = new Date();
+  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+}
+function haversine(a,b){
+  const R=6371000, toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+  const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function bearing(a,b){
+  const toRad=x=>x*Math.PI/180, toDeg=x=>x*180/Math.PI;
+  const y=Math.sin(toRad(b.lon-a.lon))*Math.cos(toRad(b.lat));
+  const x=Math.cos(toRad(a.lat))*Math.sin(toRad(b.lat)) - Math.sin(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.cos(toRad(b.lon-a.lon));
+  return (toDeg(Math.atan2(y,x))+360)%360;
+}
+function moveTowards(target, speedKmh, dt){
+  const dist = haversine(state.pos, target);
+  const brg = bearing(state.pos, target);
+  const stepM = (speedKmh*1000/3600)*dt;
+  if(stepM >= dist){ state.pos = {lat:target.lat, lon:target.lon}; state.heading = brg; return true; }
+  const toRad=x=>x*Math.PI/180, toDeg=x=>x*180/Math.PI, R=6371000;
+  const brgRad = toRad(brg);
+  const lat1=toRad(state.pos.lat), lon1=toRad(state.pos.lon);
+  const lat2=Math.asin(Math.sin(lat1)*Math.cos(stepM/R)+Math.cos(lat1)*Math.sin(stepM/R)*Math.cos(brgRad));
+  const lon2=lon1+Math.atan2(Math.sin(brgRad)*Math.sin(stepM/R)*Math.cos(lat1), Math.cos(stepM/R)-Math.sin(lat1)*Math.sin(lat2));
+  state.pos = {lat:toDeg(lat2), lon:toDeg(lon2)};
+  state.heading = brg;
+  return false;
+}
+function jitter(pos, meters){
+  const dLat = (Math.random()-0.5)*2*(meters/111111);
+  const dLon = (Math.random()-0.5)*2*(meters/(111111*Math.cos(pos.lat*Math.PI/180)));
+  return {lat:pos.lat+dLat, lon:pos.lon+dLon};
+}
+
+/* ---------- LOG & ALERTS ---------- */
+const missionLog = [];
+const activeAlerts = [];
+function addLog(type, msg){
+  missionLog.unshift({time: nowStr(), type, msg});
+  if(missionLog.length>300) missionLog.pop();
+  renderLog();
+}
+function addAlert(sev, msg){
+  const item = {time: nowStr(), sev, msg};
+  activeAlerts.unshift(item);
+  if(activeAlerts.length>25) activeAlerts.pop();
+  addLog(sev==='crit'?'CRITICAL':'ALERT', msg);
+  renderAlerts();
+}
+function renderLog(){
+  const list = document.getElementById('logList');
+  document.getElementById('logCount').textContent = missionLog.length + ' EVENTS';
+  list.innerHTML = missionLog.slice(0,150).map(r=>
+    `<div class="log-row"><span class="l-time">${r.time}</span><span class="l-type ${r.type}">${r.type}</span><span class="l-msg">${r.msg}</span></div>`
+  ).join('');
+}
+function renderAlerts(){
+  const box = document.getElementById('alertsList');
+  document.getElementById('alertCount').textContent = activeAlerts.length ? activeAlerts.length+' LOGGED' : 'NOMINAL';
+  if(!activeAlerts.length){ box.innerHTML = '<div class="empty-note">No active alerts. System nominal.</div>'; return; }
+  box.innerHTML = activeAlerts.slice(0,12).map(a=>
+    `<div class="alert-item ${a.sev}"><span class="a-time">${a.time}</span><span class="a-msg">${a.msg}</span></div>`
+  ).join('');
+}
+
+/* ---------- MAP SETUP (Module 1) ---------- */
+const map = L.map('map', {zoomControl:true, attributionControl:false}).setView([HOME.lat, HOME.lon], 15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom:19, subdomains:'abcd'
+}).addTo(map);
+
+const homeIcon = L.divIcon({className:'', html:`<div class="home-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 11L12 3l9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" fill="none"/></svg></div>`, iconSize:[24,24], iconAnchor:[12,12]});
+L.marker([HOME.lat, HOME.lon], {icon:homeIcon}).addTo(map).bindTooltip('HOME / LAUNCH', {direction:'top'});
+
+const uavIcon = () => L.divIcon({
+  className:'', iconSize:[46,46], iconAnchor:[23,23],
+  html:`<div class="uav-wrap"><div class="uav-sweep"></div><div class="uav-ring"></div>
+        <svg class="uav-arrow" id="uavArrowSvg" style="transform:rotate(${state.heading}deg)" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 21l8-5 8 5-8-19z" fill="#00e5ff"/>
+        </svg></div>`
+});
+const uavMarker = L.marker([HOME.lat, HOME.lon], {icon: uavIcon(), zIndexOffset:1000}).addTo(map);
+
+const trail = L.polyline([], {color:'#00e5ff', weight:2, opacity:0.55}).addTo(map);
+const trailPoints = [];
+
+const routeLine = L.polyline([], {color:'#ffb300', weight:2, dashArray:'6,6', opacity:0.8}).addTo(map);
+
+map.on('click', (e)=>{
+  const wp = {lat:e.latlng.lat, lon:e.latlng.lng};
+  const n = state.waypoints.length + 1;
+  const icon = L.divIcon({className:'', html:`<div class="wp-icon">${n}</div>`, iconSize:[22,22], iconAnchor:[11,11]});
+  const marker = L.marker([wp.lat, wp.lon], {icon}).addTo(map).bindTooltip('Waypoint '+n);
+  state.waypoints.push({...wp, marker});
+  addLog('WAYPOINT', `Waypoint ${n} added at ${wp.lat.toFixed(5)}, ${wp.lon.toFixed(5)}`);
+  redrawRoute();
+});
+function redrawRoute(){
+  const pts = [[HOME.lat,HOME.lon], ...state.waypoints.map(w=>[w.lat,w.lon])];
+  routeLine.setLatLngs(pts);
+}
+document.getElementById('undoWpBtn').onclick = ()=>{
+  const wp = state.waypoints.pop();
+  if(wp){ map.removeLayer(wp.marker); addLog('WAYPOINT','Last waypoint removed'); redrawRoute(); }
+};
+document.getElementById('clearWpBtn').onclick = ()=>{
+  state.waypoints.forEach(w=>map.removeLayer(w.marker));
+  state.waypoints = []; state.wpIndex = 0;
+  addLog('WAYPOINT','Route cleared'); redrawRoute();
+};
+document.getElementById('startMissionBtn').onclick = ()=>{
+  if(!state.waypoints.length){ addLog('MODE','Start Mission pressed with no waypoints set'); return; }
+  state.wpIndex = 0; state.missionRunning = true;
+  setMode('AUTO');
+};
+
+/* ---------- MODE CONTROL ---------- */
+function setMode(mode){
+  state.mode = mode;
+  document.querySelectorAll('.mode-row .btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  document.getElementById('modeBadge').textContent = mode;
+  document.getElementById('tMode').textContent = mode;
+  addLog('MODE', `Flight mode changed to ${mode}`);
+}
+document.querySelectorAll('.mode-row .btn').forEach(b=>{
+  b.onclick = ()=> setMode(b.dataset.mode);
+});
+
+/* ---------- TELEMETRY CHART ---------- */
+const ctx = document.getElementById('teleChart').getContext('2d');
+const teleChart = new Chart(ctx, {
+  type:'line',
+  data:{ labels:[], datasets:[
+    {label:'Altitude (m)', data:[], borderColor:'#00e5ff', backgroundColor:'rgba(0,229,255,0.08)', tension:0.35, pointRadius:0, borderWidth:2, yAxisID:'y'},
+    {label:'Battery (%)', data:[], borderColor:'#33d68a', backgroundColor:'rgba(51,214,138,0.08)', tension:0.35, pointRadius:0, borderWidth:2, yAxisID:'y1'},
+  ]},
+  options:{
+    responsive:true, animation:false,
+    interaction:{intersect:false},
+    plugins:{ legend:{labels:{color:'#7891a6', font:{family:'JetBrains Mono', size:10}, boxWidth:10}} },
+    scales:{
+      x:{ ticks:{display:false}, grid:{color:'rgba(27,41,56,0.5)'} },
+      y:{ position:'left', ticks:{color:'#3d5468', font:{size:9}}, grid:{color:'rgba(27,41,56,0.5)'}, title:{display:false} },
+      y1:{ position:'right', min:0, max:100, ticks:{color:'#3d5468', font:{size:9}}, grid:{display:false} },
+    }
+  }
+});
+function pushChart(alt, batt){
+  const L = teleChart.data.labels;
+  L.push(''); teleChart.data.datasets[0].data.push(alt); teleChart.data.datasets[1].data.push(batt);
+  if(L.length>60){ L.shift(); teleChart.data.datasets[0].data.shift(); teleChart.data.datasets[1].data.shift(); }
+  teleChart.update('none');
+}
+
+/* ---------- MAVLINK CONSOLE (Module 5) ---------- */
+const mavBox = document.getElementById('mavConsole');
+function mavLine(html){
+  const d = document.createElement('div');
+  d.className='mline'; d.innerHTML = html;
+  mavBox.appendChild(d);
+  while(mavBox.children.length>60) mavBox.removeChild(mavBox.firstChild);
+  mavBox.scrollTop = mavBox.scrollHeight;
+}
+document.getElementById('realLinkBtn').onclick = ()=>{
+  addLog('MODE','Real vehicle connect requested — requires the pymavlink backend listener (see README) bridging serial/UDP MAVLink to this dashboard.');
+};
+
+/* ---------- DEMO TRIGGER BUTTONS ---------- */
+document.getElementById('simLowBatt').onclick = ()=>{ state.battery = 24; };
+document.getElementById('simCritBatt').onclick = ()=>{ state.battery = 14; };
+document.getElementById('simGpsLoss').onclick = ()=>{ state.forceUntil.gps = Date.now()+8000; };
+document.getElementById('simWeakSig').onclick = ()=>{ state.forceUntil.sig = Date.now()+8000; };
+document.getElementById('simDisconnect').onclick = ()=>{
+  state.linkActive = !state.linkActive;
+  document.getElementById('linkDot').classList.toggle('down', !state.linkActive);
+  document.getElementById('linkDot').classList.toggle('live', state.linkActive);
+  document.getElementById('linkLabel').textContent = state.linkActive ? 'LINK ACTIVE' : 'LINK LOST';
+  addAlert(state.linkActive ? 'info' : 'crit', state.linkActive ? 'Telemetry link restored' : 'Telemetry link lost — connection to vehicle interrupted');
+};
+document.getElementById('resetSim').onclick = ()=>{
+  state.battery=100; state.altitude=0; state.satellites=11; state.signalBars=4;
+  state.pos={...HOME}; state.flags={battLow:false,battCrit:false,gpsLost:false,sigWeak:false};
+  state.mode='MANUAL'; state.missionRunning=false;
+  trailPoints.length=0; trail.setLatLngs([]);
+  setMode('MANUAL');
+  addLog('MODE','Simulation reset to launch conditions');
+};
+
+/* ---------- EXPORT (Module 4) ---------- */
+function download(filename, content, mime){
+  const blob = new Blob([content], {type:mime});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById('exportTxt').onclick = ()=>{
+  const txt = missionLog.slice().reverse().map(r=>`[${r.time}] ${r.type}: ${r.msg}`).join('\n');
+  download('xo11_mission_log.txt', txt, 'text/plain');
+};
+document.getElementById('exportCsv').onclick = ()=>{
+  const rows = ['timestamp,type,message', ...missionLog.slice().reverse().map(r=>`${r.time},${r.type},"${r.msg.replace(/"/g,'""')}"`)];
+  download('xo11_mission_log.csv', rows.join('\n'), 'text/csv');
+};
+
+/* ---------- MAIN SIMULATION TICK ---------- */
+addLog('MODE', 'Ground Control Station initialized. System nominal.');
+addLog('MODE', 'Link established with XO11-ALPHA (simulated telemetry).');
+
+function tick(){
+  const dt = 1; // seconds
+
+  // -------- POSITION / MODE LOGIC --------
+  const prevPos = {...state.pos};
+  if(state.mode==='AUTO' && state.waypoints.length){
+    const target = state.waypoints[state.wpIndex];
+    const arrived = moveTowards(target, 34, dt);
+    state.altitude += (Math.random()-0.42)*1.4;
+    if(arrived){
+      addLog('WAYPOINT', `Waypoint ${state.wpIndex+1} reached`);
+      state.wpIndex++;
+      if(state.wpIndex >= state.waypoints.length){
+        addLog('MODE','Mission route complete — holding position');
+        state.missionRunning = false;
+        setMode('HOLD');
+      }
+    }
+  } else if(state.mode==='RTH'){
+    const arrived = moveTowards(HOME, 40, dt);
+    state.altitude = Math.max(20, state.altitude - 0.6);
+    if(arrived){ addLog('MODE','Reached home position'); setMode('HOLD'); }
+  } else if(state.mode==='HOLD'){
+    state.pos = jitter(state.pos, 0.6);
+    state.altitude += (Math.random()-0.5)*0.4;
+  } else { // MANUAL
+    state.pos = jitter(state.pos, 2.2);
+    state.altitude += (Math.random()-0.48)*1.2;
+  }
+  state.altitude = Math.max(0, Math.min(160, state.altitude));
+
+  const movedM = haversine(prevPos, state.pos);
+  state.groundspeed = state.linkActive ? (movedM/dt)*3.6 : state.groundspeed*0.6;
+  state.airspeed = state.groundspeed + 1.5 + Math.random()*2.5;
+
+  // -------- BATTERY --------
+  if(state.linkActive){
+    const drain = state.mode==='AUTO' ? 0.09 : state.mode==='RTH' ? 0.1 : 0.045;
+    state.battery = Math.max(0, state.battery - drain);
+  }
+  const voltage = 13.2 + (state.battery/100)*(16.8-13.2);
+  const enduranceMin = 24;
+  const remainMin = (state.battery/100)*enduranceMin;
+
+  // -------- GPS / SIGNAL (with forced demo windows) --------
+  const forcingGps = Date.now() < state.forceUntil.gps;
+  const forcingSig = Date.now() < state.forceUntil.sig;
+  state.satellites = forcingGps ? Math.max(0, Math.round(2+Math.random()*2)) : Math.max(4, Math.min(14, Math.round(state.satellites + (Math.random()-0.5)*2)));
+  state.signalBars = forcingSig ? 1 : (state.linkActive ? Math.max(2, Math.min(4, Math.round(3 + (Math.random()-0.5)*1.4))) : 0);
+
+  // -------- ALERT CHECKS --------
+  if(state.battery < 15 && !state.flags.battCrit){ state.flags.battCrit=true; state.flags.battLow=true; addAlert('crit', `BATTERY CRITICAL — ${state.battery.toFixed(0)}% remaining. Land immediately.`); }
+  else if(state.battery < 25 && !state.flags.battLow){ state.flags.battLow=true; addAlert('warn', `Battery LOW — ${state.battery.toFixed(0)}% remaining.`); }
+  else if(state.battery >= 25){ state.flags.battLow=false; state.flags.battCrit=false; }
+
+  if(state.satellites < 6 && !state.flags.gpsLost){ state.flags.gpsLost=true; addAlert('crit', `GPS LOST — only ${state.satellites} satellites locked.`); }
+  else if(state.satellites >= 6 && state.flags.gpsLost){ state.flags.gpsLost=false; addAlert('info', 'GPS lock restored.'); }
+
+  if(state.signalBars <= 1 && !state.flags.sigWeak){ state.flags.sigWeak=true; addAlert('warn', 'Signal WEAK — link quality degraded.'); }
+  else if(state.signalBars > 1 && state.flags.sigWeak){ state.flags.sigWeak=false; addAlert('info', 'Signal strength restored.'); }
+
+  // -------- RENDER: MAP --------
+  uavMarker.setLatLng([state.pos.lat, state.pos.lon]);
+  uavMarker.setIcon(uavIcon());
+  trailPoints.push([state.pos.lat, state.pos.lon]);
+  if(trailPoints.length>400) trailPoints.shift();
+  trail.setLatLngs(trailPoints);
+
+  // -------- RENDER: TELEMETRY --------
+  document.getElementById('tAlt').innerHTML = state.altitude.toFixed(0)+'<span class="unit">m</span>';
+  document.getElementById('tAir').innerHTML = state.airspeed.toFixed(1)+'<span class="unit">km/h</span>';
+  document.getElementById('tGnd').innerHTML = state.groundspeed.toFixed(1)+'<span class="unit">km/h</span>';
+  document.getElementById('tVolt').innerHTML = voltage.toFixed(1)+'<span class="unit">V</span>';
+  document.getElementById('tFlightTime').textContent = `${pad(Math.floor(remainMin))}:${pad(Math.floor((remainMin%1)*60))}`;
+  document.getElementById('tCoords').textContent = `${state.pos.lat.toFixed(6)}, ${state.pos.lon.toFixed(6)}`;
+
+  const battPctEl = document.getElementById('tBattPct');
+  battPctEl.innerHTML = state.battery.toFixed(0)+'<span class="unit">%</span>';
+  document.getElementById('battBar').style.width = state.battery+'%';
+  const battCell = document.getElementById('battCell');
+  battCell.classList.toggle('crit', state.battery<15);
+  battCell.classList.toggle('warn', state.battery>=15 && state.battery<25);
+
+  const satsEl = document.getElementById('tSats');
+  satsEl.innerHTML = state.satellites+'<span class="unit">locked</span>';
+  document.getElementById('gpsCell').classList.toggle('crit', state.satellites<6);
+
+  const bars = document.querySelectorAll('#sigBars i');
+  bars.forEach((b,i)=> b.classList.toggle('on', i < state.signalBars));
+  document.getElementById('sigBars').classList.toggle('weak', state.signalBars<=1);
+
+  pushChart(state.altitude, state.battery);
+
+  // -------- RENDER: CLOCK --------
+  document.getElementById('clockTime').textContent = nowStr()+' UTC';
+  const el = Math.floor((Date.now()-state.startTime)/1000);
+  document.getElementById('missionElapsed').textContent = `Mission T+${pad(Math.floor(el/3600))}:${pad(Math.floor(el/60)%60)}:${pad(el%60)}`;
+
+  // -------- MAVLINK SIM MESSAGES --------
+  mavLine(`<span class="mtag">HEARTBEAT</span>  <span class="k">type</span>=QUADROTOR <span class="k">autopilot</span>=ARDUPILOTMEGA <span class="k">base_mode</span>=${state.linkActive?89:0} <span class="k">system_status</span>=${state.linkActive?'ACTIVE':'EMERGENCY'}`);
+  mavLine(`<span class="mtag">GLOBAL_POSITION_INT</span>  <span class="k">lat</span>=${Math.round(state.pos.lat*1e7)} <span class="k">lon</span>=${Math.round(state.pos.lon*1e7)} <span class="k">relative_alt</span>=${Math.round(state.altitude*1000)} <span class="k">hdg</span>=${Math.round(state.heading*100)}`);
+  mavLine(`<span class="mtag">SYS_STATUS</span>  <span class="k">voltage_battery</span>=${Math.round(voltage*1000)} <span class="k">battery_remaining</span>=${Math.round(state.battery)}`);
+  mavLine(`<span class="mtag">GPS_RAW_INT</span>  <span class="k">fix_type</span>=${state.satellites>=6?3:0} <span class="k">satellites_visible</span>=${state.satellites}`);
+}
+
+setInterval(tick, 1000);
+tick();
+</script>
+</body>
+</html>
