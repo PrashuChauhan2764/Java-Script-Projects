@@ -13,3 +13,10 @@
 12. 4 options created for 4 countries
 13. added image cspd to each currency demo
 14. make both to & from same with selected choice in option for INR
+
+
+# update on 8aug2026
+- new upgrade by codex
+- indian nuber system
+- all files in one file index.html
+- previous code lies in git commits
