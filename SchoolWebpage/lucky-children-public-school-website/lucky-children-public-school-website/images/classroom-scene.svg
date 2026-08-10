@@ -1,0 +1,56 @@
+<svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of a classroom with students and a teacher at the board">
+  <rect width="600" height="460" fill="#FBF7EE"/>
+  <rect x="0" y="0" width="600" height="230" fill="#F6EFE0"/>
+  <!-- blackboard -->
+  <rect x="60" y="46" width="300" height="140" rx="8" fill="#14335B"/>
+  <rect x="60" y="46" width="300" height="140" rx="8" fill="none" stroke="#8A5A34" stroke-width="10"/>
+  <g stroke="#FBF7EE" stroke-width="3" stroke-linecap="round" opacity=".85">
+    <line x1="90" y1="80" x2="220" y2="80"/>
+    <line x1="90" y1="106" x2="260" y2="106"/>
+    <line x1="90" y1="132" x2="190" y2="132"/>
+    <path d="M90 158 L120 150 L150 162 L180 148 L210 160" fill="none"/>
+  </g>
+  <!-- clock -->
+  <circle cx="430" cy="86" r="26" fill="#FBF7EE" stroke="#14335B" stroke-width="4"/>
+  <line x1="430" y1="86" x2="430" y2="70" stroke="#14335B" stroke-width="3"/>
+  <line x1="430" y1="86" x2="442" y2="90" stroke="#14335B" stroke-width="3"/>
+
+  <!-- floor -->
+  <rect x="0" y="230" width="600" height="230" fill="#EFE4CC"/>
+
+  <!-- desks with students (simple rows) -->
+  <g>
+    <!-- desk 1 -->
+    <rect x="90" y="300" width="110" height="14" rx="4" fill="#8A5A34"/>
+    <rect x="98" y="314" width="8" height="40" fill="#6E4527"/>
+    <rect x="184" y="314" width="8" height="40" fill="#6E4527"/>
+    <circle cx="120" cy="272" r="17" fill="#E8B98A"/>
+    <path d="M100 288 Q120 302 140 288 L140 300 Q120 310 100 300 Z" fill="#F0A63A"/>
+    <circle cx="168" cy="276" r="16" fill="#C88A5A"/>
+    <path d="M150 292 Q168 305 186 292 L186 304 Q168 313 150 304 Z" fill="#3F7D46"/>
+
+    <!-- desk 2 -->
+    <rect x="250" y="300" width="110" height="14" rx="4" fill="#8A5A34"/>
+    <rect x="258" y="314" width="8" height="40" fill="#6E4527"/>
+    <rect x="344" y="314" width="8" height="40" fill="#6E4527"/>
+    <circle cx="280" cy="274" r="16" fill="#E8B98A"/>
+    <path d="M262 290 Q280 303 298 290 L298 302 Q280 311 262 302 Z" fill="#1F4C85"/>
+    <circle cx="328" cy="270" r="17" fill="#C88A5A"/>
+    <path d="M308 286 Q328 300 348 286 L348 298 Q328 308 308 298 Z" fill="#D98A1F"/>
+
+    <!-- desk 3 -->
+    <rect x="410" y="300" width="110" height="14" rx="4" fill="#8A5A34"/>
+    <rect x="418" y="314" width="8" height="40" fill="#6E4527"/>
+    <rect x="504" y="314" width="8" height="40" fill="#6E4527"/>
+    <circle cx="440" cy="272" r="17" fill="#C88A5A"/>
+    <path d="M420 288 Q440 302 460 288 L460 300 Q440 310 420 300 Z" fill="#3F7D46"/>
+    <circle cx="488" cy="276" r="16" fill="#E8B98A"/>
+    <path d="M470 292 Q488 305 506 292 L506 304 Q488 313 470 304 Z" fill="#F0A63A"/>
+  </g>
+
+  <!-- teacher -->
+  <g>
+    <circle cx="470" cy="150" r="18" fill="#C88A5A"/>
+    <path d="M446 168 Q470 188 494 168 L494 214 Q470 224 446 214 Z" fill="#14335B"/>
+  </g>
+</svg>

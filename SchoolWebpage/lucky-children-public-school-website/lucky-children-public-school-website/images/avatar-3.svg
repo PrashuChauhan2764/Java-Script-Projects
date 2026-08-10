@@ -1,0 +1,6 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Staff portrait illustration">
+  <rect width="200" height="200" fill="#FCE0D8"/>
+  <ellipse cx="100" cy="240" rx="80" ry="70" fill="#C0392B"/>
+  <ellipse cx="100" cy="112" rx="45" ry="51" fill="#E8B98A"/>
+  <path d="M55 104 Q90 72 100 78 Q110 72 145 104 Q140 62 100 60 Q60 62 55 104 Z" fill="#4A3220"/>
+</svg>

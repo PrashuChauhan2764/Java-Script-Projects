@@ -1,0 +1,48 @@
+<svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of children playing in the school playground">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#BFE0F5"/>
+      <stop offset="100%" stop-color="#FBF7EE"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="460" fill="url(#sky2)"/>
+  <circle cx="90" cy="80" r="34" fill="#F0A63A"/>
+  <ellipse cx="300" cy="440" rx="300" ry="30" fill="#B7DDB4"/>
+  <rect x="0" y="300" width="600" height="160" fill="#DCEEDC"/>
+
+  <!-- swing set -->
+  <g stroke="#14335B" stroke-width="6" stroke-linecap="round">
+    <line x1="120" y1="200" x2="90" y2="320"/>
+    <line x1="260" y1="200" x2="290" y2="320"/>
+    <line x1="120" y1="200" x2="260" y2="200"/>
+  </g>
+  <line x1="150" y1="200" x2="150" y2="290" stroke="#D98A1F" stroke-width="3"/>
+  <line x1="175" y1="200" x2="175" y2="290" stroke="#D98A1F" stroke-width="3"/>
+  <rect x="140" y="288" width="45" height="10" rx="4" fill="#3F7D46"/>
+  <!-- child on swing -->
+  <circle cx="162" cy="270" r="14" fill="#E8B98A"/>
+  <path d="M148 284 Q162 296 176 284 L176 306 Q162 314 148 306 Z" fill="#F0A63A"/>
+
+  <!-- slide -->
+  <polygon points="400,180 470,180 420,320 380,320" fill="#3F7D46"/>
+  <polygon points="405,185 462,185 418,310 392,310" fill="#4C9153"/>
+  <rect x="385" y="150" width="8" height="70" fill="#8A5A34"/>
+  <rect x="440" y="150" width="8" height="34" fill="#8A5A34"/>
+  <!-- child sliding -->
+  <circle cx="430" cy="230" r="14" fill="#C88A5A"/>
+  <path d="M416 244 Q430 256 444 244 L444 262 Q430 270 416 262 Z" fill="#1F4C85"/>
+
+  <!-- kids playing ball -->
+  <circle cx="230" cy="360" r="13" fill="#E8B98A"/>
+  <path d="M215 374 Q230 386 245 374 L245 396 Q230 404 215 396 Z" fill="#D98A1F"/>
+  <rect x="219" y="394" width="8" height="24" fill="#14335B"/>
+  <rect x="233" y="394" width="8" height="24" fill="#14335B"/>
+
+  <circle cx="320" cy="366" r="12" fill="#C88A5A"/>
+  <path d="M307 378 Q320 389 333 378 L333 398 Q320 406 307 398 Z" fill="#3F7D46"/>
+  <rect x="311" y="396" width="7" height="22" fill="#14335B"/>
+  <rect x="324" y="396" width="7" height="22" fill="#14335B"/>
+
+  <circle cx="272" cy="392" r="12" fill="#F0A63A" stroke="#14335B" stroke-width="2"/>
+  <path d="M272 380 L272 404 M260 392 L284 392" stroke="#14335B" stroke-width="1.5"/>
+</svg>

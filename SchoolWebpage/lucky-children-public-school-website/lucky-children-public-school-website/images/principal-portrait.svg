@@ -1,0 +1,39 @@
+<svg viewBox="0 0 400 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portrait illustration of Principal Mr. Pradeep Chauhan">
+  <defs>
+    <linearGradient id="pbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1F4C85"/>
+      <stop offset="100%" stop-color="#0D2444"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="460" fill="url(#pbg)"/>
+  <circle cx="330" cy="60" r="70" fill="#F0A63A" opacity=".12"/>
+  <circle cx="60" cy="420" r="90" fill="#F0A63A" opacity=".08"/>
+
+  <!-- shoulders / blazer -->
+  <path d="M90 460 Q90 360 200 350 Q310 360 310 460 Z" fill="#14335B"/>
+  <path d="M150 380 L200 420 L250 380 L250 460 L150 460 Z" fill="#FBF7EE"/>
+  <polygon points="196,382 200,420 178,392" fill="#C0392B"/>
+  <polygon points="204,382 200,420 222,392" fill="#8E2A20"/>
+
+  <!-- neck -->
+  <rect x="182" y="290" width="36" height="46" fill="#C88A5A"/>
+
+  <!-- head -->
+  <ellipse cx="200" cy="248" rx="58" ry="66" fill="#D89A68"/>
+  <!-- hair -->
+  <path d="M144 226 Q140 168 200 160 Q260 168 256 226 Q250 196 200 196 Q150 196 144 226 Z" fill="#2A2A2A"/>
+  <!-- moustache -->
+  <path d="M172 270 Q200 282 228 270 Q212 278 200 276 Q188 278 172 270 Z" fill="#2A2A2A"/>
+  <!-- glasses -->
+  <g fill="none" stroke="#14335B" stroke-width="3">
+    <rect x="160" y="236" width="34" height="24" rx="6"/>
+    <rect x="206" y="236" width="34" height="24" rx="6"/>
+    <line x1="194" y1="246" x2="206" y2="246"/>
+  </g>
+  <circle cx="177" cy="248" r="2" fill="#14335B"/>
+  <circle cx="223" cy="248" r="2" fill="#14335B"/>
+
+  <!-- eyebrows -->
+  <path d="M164 230 Q177 224 190 230" stroke="#2A2A2A" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M210 230 Q223 224 236 230" stroke="#2A2A2A" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

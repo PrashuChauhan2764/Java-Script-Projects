@@ -1,0 +1,45 @@
+<svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of the annual day cultural performance on stage">
+  <rect width="600" height="460" fill="#0D2444"/>
+  <!-- stage -->
+  <rect x="40" y="300" width="520" height="26" fill="#1F4C85"/>
+  <rect x="40" y="326" width="520" height="60" fill="#14335B"/>
+  <!-- curtain -->
+  <path d="M0 0 Q40 200 0 400 L0 0 Z" fill="#C0392B" opacity=".85"/>
+  <path d="M600 0 Q560 200 600 400 L600 0 Z" fill="#C0392B" opacity=".85"/>
+  <g fill="#F0A63A">
+    <circle cx="30" cy="60" r="14" opacity=".6"/>
+    <circle cx="570" cy="90" r="14" opacity=".6"/>
+  </g>
+  <!-- spotlight -->
+  <polygon points="300,20 220,300 380,300" fill="#F0A63A" opacity=".14"/>
+
+  <!-- performers -->
+  <g>
+    <circle cx="250" cy="250" r="15" fill="#E8B98A"/>
+    <path d="M232 266 Q250 280 268 266 L262 306 Q250 314 238 306 Z" fill="#F0A63A"/>
+    <line x1="238" y1="272" x2="216" y2="256" stroke="#E8B98A" stroke-width="6" stroke-linecap="round"/>
+    <line x1="262" y1="272" x2="284" y2="256" stroke="#E8B98A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="310" cy="240" r="16" fill="#C88A5A"/>
+    <path d="M290 258 Q310 274 330 258 L323 302 Q310 310 297 302 Z" fill="#C0392B"/>
+    <line x1="296" y1="264" x2="272" y2="244" stroke="#C88A5A" stroke-width="6" stroke-linecap="round"/>
+    <line x1="324" y1="264" x2="348" y2="244" stroke="#C88A5A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="370" cy="250" r="15" fill="#E8B98A"/>
+    <path d="M352 266 Q370 280 388 266 L382 306 Q370 314 358 306 Z" fill="#3F7D46"/>
+    <line x1="358" y1="272" x2="336" y2="256" stroke="#E8B98A" stroke-width="6" stroke-linecap="round"/>
+    <line x1="382" y1="272" x2="404" y2="256" stroke="#E8B98A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- audience silhouettes -->
+  <g fill="#0D2444" stroke="#1F4C85" stroke-width="2">
+    <circle cx="90" cy="400" r="12"/><circle cx="130" cy="404" r="12"/><circle cx="170" cy="400" r="12"/>
+    <circle cx="430" cy="404" r="12"/><circle cx="470" cy="400" r="12"/><circle cx="510" cy="404" r="12"/>
+  </g>
+
+  <!-- banner text shape -->
+  <rect x="180" y="30" width="240" height="34" rx="6" fill="#F0A63A"/>
+  <text x="300" y="53" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#0D2444" font-weight="bold">Annual Day</text>
+</svg>

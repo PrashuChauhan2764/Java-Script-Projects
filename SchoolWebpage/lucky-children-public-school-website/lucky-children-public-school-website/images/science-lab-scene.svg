@@ -1,0 +1,35 @@
+<svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of the science laboratory with beakers and a student">
+  <rect width="600" height="460" fill="#FBF7EE"/>
+  <rect x="0" y="290" width="600" height="170" fill="#EFE4CC"/>
+  <!-- lab bench -->
+  <rect x="70" y="290" width="460" height="26" fill="#1F4C85"/>
+  <rect x="70" y="316" width="460" height="80" fill="#14335B"/>
+  <!-- beakers and flasks -->
+  <g>
+    <path d="M140 200 L140 240 L120 280 L180 280 L160 240 L160 200 Z" fill="none" stroke="#14335B" stroke-width="4"/>
+    <path d="M126 260 L174 260 L180 280 L120 280 Z" fill="#3F7D46" opacity=".8"/>
+    <rect x="132" y="192" width="16" height="10" fill="#14335B"/>
+
+    <rect x="230" y="220" width="40" height="60" rx="4" fill="none" stroke="#14335B" stroke-width="4"/>
+    <rect x="230" y="248" width="40" height="32" fill="#F0A63A" opacity=".85"/>
+    <rect x="238" y="208" width="24" height="14" fill="#14335B"/>
+
+    <path d="M330 210 Q330 190 350 190 Q370 190 370 210 L378 280 L322 280 Z" fill="none" stroke="#14335B" stroke-width="4"/>
+    <path d="M326 250 L374 250 L378 280 L322 280 Z" fill="#C0392B" opacity=".8"/>
+
+    <ellipse cx="450" cy="270" rx="40" ry="14" fill="none" stroke="#14335B" stroke-width="4"/>
+    <rect x="410" y="200" width="80" height="70" rx="8" fill="none" stroke="#14335B" stroke-width="4"/>
+    <rect x="414" y="234" width="72" height="34" fill="#1F4C85" opacity=".7"/>
+  </g>
+
+  <!-- bubbles -->
+  <g fill="#3F7D46" opacity=".5">
+    <circle cx="145" cy="230" r="3"/><circle cx="155" cy="220" r="2"/>
+    <circle cx="450" cy="220" r="3"/><circle cx="460" cy="210" r="2"/>
+  </g>
+
+  <!-- student -->
+  <circle cx="540" cy="330" r="17" fill="#C88A5A"/>
+  <path d="M518 348 Q540 362 562 348 L562 386 Q540 396 518 386 Z" fill="#FBF7EE" stroke="#14335B" stroke-width="2"/>
+  <circle cx="540" cy="320" r="8" fill="none" stroke="#14335B" stroke-width="2" opacity=".3"/>
+</svg>

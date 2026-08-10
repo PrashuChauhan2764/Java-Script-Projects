@@ -1,0 +1,40 @@
+<svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of the computer lab with students at desktop computers">
+  <rect width="600" height="460" fill="#FBF7EE"/>
+  <rect x="0" y="320" width="600" height="140" fill="#EFE4CC"/>
+  <g>
+    <!-- row of 3 computer desks -->
+    <g>
+      <rect x="80" y="300" width="130" height="16" rx="4" fill="#8A5A34"/>
+      <rect x="120" y="230" width="60" height="46" rx="4" fill="#14335B"/>
+      <rect x="126" y="236" width="48" height="32" fill="#1F4C85"/>
+      <rect x="146" y="276" width="8" height="14" fill="#14335B"/>
+      <rect x="128" y="290" width="44" height="8" rx="2" fill="#14335B"/>
+      <circle cx="145" cy="330" r="15" fill="#E8B98A"/>
+      <path d="M128 344 Q145 356 162 344 L162 316 Q145 306 128 316 Z" fill="#F0A63A"/>
+    </g>
+    <g>
+      <rect x="235" y="300" width="130" height="16" rx="4" fill="#8A5A34"/>
+      <rect x="275" y="230" width="60" height="46" rx="4" fill="#14335B"/>
+      <rect x="281" y="236" width="48" height="32" fill="#3F7D46"/>
+      <rect x="301" y="276" width="8" height="14" fill="#14335B"/>
+      <rect x="283" y="290" width="44" height="8" rx="2" fill="#14335B"/>
+      <circle cx="300" cy="330" r="15" fill="#C88A5A"/>
+      <path d="M283 344 Q300 356 317 344 L317 316 Q300 306 283 316 Z" fill="#1F4C85"/>
+    </g>
+    <g>
+      <rect x="390" y="300" width="130" height="16" rx="4" fill="#8A5A34"/>
+      <rect x="430" y="230" width="60" height="46" rx="4" fill="#14335B"/>
+      <rect x="436" y="236" width="48" height="32" fill="#D98A1F"/>
+      <rect x="456" y="276" width="8" height="14" fill="#14335B"/>
+      <rect x="438" y="290" width="44" height="8" rx="2" fill="#14335B"/>
+      <circle cx="455" cy="330" r="15" fill="#E8B98A"/>
+      <path d="M438 344 Q455 356 472 344 L472 316 Q455 306 438 316 Z" fill="#3F7D46"/>
+    </g>
+  </g>
+  <!-- ceiling lights -->
+  <g fill="#F0A63A" opacity=".5">
+    <rect x="120" y="40" width="60" height="8" rx="4"/>
+    <rect x="270" y="40" width="60" height="8" rx="4"/>
+    <rect x="420" y="40" width="60" height="8" rx="4"/>
+  </g>
+</svg>
