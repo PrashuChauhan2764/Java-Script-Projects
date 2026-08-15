@@ -6,30 +6,62 @@
 <title>Hisab — Renovation Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.16.0/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.16.0/firebase-firestore-compat.min.js"></script>
 <style>
 :root{
-  --navy:#152442;
-  --navy-2:#1e3358;
-  --navy-3:#0e1a30;
-  --paper:#f6f2e8;
-  --paper-2:#efe9db;
-  --amber:#e2a13b;
-  --amber-dk:#b97e23;
-  --rust:#c1442d;
-  --teal:#3e8e8a;
-  --plum:#5b4b8a;
-  --olive:#7a8450;
-  --gold:#c9a227;
-  --grey:#8a8577;
-  --ink:#1f2430;
-  --muted:#7c7869;
-  --line:#ddd5c1;
-  --good:#3e7d5c;
+  --navy:#152442; --navy-2:#1e3358; --navy-3:#0e1a30;
+  --paper:#f6f2e8; --paper-2:#efe9db;
+  --amber:#e2a13b; --amber-dk:#b97e23;
+  --rust:#c1442d; --teal:#3e8e8a; --plum:#5b4b8a; --olive:#7a8450; --gold:#c9a227; --grey:#8a8577;
+  --ink:#1f2430; --muted:#7c7869; --line:#ddd5c1; --good:#3e7d5c;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink); min-height:100vh;}
 .app{max-width:560px; margin:0 auto; background:var(--paper); min-height:100vh; position:relative; box-shadow:0 0 60px rgba(0,0,0,0.5); padding-bottom:100px;}
+
+/* ---------- NAME GATE ---------- */
+.gate-overlay{
+  position:fixed; inset:0; background:var(--navy-3); z-index:200;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.gate-card{
+  background:var(--paper); border-radius:18px; max-width:400px; width:100%;
+  padding:32px 26px; text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.gate-card .stamp{
+  width:56px;height:56px; margin:0 auto 16px; border-radius:50%;
+  background:repeating-linear-gradient(135deg,var(--amber) 0 8px, var(--amber-dk) 8px 16px);
+  display:flex; align-items:center; justify-content:center;
+}
+.gate-card .stamp svg{width:26px;height:26px; stroke:var(--navy-3);}
+.gate-card h1{font-family:'Oswald',sans-serif; font-size:24px; letter-spacing:1px; color:var(--navy); margin:0 0 6px; text-transform:uppercase;}
+.gate-card p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
+.gate-card input{
+  width:100%; padding:14px 16px; border-radius:10px; border:2px solid var(--line);
+  font-size:16px; font-family:'Inter',sans-serif; outline:none; text-align:center; margin-bottom:14px;
+}
+.gate-card input:focus{border-color:var(--amber-dk);}
+.gate-card button{
+  width:100%; padding:14px; border:none; border-radius:12px; background:var(--navy); color:var(--paper);
+  font-family:'Oswald',sans-serif; font-size:14px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer;
+}
+.gate-card .status{
+  margin-top:14px; font-size:11.5px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.gate-card .status svg{width:12px;height:12px;}
+.gate-error{color:var(--rust); font-size:12px; margin-top:-8px; margin-bottom:12px; min-height:14px;}
+
+/* ---------- SETUP NEEDED SCREEN ---------- */
+.setup-screen{position:fixed; inset:0; background:var(--navy-3); z-index:300; overflow-y:auto; padding:30px 20px; display:none;}
+.setup-screen.show{display:block;}
+.setup-box{max-width:520px; margin:0 auto; background:var(--paper); border-radius:16px; padding:28px 26px; color:var(--ink);}
+.setup-box h1{font-family:'Oswald',sans-serif; color:var(--navy); font-size:22px; letter-spacing:0.5px; margin-top:0;}
+.setup-box ol{padding-left:20px; font-size:14px; line-height:1.7;}
+.setup-box code{background:var(--paper-2); padding:2px 6px; border-radius:5px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
+.setup-box pre{background:var(--navy-3); color:#d7e0f0; padding:14px; border-radius:10px; overflow-x:auto; font-size:12px; font-family:'IBM Plex Mono',monospace; line-height:1.6;}
 
 /* ---------- HEADER ---------- */
 .header{background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%); padding:22px 20px 0; color:var(--paper); position:relative; overflow:hidden;}
@@ -40,13 +72,12 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .brand .tag{font-size:11px; letter-spacing:1.5px; color:#a9b6cf; text-transform:uppercase; margin-top:2px;}
 .head-btns{display:flex; gap:8px;}
 .menu-btn{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--paper); width:38px;height:38px; display:flex;align-items:center;justify-content:center; cursor:pointer;}
-.shared-pill{
-  margin-top:12px; display:flex; align-items:center; gap:6px;
-  background:rgba(226,161,59,0.12); border:1px solid rgba(226,161,59,0.35);
-  color:var(--amber); font-size:11px; font-weight:600; letter-spacing:0.4px;
-  padding:6px 10px; border-radius:20px; width:fit-content;
-}
+.shared-pill{margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:6px; background:rgba(226,161,59,0.12); border:1px solid rgba(226,161,59,0.35); color:var(--amber); font-size:11px; font-weight:600; letter-spacing:0.4px; padding:6px 10px; border-radius:20px; width:fit-content;}
 .shared-pill svg{width:13px;height:13px;}
+.live-dot{width:7px;height:7px; border-radius:50%; background:var(--good); display:inline-block; margin-right:5px; box-shadow:0 0 0 rgba(62,125,92,0.5); animation:pulse 2s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,125,92,0.5);} 70%{box-shadow:0 0 0 6px rgba(62,125,92,0);} 100%{box-shadow:0 0 0 0 rgba(62,125,92,0);}}
+.you-pill{margin-top:8px; font-size:11px; color:#9fb0cf;}
+.you-pill b{color:var(--amber);}
 
 .tape{margin-top:14px; background:repeating-linear-gradient(135deg,var(--amber) 0 10px, var(--amber-dk) 10px 20px); border-radius:14px 14px 0 0; padding:3px;}
 .tape-inner{background:var(--navy-3); border-radius:11px 11px 0 0; padding:20px 18px 16px; text-align:center;}
@@ -63,20 +94,18 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .cat-chip svg{width:14px;height:14px;flex:none;}
 .cat-chip .amt{font-family:'IBM Plex Mono',monospace; opacity:0.85;}
 
-/* ---------- SEARCH ---------- */
 .search-bar{padding:14px 20px 6px; display:flex; gap:8px;}
 .search-bar input{flex:1; padding:11px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none;}
 .search-bar input:focus{border-color:var(--amber-dk);}
 .icon-btn{width:42px;height:42px; border-radius:10px; border:1.5px solid var(--line); background:#fff; display:flex;align-items:center;justify-content:center; cursor:pointer; flex:none;}
 .icon-btn svg{width:18px;height:18px; stroke:var(--navy);}
 
-/* ---------- ENTRIES LIST ---------- */
 .list{padding:8px 20px 20px;}
 .date-group{margin-top:18px;}
 .date-head{display:flex; justify-content:space-between; align-items:baseline; padding:0 2px 8px; border-bottom:1px dashed var(--line); margin-bottom:8px;}
 .date-head .d{font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:var(--navy); font-weight:600;}
 .date-head .sub{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
-.entry{background:#fff; border:1px solid var(--line); border-left:4px solid var(--grey); border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:transform .12s, box-shadow .12s; animation:slideIn .25s ease;}
+.entry{background:#fff; border:1px solid var(--line); border-left:4px solid var(--grey); border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:transform .12s; animation:slideIn .25s ease;}
 .entry:active{transform:scale(0.98);}
 @keyframes slideIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
 .entry .icon-wrap{width:36px;height:36px; border-radius:9px; display:flex;align-items:center;justify-content:center; flex:none;}
@@ -90,12 +119,10 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .empty-state h3{font-family:'Oswald',sans-serif; color:var(--navy); margin:0 0 6px; letter-spacing:0.5px;}
 .empty-state p{font-size:13px; margin:0; line-height:1.5;}
 
-/* ---------- FAB ---------- */
 .fab{position:fixed; bottom:26px; right:20px; width:60px;height:60px; border-radius:50%; background:var(--amber); border:none; box-shadow:0 6px 18px rgba(0,0,0,0.35), 0 0 0 5px rgba(226,161,59,0.18); display:flex;align-items:center;justify-content:center; cursor:pointer; z-index:40; transition:transform .15s;}
 .fab:active{transform:scale(0.92);}
 .fab svg{width:26px;height:26px; stroke:var(--navy-3); stroke-width:2.5;}
 
-/* ---------- SHEET / MODAL ---------- */
 .overlay{position:fixed; inset:0; background:rgba(14,26,48,0.55); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s;}
 .overlay.show{opacity:1; pointer-events:auto;}
 .sheet{position:fixed; left:50%; bottom:0; transform:translate(-50%,100%); width:100%; max-width:560px; background:var(--paper); border-radius:20px 20px 0 0; z-index:51; max-height:92vh; overflow-y:auto; transition:transform .28s cubic-bezier(.32,.72,0,1); padding-bottom:24px;}
@@ -120,37 +147,73 @@ select{
 input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--amber-dk);}
 .cat-select-row{display:flex; gap:8px;}
 .cat-select-row select{flex:1;}
-.add-cat-btn{
-  flex:none; width:44px; border-radius:10px; border:1.5px dashed var(--amber-dk);
-  background:#fdf3e2; color:var(--amber-dk); font-size:20px; font-weight:700;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-}
+.add-cat-btn{flex:none; width:44px; border-radius:10px; border:1.5px dashed var(--amber-dk); background:#fdf3e2; color:var(--amber-dk); font-size:20px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .new-cat-row{display:none; gap:8px; margin-top:8px;}
 .new-cat-row.show{display:flex;}
 .new-cat-row input{flex:1;}
-.new-cat-row button{
-  flex:none; padding:0 14px; border-radius:10px; border:none;
-  background:var(--navy); color:#fff; font-size:13px; font-weight:600; cursor:pointer;
-}
+.new-cat-row button{flex:none; padding:0 14px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-size:13px; font-weight:600; cursor:pointer;}
 .row2{display:flex; gap:10px;}
 .row2 .field{flex:1;}
 .save-btn{width:100%; padding:15px; border:none; border-radius:12px; background:var(--navy); color:var(--paper); font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; transition:transform .1s;}
 .save-btn:active{transform:scale(0.98);}
 .save-btn svg{width:17px;height:17px;}
+.save-btn:disabled{opacity:0.6;}
 .entry-actions{display:flex; gap:8px; padding:0 20px 18px;}
 .entry-actions button{flex:1; padding:11px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:12.5px; font-weight:600; color:var(--navy); display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;}
 .entry-actions button svg{width:15px;height:15px;}
 .entry-actions .del{color:var(--rust); border-color:#f0d3cc;}
-.hint{font-size:11px; color:var(--muted); margin-top:6px; line-height:1.4;}
 
 .toast{position:fixed; left:50%; bottom:100px; transform:translateX(-50%) translateY(20px); background:var(--navy-3); color:var(--paper); padding:11px 20px; border-radius:30px; font-size:13px; font-weight:600; z-index:60; opacity:0; pointer-events:none; transition:all .25s; box-shadow:0 8px 24px rgba(0,0,0,0.3); display:flex; align-items:center; gap:8px;}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 .toast svg{width:16px;height:16px; stroke:var(--amber);}
-
 .hidden{display:none !important;}
 </style>
 </head>
 <body>
+
+<!-- ============ FIRESTORE SETUP NEEDED SCREEN ============ -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-box">
+    <h1>Connect your Firebase project</h1>
+    <p>This ledger is wired to run on Firebase Firestore, but it needs your own project's keys before it can save anything. This is a one-time setup — about 10 minutes.</p>
+    <ol>
+      <li>Go to <code>console.firebase.google.com</code> and create a new project (any name, e.g. "hisab-ledger").</li>
+      <li>In the project, open <b>Build → Firestore Database → Create database</b>. Choose <b>Start in test mode</b> for now (open access — see note below).</li>
+      <li>Click the gear icon → <b>Project settings</b> → scroll to "Your apps" → click the <b>&lt;/&gt; (Web)</b> icon → register the app (any nickname).</li>
+      <li>Firebase will show a <code>firebaseConfig</code> object. Copy it.</li>
+      <li>Open this file's code, find the section marked <code>PASTE YOUR FIREBASE CONFIG HERE</code> near the top of the <code>&lt;script&gt;</code>, and paste your config in place of the placeholder values.</li>
+      <li>Save the file and reopen it. That's it — every entry now saves to your own Firebase project, live, for anyone who opens this file or its hosted link.</li>
+    </ol>
+    <p><b>Security note:</b> "test mode" allows anyone to read/write your database with no login — that's what makes "anyone can enter data anytime" possible without accounts. Test-mode rules expire after 30 days; before then, replace them in Firestore → Rules with:</p>
+    <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+    <p>This keeps it permanently open to anyone with the link — same trade-off as test mode, just without the 30-day expiry. If you ever want to restrict who can write, that needs adding Firebase Authentication, which I can help with separately.</p>
+  </div>
+</div>
+
+<!-- ============ NAME GATE ============ -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card">
+    <div class="stamp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <h1>Welcome to Hisab</h1>
+    <p>Before you add or edit anything, tell us who you are — this gets attached to every entry you make so the ledger stays clear on who spent what.</p>
+    <input type="text" id="gateNameInput" placeholder="Your name" autocomplete="off">
+    <div class="gate-error" id="gateError"></div>
+    <button id="gateContinueBtn">Continue to Ledger</button>
+    <div class="status" id="gateStatus">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+      Connecting to database...
+    </div>
+  </div>
+</div>
 
 <div class="app" id="app">
 
@@ -161,18 +224,15 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
         <div class="tag">Home Renovation Ledger</div>
       </div>
       <div class="head-btns">
-        <button class="menu-btn" id="refreshBtn" title="Refresh">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 4.36A9 9 0 0020.49 15"/></svg>
-        </button>
         <button class="menu-btn" id="exportBtn" title="Export CSV">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
         </button>
       </div>
     </div>
     <div class="shared-pill">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-      Shared ledger — anyone with this link can add, edit or delete
+      <span><span class="live-dot"></span>Live database — anyone with this link can add, edit or delete</span>
     </div>
+    <div class="you-pill">Signed in as <b id="youName">—</b> · <a href="#" id="switchUserLink" style="color:#9fb0cf;">not you?</a></div>
 
     <div class="tape">
       <div class="tape-inner">
@@ -196,7 +256,6 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
   </div>
 
   <div class="list" id="list"></div>
-
 </div>
 
 <button class="fab" id="fabBtn">
@@ -247,11 +306,6 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
       <datalist id="vendorList"></datalist>
     </div>
     <div class="field">
-      <label>Your Name</label>
-      <input type="text" id="nameInput" placeholder="Who is adding this entry?">
-      <div class="hint">Saved on this device so you won't need to type it again.</div>
-    </div>
-    <div class="field">
       <label>Note (optional)</label>
       <input type="text" id="noteInput" placeholder="Any extra detail">
     </div>
@@ -274,6 +328,30 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
 <canvas id="receiptCanvas" width="640" height="960" style="display:none;"></canvas>
 
 <script>
+/* =====================================================================
+   PASTE YOUR FIREBASE CONFIG HERE
+   Get this from: Firebase Console → Project Settings → Your apps → Web app
+   ===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyA01pIJBTx6nKje7FayrY5HGfcujzJOD-M",
+  authDomain: "expense-tracker-5961e.firebaseapp.com",
+  projectId: "expense-tracker-5961e",
+  storageBucket: "expense-tracker-5961e.firebasestorage.app",
+  messagingSenderId: "1075482477984",
+  appId: "1:1075482477984:web:57390f84024bc3945610c5"
+};
+/* ===================================================================== */
+
+const IS_CONFIGURED = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+let db = null;
+if(IS_CONFIGURED){
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}else{
+  document.getElementById('setupScreen').classList.add('show');
+}
+
 // ---------------- CATEGORY DEFINITIONS ----------------
 const ICONS = {
   colddrink: '<path d="M6 3h12l-1.2 15.5a2 2 0 01-2 1.8h-5.6a2 2 0 01-2-1.8L6 3z"/><path d="M6 8h12"/><path d="M12 3v-1"/>',
@@ -300,7 +378,6 @@ const CUSTOM_COLOR_POOL = ['#b25a8c','#3f6b8a','#8a6a3f','#5a8a5f','#8a3f5e','#3
 let CATEGORIES = DEFAULT_CATEGORIES.slice();
 const catByKey = k => CATEGORIES.find(c=>c.key===k) || CATEGORIES[CATEGORIES.length-1];
 function iconFor(key){ return ICONS[key] || ICONS.custom; }
-
 const DESC_SUGGESTIONS = ['Colddrink','Namkeen','Tiles','Marble','Bricks','Cement','Sand (Balu)','Welding','Electrician material','Plumber','Gate frame','Bulb','Wages - Dihadi','Wages - Majdoor','Thekedar advance','Rent - Ghodi','Rent - Shipping','Carpenter','Paint','Elbow pipes'];
 
 // ---------------- STATE ----------------
@@ -308,57 +385,10 @@ let entries = [];
 let editingId = null;
 let activeCatFilter = null;
 let searchQuery = '';
-const ENTRIES_KEY = 'hisab-entries-v2';
-const CATEGORIES_KEY = 'hisab-categories-v2';
-const NAME_KEY = 'hisab-user-name';
-
-// ---------------- STORAGE ----------------
-async function loadCategories(){
-  try{
-    const res = await window.storage.get(CATEGORIES_KEY, true);
-    const custom = res && res.value ? JSON.parse(res.value) : [];
-    CATEGORIES = DEFAULT_CATEGORIES.concat(custom);
-  }catch(e){
-    CATEGORIES = DEFAULT_CATEGORIES.slice();
-  }
-}
-async function saveCustomCategories(){
-  const custom = CATEGORIES.filter(c => !DEFAULT_CATEGORIES.find(d=>d.key===c.key));
-  try{
-    await window.storage.set(CATEGORIES_KEY, JSON.stringify(custom), true);
-  }catch(e){ console.error('Could not save categories', e); }
-}
-async function loadEntries(){
-  try{
-    const res = await window.storage.get(ENTRIES_KEY, true);
-    entries = res && res.value ? JSON.parse(res.value) : [];
-  }catch(e){
-    entries = [];
-  }
-}
-async function persistEntries(){
-  try{
-    await window.storage.set(ENTRIES_KEY, JSON.stringify(entries), true);
-  }catch(e){
-    console.error('Storage failed', e);
-    showToast('Could not save — try again');
-  }
-}
-async function loadMyName(){
-  try{
-    const res = await window.storage.get(NAME_KEY, false);
-    return res && res.value ? res.value : '';
-  }catch(e){ return ''; }
-}
-async function saveMyName(name){
-  try{ await window.storage.set(NAME_KEY, name, false); }catch(e){}
-}
+let currentUser = '';
 
 // ---------------- HELPERS ----------------
-function fmtINR(n){
-  n = Math.round(n*100)/100;
-  return n.toLocaleString('en-IN', {maximumFractionDigits: n%1===0?0:2});
-}
+function fmtINR(n){ n = Math.round(n*100)/100; return n.toLocaleString('en-IN', {maximumFractionDigits: n%1===0?0:2}); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function dateLabel(iso){
   const d = new Date(iso+'T00:00:00');
@@ -369,16 +399,67 @@ function dateLabel(iso){
   if(dd.getTime()===yest.getTime()) return 'Yesterday';
   return d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
 }
-function uid(){ return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function slug(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || uid(); }
+function slug(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || Math.random().toString(36).slice(2,8); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// ---------------- RENDER ----------------
-function render(){
-  renderTotals();
-  renderCatsStrip();
-  renderList();
+// ---------------- NAME GATE ----------------
+document.getElementById('gateContinueBtn').addEventListener('click', enterLedger);
+document.getElementById('gateNameInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') enterLedger(); });
+document.getElementById('switchUserLink').addEventListener('click', (e)=>{
+  e.preventDefault();
+  currentUser = '';
+  document.getElementById('gateNameInput').value = '';
+  document.getElementById('gateOverlay').style.display = 'flex';
+});
+
+function enterLedger(){
+  const name = document.getElementById('gateNameInput').value.trim();
+  if(!name){
+    document.getElementById('gateError').textContent = 'Please enter your name to continue.';
+    return;
+  }
+  currentUser = name;
+  document.getElementById('gateError').textContent = '';
+  document.getElementById('youName').textContent = name;
+  document.getElementById('gateOverlay').style.display = 'none';
 }
+
+if(!IS_CONFIGURED){
+  document.getElementById('gateStatus').innerHTML = 'Database not connected yet — see setup instructions behind this window.';
+}
+
+// ---------------- FIRESTORE WIRING ----------------
+function initData(){
+  if(!IS_CONFIGURED) return;
+
+  db.collection('entries').onSnapshot((snapshot)=>{
+    entries = snapshot.docs.map(d => ({id:d.id, ...d.data()}));
+    document.getElementById('gateStatus').innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Connected to live database';
+    render();
+  }, (err)=>{
+    console.error(err);
+    showToast('Database error — check your Firestore rules');
+  });
+
+  db.collection('meta').doc('categories').onSnapshot((doc)=>{
+    const custom = (doc.exists && doc.data().list) ? doc.data().list : [];
+    CATEGORIES = DEFAULT_CATEGORIES.concat(custom);
+    renderCatSelect();
+    renderCatsStrip();
+  }, (err)=>console.error(err));
+}
+async function saveCustomCategories(){
+  const custom = CATEGORIES.filter(c => !DEFAULT_CATEGORIES.find(d=>d.key===c.key));
+  try{ await db.collection('meta').doc('categories').set({list:custom}); }
+  catch(e){ console.error(e); showToast('Could not save category'); }
+}
+async function addEntryToDb(data){ return db.collection('entries').add(data); }
+async function updateEntryInDb(id, data){ return db.collection('entries').doc(id).update(data); }
+async function deleteEntryFromDb(id){ return db.collection('entries').doc(id).delete(); }
+
+// ---------------- RENDER ----------------
+function render(){ renderTotals(); renderCatsStrip(); renderList(); }
 function renderTotals(){
   const total = entries.reduce((s,e)=>s+Number(e.amount),0);
   document.getElementById('totalAmt').textContent = fmtINR(total);
@@ -430,7 +511,7 @@ function renderList(){
     </div>`;
     return;
   }
-  filtered.sort((a,b)=> (b.date+b.createdAt).localeCompare(a.date+a.createdAt));
+  filtered.sort((a,b)=> (b.date+(b.createdAt||'')).localeCompare(a.date+(a.createdAt||'')));
   const groups = {};
   filtered.forEach(e=>{ (groups[e.date] = groups[e.date]||[]).push(e); });
   const dateKeys = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
@@ -440,8 +521,7 @@ function renderList(){
     const rows = dayEntries.map(e=>{
       const cat = catByKey(e.category);
       const metaParts = [];
-      if(e.paidTo) metaParts.push('from ' + e.paidTo);
-      else metaParts.push(cat.label);
+      if(e.paidTo) metaParts.push('from ' + e.paidTo); else metaParts.push(cat.label);
       if(e.addedBy) metaParts.push('added by ' + e.addedBy);
       return `<div class="entry" data-id="${e.id}">
         <div class="icon-wrap" style="background:${cat.color}22;">
@@ -480,11 +560,10 @@ function populateDatalists(){
   document.getElementById('vendorList').innerHTML = vendors.map(v=>`<option value="${escapeHtml(v)}">`).join('');
 }
 
-async function openSheet(id=null){
+function openSheet(id=null){
   editingId = id;
   const entryActions = document.getElementById('entryActions');
   populateDatalists();
-  const myName = await loadMyName();
   if(id){
     const e = entries.find(x=>x.id===id);
     if(!e) return;
@@ -495,7 +574,6 @@ async function openSheet(id=null){
     document.getElementById('paidToInput').value = e.paidTo || '';
     document.getElementById('dateInput').value = e.date;
     document.getElementById('noteInput').value = e.notes || '';
-    document.getElementById('nameInput').value = myName || e.addedBy || '';
     document.getElementById('saveBtnText').textContent = 'Update Entry';
     entryActions.classList.remove('hidden');
   }else{
@@ -506,7 +584,6 @@ async function openSheet(id=null){
     document.getElementById('paidToInput').value = '';
     document.getElementById('dateInput').value = todayISO();
     document.getElementById('noteInput').value = '';
-    document.getElementById('nameInput').value = myName || '';
     document.getElementById('saveBtnText').textContent = 'Save Entry';
     entryActions.classList.add('hidden');
   }
@@ -516,12 +593,11 @@ async function openSheet(id=null){
   sheet.classList.add('show');
   setTimeout(()=>document.getElementById('amountInput').focus(), 300);
 }
-function closeSheet(){
-  overlay.classList.remove('show');
-  sheet.classList.remove('show');
-  editingId = null;
-}
-document.getElementById('fabBtn').addEventListener('click', ()=>openSheet(null));
+function closeSheet(){ overlay.classList.remove('show'); sheet.classList.remove('show'); editingId = null; }
+document.getElementById('fabBtn').addEventListener('click', ()=>{
+  if(!IS_CONFIGURED){ showToast('Connect Firebase first — see setup screen'); return; }
+  openSheet(null);
+});
 document.getElementById('closeSheetBtn').addEventListener('click', closeSheet);
 overlay.addEventListener('click', closeSheet);
 document.getElementById('catSelect').addEventListener('change', (e)=>{ selectedCat = e.target.value; });
@@ -548,64 +624,52 @@ document.getElementById('confirmNewCatBtn').addEventListener('click', async ()=>
 document.getElementById('saveBtn').addEventListener('click', async ()=>{
   const amount = parseFloat(document.getElementById('amountInput').value);
   if(!amount || amount<=0){ flashInvalid(document.getElementById('amountInput')); return; }
-  const name = document.getElementById('nameInput').value.trim();
-  if(!name){ flashInvalid(document.getElementById('nameInput')); showToast('Please enter your name'); return; }
   const description = document.getElementById('descInput').value.trim();
   const paidTo = document.getElementById('paidToInput').value.trim();
   const date = document.getElementById('dateInput').value || todayISO();
   const notes = document.getElementById('noteInput').value.trim();
   const category = selectedCat || CATEGORIES[0].key;
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
 
-  await saveMyName(name);
-
-  if(editingId){
-    const e = entries.find(x=>x.id===editingId);
-    Object.assign(e, {amount, category, description, paidTo, date, notes, editedBy:name, editedAt:new Date().toISOString()});
-    showToast('Entry updated');
-  }else{
-    entries.push({
-      id: uid(), amount, category, description, paidTo, date, notes,
-      addedBy:name, createdAt:new Date().toISOString()
-    });
-    showToast('Entry saved');
+  try{
+    if(editingId){
+      await updateEntryInDb(editingId, {amount, category, description, paidTo, date, notes, editedBy:currentUser, editedAt:new Date().toISOString()});
+      showToast('Entry updated');
+    }else{
+      await addEntryToDb({amount, category, description, paidTo, date, notes, addedBy:currentUser, createdAt:new Date().toISOString()});
+      showToast('Entry saved');
+    }
+    closeSheet();
+  }catch(e){
+    console.error(e);
+    showToast('Save failed — check connection / Firestore rules');
+  }finally{
+    saveBtn.disabled = false;
   }
-  await persistEntries();
-  render();
-  closeSheet();
 });
 
 document.getElementById('deleteBtn').addEventListener('click', async ()=>{
   if(!editingId) return;
   if(!confirm('Delete this entry? This removes it for everyone using this ledger.')) return;
-  entries = entries.filter(e=>e.id!==editingId);
-  await persistEntries();
-  render();
-  closeSheet();
-  showToast('Entry deleted');
+  try{
+    await deleteEntryFromDb(editingId);
+    showToast('Entry deleted');
+    closeSheet();
+  }catch(e){
+    console.error(e);
+    showToast('Delete failed — check connection');
+  }
 });
 
-function flashInvalid(el){
-  el.style.borderColor = 'var(--rust)';
-  el.focus();
-  setTimeout(()=>{ el.style.borderColor=''; }, 900);
-}
+function flashInvalid(el){ el.style.borderColor = 'var(--rust)'; el.focus(); setTimeout(()=>{ el.style.borderColor=''; }, 900); }
 
 // ---------------- SEARCH ----------------
-document.getElementById('searchInput').addEventListener('input', (e)=>{
-  searchQuery = e.target.value;
-  renderList();
-});
+document.getElementById('searchInput').addEventListener('input', (e)=>{ searchQuery = e.target.value; renderList(); });
 document.getElementById('clearFilterBtn').addEventListener('click', ()=>{
   searchQuery=''; activeCatFilter=null;
   document.getElementById('searchInput').value='';
   render();
-});
-
-// ---------------- REFRESH (pull latest shared data) ----------------
-document.getElementById('refreshBtn').addEventListener('click', async ()=>{
-  await Promise.all([loadEntries(), loadCategories()]);
-  render();
-  showToast('Ledger refreshed');
 });
 
 // ---------------- TOAST ----------------
@@ -725,10 +789,7 @@ function drawReceipt(e){
 }
 
 // ---------------- INIT ----------------
-(async function init(){
-  await Promise.all([loadEntries(), loadCategories()]);
-  render();
-})();
+initData();
 </script>
 </body>
 </html>
