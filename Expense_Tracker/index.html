@@ -4,10 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Hisab — Renovation Ledger</title>
+<link rel="icon" id="faviconLink" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23152442'/%3E%3Ctext x='50' y='70' font-family='Georgia,serif' font-size='58' fill='%23e2a13b' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.16.0/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.16.0/firebase-firestore-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --navy:#152442; --navy-2:#1e3358; --navy-3:#0e1a30;
@@ -18,39 +21,34 @@
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
-body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink); min-height:100vh;}
+body{background:var(--navy-3); font-family:'Inter','Noto Sans Devanagari',sans-serif; color:var(--ink); min-height:100vh;}
 .app{max-width:560px; margin:0 auto; background:var(--paper); min-height:100vh; position:relative; box-shadow:0 0 60px rgba(0,0,0,0.5); padding-bottom:100px;}
 
+/* ---------- LANG TOGGLE ---------- */
+.lang-toggle{
+  display:flex; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
+  border-radius:20px; padding:3px; gap:2px; flex:none;
+}
+.lang-toggle button{
+  border:none; background:transparent; color:#c7d1e6; font-size:11.5px; font-weight:700;
+  padding:6px 11px; border-radius:16px; cursor:pointer; font-family:'Inter',sans-serif;
+}
+.lang-toggle button.active{background:var(--amber); color:var(--navy-3);}
+.gate-card .lang-toggle{position:absolute; top:14px; right:14px;}
+.gate-card .lang-toggle button{color:var(--muted);}
+.gate-card .lang-toggle button.active{background:var(--amber); color:var(--navy-3);}
+
 /* ---------- NAME GATE ---------- */
-.gate-overlay{
-  position:fixed; inset:0; background:var(--navy-3); z-index:200;
-  display:flex; align-items:center; justify-content:center; padding:24px;
-}
-.gate-card{
-  background:var(--paper); border-radius:18px; max-width:400px; width:100%;
-  padding:32px 26px; text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,0.4);
-}
-.gate-card .stamp{
-  width:56px;height:56px; margin:0 auto 16px; border-radius:50%;
-  background:repeating-linear-gradient(135deg,var(--amber) 0 8px, var(--amber-dk) 8px 16px);
-  display:flex; align-items:center; justify-content:center;
-}
+.gate-overlay{position:fixed; inset:0; background:var(--navy-3); z-index:200; display:flex; align-items:center; justify-content:center; padding:24px;}
+.gate-card{background:var(--paper); border-radius:18px; max-width:400px; width:100%; padding:36px 26px 32px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.4); position:relative;}
+.gate-card .stamp{width:56px;height:56px; margin:0 auto 16px; border-radius:50%; background:repeating-linear-gradient(135deg,var(--amber) 0 8px, var(--amber-dk) 8px 16px); display:flex; align-items:center; justify-content:center;}
 .gate-card .stamp svg{width:26px;height:26px; stroke:var(--navy-3);}
 .gate-card h1{font-family:'Oswald',sans-serif; font-size:24px; letter-spacing:1px; color:var(--navy); margin:0 0 6px; text-transform:uppercase;}
 .gate-card p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
-.gate-card input{
-  width:100%; padding:14px 16px; border-radius:10px; border:2px solid var(--line);
-  font-size:16px; font-family:'Inter',sans-serif; outline:none; text-align:center; margin-bottom:14px;
-}
+.gate-card input{width:100%; padding:14px 16px; border-radius:10px; border:2px solid var(--line); font-size:16px; font-family:inherit; outline:none; text-align:center; margin-bottom:14px;}
 .gate-card input:focus{border-color:var(--amber-dk);}
-.gate-card button{
-  width:100%; padding:14px; border:none; border-radius:12px; background:var(--navy); color:var(--paper);
-  font-family:'Oswald',sans-serif; font-size:14px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer;
-}
-.gate-card .status{
-  margin-top:14px; font-size:11.5px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px;
-}
+.gate-card button.gate-continue{width:100%; padding:14px; border:none; border-radius:12px; background:var(--navy); color:var(--paper); font-family:'Oswald',sans-serif; font-size:14px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer;}
+.gate-card .status{margin-top:14px; font-size:11.5px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:6px;}
 .gate-card .status svg{width:12px;height:12px;}
 .gate-error{color:var(--rust); font-size:12px; margin-top:-8px; margin-bottom:12px; min-height:14px;}
 
@@ -61,45 +59,56 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .setup-box h1{font-family:'Oswald',sans-serif; color:var(--navy); font-size:22px; letter-spacing:0.5px; margin-top:0;}
 .setup-box ol{padding-left:20px; font-size:14px; line-height:1.7;}
 .setup-box code{background:var(--paper-2); padding:2px 6px; border-radius:5px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;}
-.setup-box pre{background:var(--navy-3); color:#d7e0f0; padding:14px; border-radius:10px; overflow-x:auto; font-size:12px; font-family:'IBM Plex Mono',monospace; line-height:1.6;}
 
-/* ---------- HEADER ---------- */
-.header{background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%); padding:22px 20px 0; color:var(--paper); position:relative; overflow:hidden;}
+/* ---------- HEADER (clean hero) ---------- */
+.header{background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%); padding:20px 20px 0; color:var(--paper); position:relative; overflow:hidden;}
 .header::after{content:""; position:absolute; top:0;left:0;right:0;height:4px; background:repeating-linear-gradient(90deg,var(--amber) 0 14px, var(--navy-3) 14px 20px);}
-.brand-row{display:flex;align-items:flex-start;justify-content:space-between;}
-.brand h1{font-family:'Oswald',sans-serif; font-weight:700; font-size:26px; letter-spacing:2px; margin:0; text-transform:uppercase;}
+.brand-row{display:flex;align-items:center;justify-content:space-between;}
+.brand h1{font-family:'Oswald',sans-serif; font-weight:700; font-size:24px; letter-spacing:2px; margin:0; text-transform:uppercase;}
 .brand h1 span{color:var(--amber);}
-.brand .tag{font-size:11px; letter-spacing:1.5px; color:#a9b6cf; text-transform:uppercase; margin-top:2px;}
-.head-btns{display:flex; gap:8px;}
-.menu-btn{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--paper); width:38px;height:38px; display:flex;align-items:center;justify-content:center; cursor:pointer;}
-.shared-pill{margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:6px; background:rgba(226,161,59,0.12); border:1px solid rgba(226,161,59,0.35); color:var(--amber); font-size:11px; font-weight:600; letter-spacing:0.4px; padding:6px 10px; border-radius:20px; width:fit-content;}
-.shared-pill svg{width:13px;height:13px;}
-.live-dot{width:7px;height:7px; border-radius:50%; background:var(--good); display:inline-block; margin-right:5px; box-shadow:0 0 0 rgba(62,125,92,0.5); animation:pulse 2s infinite;}
+.head-btns{display:flex; gap:8px; align-items:center;}
+.menu-btn{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--paper); width:36px;height:36px; display:flex;align-items:center;justify-content:center; cursor:pointer;}
+
+.hero{padding:22px 4px 20px; text-align:center;}
+.hero-label{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#9fb0cf; font-weight:600;}
+.hero-amount{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:46px; color:var(--paper); margin-top:6px; letter-spacing:-1px;}
+.hero-amount .rupee{font-size:28px; opacity:0.8; margin-right:2px;}
+.hero-lastlog{margin-top:10px; font-size:12.5px; color:var(--amber); font-weight:600;}
+.hero-lastlog b{color:var(--paper);}
+.hero-live{display:inline-flex; align-items:center; gap:5px; margin-top:14px; font-size:10.5px; color:#7f8fac; letter-spacing:0.5px;}
+.live-dot{width:6px;height:6px; border-radius:50%; background:var(--good); display:inline-block; box-shadow:0 0 0 rgba(62,125,92,0.5); animation:pulse 2s infinite;}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,125,92,0.5);} 70%{box-shadow:0 0 0 6px rgba(62,125,92,0);} 100%{box-shadow:0 0 0 0 rgba(62,125,92,0);}}
-.you-pill{margin-top:8px; font-size:11px; color:#9fb0cf;}
-.you-pill b{color:var(--amber);}
 
-.tape{margin-top:14px; background:repeating-linear-gradient(135deg,var(--amber) 0 10px, var(--amber-dk) 10px 20px); border-radius:14px 14px 0 0; padding:3px;}
-.tape-inner{background:var(--navy-3); border-radius:11px 11px 0 0; padding:20px 18px 16px; text-align:center;}
-.tape-label{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--amber); font-weight:600;}
-.tape-amount{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:42px; color:var(--paper); margin-top:4px; letter-spacing:-1px;}
-.tape-amount .rupee{font-size:26px; opacity:0.8; margin-right:2px;}
-.stats-row{display:flex; justify-content:center; gap:22px; margin-top:10px; font-size:11px; color:#9fb0cf; letter-spacing:0.5px;}
-.stats-row b{color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13px; display:block;}
+/* ---------- CATEGORY SUMMARY CARDS ---------- */
+.cat-summary{background:var(--navy-3); padding:6px 20px 20px;}
+.cat-summary-head{display:flex; justify-content:space-between; align-items:baseline; padding:12px 2px 12px; color:var(--paper);}
+.cat-summary-head h3{font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:1.5px; text-transform:uppercase; margin:0; color:#c7d1e6;}
+.cat-summary-head .substat{font-size:11px; color:#7f8fac; font-family:'IBM Plex Mono',monospace;}
+.cat-grid-summary{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.cat-card{
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px;
+  padding:12px; cursor:pointer; transition:background .15s;
+}
+.cat-card.active{background:rgba(226,161,59,0.15); border-color:var(--amber);}
+.cat-card .top{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+.cat-card .icon-wrap{width:30px;height:30px; border-radius:8px; display:flex;align-items:center;justify-content:center;}
+.cat-card .icon-wrap svg{width:15px;height:15px;}
+.cat-card .pdf-btn{
+  width:26px;height:26px; border-radius:7px; border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.cat-card .pdf-btn svg{width:13px;height:13px; stroke:#c7d1e6;}
+.cat-card .lbl{font-size:11px; color:#aab6cf; font-weight:600; margin-bottom:2px;}
+.cat-card .amt{font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:700; color:var(--paper);}
 
-.cats-strip{display:flex; gap:8px; overflow-x:auto; padding:14px 20px 18px; background:var(--navy-3); scrollbar-width:none;}
-.cats-strip::-webkit-scrollbar{display:none;}
-.cat-chip{flex:0 0 auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:7px 12px; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--paper); cursor:pointer; white-space:nowrap; transition:all .15s;}
-.cat-chip.active{background:var(--amber); border-color:var(--amber); color:var(--navy-3); font-weight:600;}
-.cat-chip svg{width:14px;height:14px;flex:none;}
-.cat-chip .amt{font-family:'IBM Plex Mono',monospace; opacity:0.85;}
-
-.search-bar{padding:14px 20px 6px; display:flex; gap:8px;}
-.search-bar input{flex:1; padding:11px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none;}
+/* ---------- SEARCH ---------- */
+.search-bar{padding:16px 20px 6px; display:flex; gap:8px;}
+.search-bar input{flex:1; padding:11px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:inherit; outline:none;}
 .search-bar input:focus{border-color:var(--amber-dk);}
 .icon-btn{width:42px;height:42px; border-radius:10px; border:1.5px solid var(--line); background:#fff; display:flex;align-items:center;justify-content:center; cursor:pointer; flex:none;}
 .icon-btn svg{width:18px;height:18px; stroke:var(--navy);}
 
+/* ---------- ENTRIES LIST ---------- */
 .list{padding:8px 20px 20px;}
 .date-group{margin-top:18px;}
 .date-head{display:flex; justify-content:space-between; align-items:baseline; padding:0 2px 8px; border-bottom:1px dashed var(--line); margin-bottom:8px;}
@@ -119,10 +128,12 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .empty-state h3{font-family:'Oswald',sans-serif; color:var(--navy); margin:0 0 6px; letter-spacing:0.5px;}
 .empty-state p{font-size:13px; margin:0; line-height:1.5;}
 
+/* ---------- FAB ---------- */
 .fab{position:fixed; bottom:26px; right:20px; width:60px;height:60px; border-radius:50%; background:var(--amber); border:none; box-shadow:0 6px 18px rgba(0,0,0,0.35), 0 0 0 5px rgba(226,161,59,0.18); display:flex;align-items:center;justify-content:center; cursor:pointer; z-index:40; transition:transform .15s;}
 .fab:active{transform:scale(0.92);}
 .fab svg{width:26px;height:26px; stroke:var(--navy-3); stroke-width:2.5;}
 
+/* ---------- SHEET / MODAL ---------- */
 .overlay{position:fixed; inset:0; background:rgba(14,26,48,0.55); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s;}
 .overlay.show{opacity:1; pointer-events:auto;}
 .sheet{position:fixed; left:50%; bottom:0; transform:translate(-50%,100%); width:100%; max-width:560px; background:var(--paper); border-radius:20px 20px 0 0; z-index:51; max-height:92vh; overflow-y:auto; transition:transform .28s cubic-bezier(.32,.72,0,1); padding-bottom:24px;}
@@ -139,7 +150,7 @@ body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink);
 .amount-input-wrap:focus-within{border-color:var(--amber-dk);}
 .amount-input-wrap .rs{font-family:'IBM Plex Mono',monospace; font-size:22px; color:var(--amber-dk); font-weight:700;}
 .amount-input-wrap input{border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:700; padding:12px 10px; width:100%; color:var(--ink);}
-input[type=text],input[type=date],select{width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none; appearance:none; -webkit-appearance:none;}
+input[type=text],input[type=date],select{width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:inherit; outline:none; appearance:none; -webkit-appearance:none;}
 select{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7869' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
@@ -152,8 +163,6 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
 .new-cat-row.show{display:flex;}
 .new-cat-row input{flex:1;}
 .new-cat-row button{flex:none; padding:0 14px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-size:13px; font-weight:600; cursor:pointer;}
-.row2{display:flex; gap:10px;}
-.row2 .field{flex:1;}
 .save-btn{width:100%; padding:15px; border:none; border-radius:12px; background:var(--navy); color:var(--paper); font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; transition:transform .1s;}
 .save-btn:active{transform:scale(0.98);}
 .save-btn svg{width:17px;height:17px;}
@@ -171,43 +180,35 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
 </head>
 <body>
 
-<!-- ============ FIRESTORE SETUP NEEDED SCREEN ============ -->
 <div class="setup-screen" id="setupScreen">
   <div class="setup-box">
     <h1>Connect your Firebase project</h1>
-    <p>This ledger is wired to run on Firebase Firestore, but it needs your own project's keys before it can save anything. This is a one-time setup — about 10 minutes.</p>
+    <p>This ledger is wired to run on Firebase Firestore, but it needs your own project's keys before it can save anything.</p>
     <ol>
-      <li>Go to <code>console.firebase.google.com</code> and create a new project (any name, e.g. "hisab-ledger").</li>
-      <li>In the project, open <b>Build → Firestore Database → Create database</b>. Choose <b>Start in test mode</b> for now (open access — see note below).</li>
-      <li>Click the gear icon → <b>Project settings</b> → scroll to "Your apps" → click the <b>&lt;/&gt; (Web)</b> icon → register the app (any nickname).</li>
-      <li>Firebase will show a <code>firebaseConfig</code> object. Copy it.</li>
-      <li>Open this file's code, find the section marked <code>PASTE YOUR FIREBASE CONFIG HERE</code> near the top of the <code>&lt;script&gt;</code>, and paste your config in place of the placeholder values.</li>
-      <li>Save the file and reopen it. That's it — every entry now saves to your own Firebase project, live, for anyone who opens this file or its hosted link.</li>
+      <li>Go to <code>console.firebase.google.com</code> and create a new project.</li>
+      <li><b>Build → Firestore Database → Create database</b>, start in test mode.</li>
+      <li><b>Project settings → Your apps → &lt;/&gt; Web</b> → register the app.</li>
+      <li>Copy the <code>firebaseConfig</code> object shown.</li>
+      <li>Paste it into this file where it says <code>PASTE YOUR FIREBASE CONFIG HERE</code>.</li>
+      <li>Save and reopen this file.</li>
     </ol>
-    <p><b>Security note:</b> "test mode" allows anyone to read/write your database with no login — that's what makes "anyone can enter data anytime" possible without accounts. Test-mode rules expire after 30 days; before then, replace them in Firestore → Rules with:</p>
-    <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-    <p>This keeps it permanently open to anyone with the link — same trade-off as test mode, just without the 30-day expiry. If you ever want to restrict who can write, that needs adding Firebase Authentication, which I can help with separately.</p>
   </div>
 </div>
 
-<!-- ============ NAME GATE ============ -->
 <div class="gate-overlay" id="gateOverlay">
   <div class="gate-card">
+    <div class="lang-toggle" id="gateLangToggle">
+      <button data-lang="en" class="active">EN</button>
+      <button data-lang="hi">हिं</button>
+    </div>
     <div class="stamp">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
-    <h1>Welcome to Hisab</h1>
-    <p>Before you add or edit anything, tell us who you are — this gets attached to every entry you make so the ledger stays clear on who spent what.</p>
+    <h1 id="gateTitle">Welcome to Hisab</h1>
+    <p id="gateText">Before you add or edit anything, tell us who you are.</p>
     <input type="text" id="gateNameInput" placeholder="Your name" autocomplete="off">
     <div class="gate-error" id="gateError"></div>
-    <button id="gateContinueBtn">Continue to Ledger</button>
+    <button class="gate-continue" id="gateContinueBtn">Continue to Ledger</button>
     <div class="status" id="gateStatus">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
       Connecting to database...
@@ -219,33 +220,32 @@ service cloud.firestore {
 
   <div class="header">
     <div class="brand-row">
-      <div>
-        <h1>H<span>i</span>sab</h1>
-        <div class="tag">Home Renovation Ledger</div>
-      </div>
+      <div class="brand"><h1>H<span>i</span>sab</h1></div>
       <div class="head-btns">
-        <button class="menu-btn" id="exportBtn" title="Export CSV">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+        <div class="lang-toggle" id="mainLangToggle">
+          <button data-lang="en" class="active">EN</button>
+          <button data-lang="hi">हिं</button>
+        </div>
+        <button class="menu-btn" id="exportBtn" title="Download report">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
         </button>
       </div>
     </div>
-    <div class="shared-pill">
-      <span><span class="live-dot"></span>Live database — anyone with this link can add, edit or delete</span>
-    </div>
-    <div class="you-pill">Signed in as <b id="youName">—</b> · <a href="#" id="switchUserLink" style="color:#9fb0cf;">not you?</a></div>
 
-    <div class="tape">
-      <div class="tape-inner">
-        <div class="tape-label">Total Spent So Far</div>
-        <div class="tape-amount"><span class="rupee">₹</span><span id="totalAmt">0</span></div>
-        <div class="stats-row">
-          <div><b id="statCount">0</b>entries</div>
-          <div><b id="statDays">0</b>days tracked</div>
-          <div><b id="statAvg">₹0</b>avg / day</div>
-        </div>
-      </div>
+    <div class="hero">
+      <div class="hero-label" id="heroLabel">Total Spent So Far</div>
+      <div class="hero-amount"><span class="rupee">₹</span><span id="totalAmt">0</span></div>
+      <div class="hero-lastlog" id="heroLastLog">No entries yet</div>
+      <div class="hero-live"><span class="live-dot"></span><span id="heroLiveText">Live shared database</span></div>
     </div>
-    <div class="cats-strip" id="catsStrip"></div>
+  </div>
+
+  <div class="cat-summary">
+    <div class="cat-summary-head">
+      <h3 id="catSummaryTitle">Category Totals</h3>
+      <span class="substat" id="catSummarySub">0 entries</span>
+    </div>
+    <div class="cat-grid-summary" id="catGridSummary"></div>
   </div>
 
   <div class="search-bar">
@@ -274,18 +274,18 @@ service cloud.firestore {
   </div>
   <div class="form">
     <div class="field">
-      <label>Date</label>
+      <label id="lblDate">Date</label>
       <input type="date" id="dateInput">
     </div>
     <div class="field">
-      <label>Amount</label>
+      <label id="lblAmount">Amount</label>
       <div class="amount-input-wrap">
         <span class="rs">₹</span>
         <input type="number" inputmode="decimal" id="amountInput" placeholder="0" min="0" step="0.01">
       </div>
     </div>
     <div class="field">
-      <label>Category</label>
+      <label id="lblCategory">Category</label>
       <div class="cat-select-row">
         <select id="catSelect"></select>
         <button class="add-cat-btn" id="addCatBtn" title="Add new category">+</button>
@@ -296,17 +296,17 @@ service cloud.firestore {
       </div>
     </div>
     <div class="field">
-      <label>What was it for</label>
+      <label id="lblDesc">What was it for</label>
       <input type="text" id="descInput" placeholder="e.g. colddrink, tiles, dihadi" list="descList">
       <datalist id="descList"></datalist>
     </div>
     <div class="field">
-      <label>Purchased From / Paid To</label>
+      <label id="lblVendor">Purchased From / Paid To</label>
       <input type="text" id="paidToInput" placeholder="e.g. Irfan thekedar, local hardware shop" list="vendorList">
       <datalist id="vendorList"></datalist>
     </div>
     <div class="field">
-      <label>Note (optional)</label>
+      <label id="lblNote">Note (optional)</label>
       <input type="text" id="noteInput" placeholder="Any extra detail">
     </div>
     <button class="save-btn" id="saveBtn">
@@ -315,8 +315,8 @@ service cloud.firestore {
     </button>
   </div>
   <div class="entry-actions hidden" id="entryActions">
-    <button id="receiptBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>Receipt</button>
-    <button class="del" id="deleteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Delete</button>
+    <button id="receiptBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg><span id="lblReceiptBtn">Receipt</span></button>
+    <button class="del" id="deleteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg><span id="lblDeleteBtn">Delete</span></button>
   </div>
 </div>
 
@@ -325,12 +325,9 @@ service cloud.firestore {
   <span id="toastText">Saved</span>
 </div>
 
-<canvas id="receiptCanvas" width="640" height="960" style="display:none;"></canvas>
-
 <script>
 /* =====================================================================
    PASTE YOUR FIREBASE CONFIG HERE
-   Get this from: Firebase Console → Project Settings → Your apps → Web app
    ===================================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyA01pIJBTx6nKje7FayrY5HGfcujzJOD-M",
@@ -343,14 +340,62 @@ const firebaseConfig = {
 /* ===================================================================== */
 
 const IS_CONFIGURED = firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
-
 let db = null;
-if(IS_CONFIGURED){
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-}else{
-  document.getElementById('setupScreen').classList.add('show');
-}
+if(IS_CONFIGURED){ firebase.initializeApp(firebaseConfig); db = firebase.firestore(); }
+else{ document.getElementById('setupScreen').classList.add('show'); }
+
+// ---------------- FAVICON AUTO-UPGRADE ----------------
+(function(){
+  const fav = document.getElementById('faviconLink');
+  const tryFile = (name) => new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>resolve(name);
+    img.onerror = ()=>resolve(null);
+    img.src = name;
+  });
+  (async ()=>{
+    const found = await tryFile('favicon.png') || await tryFile('favicon.ico');
+    if(found) fav.href = found;
+  })();
+})();
+
+// ---------------- TRANSLATIONS ----------------
+const TR = {
+  en: {
+    gateTitle:'Welcome to Hisab', gateText:"Before you add or edit anything, tell us who you are — this gets attached to every entry you make.",
+    gateNamePh:'Your name', gateContinue:'Continue to Ledger', gateConnecting:'Connecting to database...', gateConnected:'Connected to live database', gateNameErr:'Please enter your name to continue.',
+    heroLabel:'Total Spent So Far', heroLive:'Live shared database', lastLogNone:'No entries yet', lastLogBy:'Last added by',
+    catSummaryTitle:'Category Totals', entriesWord:'entries',
+    searchPh:'Search item, vendor, note, person...',
+    addEntry:'Add Entry', editEntry:'Edit Entry',
+    lblDate:'Date', lblAmount:'Amount', lblCategory:'Category', lblDesc:'What was it for', lblVendor:'Purchased From / Paid To', lblNote:'Note (optional)',
+    descPh:'e.g. colddrink, tiles, dihadi', vendorPh:'e.g. Irfan thekedar, local hardware shop', notePh:'Any extra detail', newCatPh:'New category name',
+    saveEntry:'Save Entry', updateEntry:'Update Entry', receiptBtn:'Receipt', deleteBtn:'Delete',
+    emptyTitle:'Your ledger is empty', emptyText:'Tap the + button to log your first renovation expense.',
+    noMatchTitle:'No matching entries', noMatchText:'Try a different search or clear filters.',
+    toastSaved:'Entry saved', toastUpdated:'Entry updated', toastDeleted:'Entry deleted', toastCatAdded:'Category added',
+    toastNoEntries:'No entries to export', toastReportDown:'Report downloaded', toastReceiptDown:'Receipt downloaded',
+    todayLabel:'Today', yesterdayLabel:'Yesterday', fromLabel:'from', addedByLabel:'added by',
+  },
+  hi: {
+    gateTitle:'हिसाब में आपका स्वागत है', gateText:'कुछ भी जोड़ने या बदलने से पहले, अपना नाम बताएं — यह आपकी हर एंट्री के साथ जुड़ेगा।',
+    gateNamePh:'आपका नाम', gateContinue:'हिसाब में जाएं', gateConnecting:'डेटाबेस से जुड़ रहे हैं...', gateConnected:'लाइव डेटाबेस से जुड़ गया', gateNameErr:'कृपया आगे बढ़ने के लिए अपना नाम लिखें।',
+    heroLabel:'अब तक कुल खर्च', heroLive:'लाइव साझा डेटाबेस', lastLogNone:'अभी कोई एंट्री नहीं', lastLogBy:'आख़िरी एंट्री डाली',
+    catSummaryTitle:'श्रेणी अनुसार कुल', entriesWord:'एंट्री',
+    searchPh:'सामान, दुकान, नाम खोजें...',
+    addEntry:'नई एंट्री जोड़ें', editEntry:'एंट्री बदलें',
+    lblDate:'तारीख़', lblAmount:'राशि', lblCategory:'श्रेणी', lblDesc:'किस चीज़ के लिए खर्च हुआ', lblVendor:'कहाँ से ख़रीदा / किसे दिया', lblNote:'नोट (वैकल्पिक)',
+    descPh:'जैसे: कोल्ड ड्रिंक, टाइल्स, दिहाड़ी', vendorPh:'जैसे: इरफ़ान ठेकेदार, दुकान का नाम', notePh:'कोई अतिरिक्त जानकारी', newCatPh:'नई श्रेणी का नाम',
+    saveEntry:'एंट्री सेव करें', updateEntry:'एंट्री अपडेट करें', receiptBtn:'रसीद', deleteBtn:'हटाएं',
+    emptyTitle:'आपका हिसाब खाली है', emptyText:'अपना पहला खर्च जोड़ने के लिए + बटन दबाएं।',
+    noMatchTitle:'कोई एंट्री नहीं मिली', noMatchText:'कुछ और खोजें या फ़िल्टर हटाएं।',
+    toastSaved:'एंट्री सेव हुई', toastUpdated:'एंट्री अपडेट हुई', toastDeleted:'एंट्री हटाई गई', toastCatAdded:'श्रेणी जुड़ गई',
+    toastNoEntries:'डाउनलोड के लिए कोई एंट्री नहीं', toastReportDown:'रिपोर्ट डाउनलोड हुई', toastReceiptDown:'रसीद डाउनलोड हुई',
+    todayLabel:'आज', yesterdayLabel:'कल', fromLabel:'से', addedByLabel:'डाला',
+  }
+};
+let currentLang = 'en';
+const t = (k) => (TR[currentLang] && TR[currentLang][k]) || TR.en[k] || k;
 
 // ---------------- CATEGORY DEFINITIONS ----------------
 const ICONS = {
@@ -365,19 +410,20 @@ const ICONS = {
   custom: '<path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z"/>'
 };
 const DEFAULT_CATEGORIES = [
-  {key:'colddrink',  label:'Cold Drinks & Snacks', color:'#e2a13b'},
-  {key:'materials',  label:'Materials',            color:'#4a7a96'},
-  {key:'electrical', label:'Electrical',           color:'#c9a227'},
-  {key:'plumbing',   label:'Plumbing',             color:'#3e8e8a'},
-  {key:'labour',     label:'Labour Wages',         color:'#c1442d'},
-  {key:'contractor', label:'Contractor Payment',   color:'#5b4b8a'},
-  {key:'transport',  label:'Transport & Rent',     color:'#7a8450'},
-  {key:'other',      label:'Other',                color:'#8a8577'},
+  {key:'colddrink',  label:'Cold Drinks & Snacks', labelHi:'कोल्ड ड्रिंक और नाश्ता', color:'#e2a13b'},
+  {key:'materials',  label:'Materials',            labelHi:'सामान / मटेरियल',        color:'#4a7a96'},
+  {key:'electrical', label:'Electrical',           labelHi:'इलेक्ट्रिकल',            color:'#c9a227'},
+  {key:'plumbing',   label:'Plumbing',             labelHi:'प्लंबिंग',               color:'#3e8e8a'},
+  {key:'labour',     label:'Labour Wages',         labelHi:'मजदूरी',                 color:'#c1442d'},
+  {key:'contractor', label:'Contractor Payment',   labelHi:'ठेकेदार भुगतान',         color:'#5b4b8a'},
+  {key:'transport',  label:'Transport & Rent',     labelHi:'परिवहन / किराया',        color:'#7a8450'},
+  {key:'other',      label:'Other',                labelHi:'अन्य',                   color:'#8a8577'},
 ];
 const CUSTOM_COLOR_POOL = ['#b25a8c','#3f6b8a','#8a6a3f','#5a8a5f','#8a3f5e','#3f8a7d','#8a7a3f','#6a5a8a'];
 let CATEGORIES = DEFAULT_CATEGORIES.slice();
 const catByKey = k => CATEGORIES.find(c=>c.key===k) || CATEGORIES[CATEGORIES.length-1];
 function iconFor(key){ return ICONS[key] || ICONS.custom; }
+function catLabel(c){ return currentLang==='hi' && c.labelHi ? c.labelHi : c.label; }
 const DESC_SUGGESTIONS = ['Colddrink','Namkeen','Tiles','Marble','Bricks','Cement','Sand (Balu)','Welding','Electrician material','Plumber','Gate frame','Bulb','Wages - Dihadi','Wages - Majdoor','Thekedar advance','Rent - Ghodi','Rent - Shipping','Carpenter','Paint','Elbow pipes'];
 
 // ---------------- STATE ----------------
@@ -395,58 +441,81 @@ function dateLabel(iso){
   const today = new Date(); today.setHours(0,0,0,0);
   const yest = new Date(today); yest.setDate(yest.getDate()-1);
   const dd = new Date(d); dd.setHours(0,0,0,0);
-  if(dd.getTime()===today.getTime()) return 'Today';
-  if(dd.getTime()===yest.getTime()) return 'Yesterday';
-  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  if(dd.getTime()===today.getTime()) return t('todayLabel');
+  if(dd.getTime()===yest.getTime()) return t('yesterdayLabel');
+  return d.toLocaleDateString(currentLang==='hi'?'hi-IN':'en-IN', {day:'numeric', month:'short', year:'numeric'});
+}
+function fmtDateLong(iso){
+  return new Date(iso+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
 }
 function slug(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || Math.random().toString(36).slice(2,8); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
+// ---------------- LANGUAGE SWITCHING ----------------
+function applyLanguage(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  [document.getElementById('gateLangToggle'), document.getElementById('mainLangToggle')].forEach(tg=>{
+    tg.querySelectorAll('button').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+  });
+  document.getElementById('gateTitle').textContent = t('gateTitle');
+  document.getElementById('gateText').textContent = t('gateText');
+  document.getElementById('gateNameInput').placeholder = t('gateNamePh');
+  document.getElementById('gateContinueBtn').textContent = t('gateContinue');
+  document.getElementById('heroLabel').textContent = t('heroLabel');
+  document.getElementById('heroLiveText').textContent = t('heroLive');
+  document.getElementById('catSummaryTitle').textContent = t('catSummaryTitle');
+  document.getElementById('searchInput').placeholder = t('searchPh');
+  document.getElementById('lblDate').textContent = t('lblDate');
+  document.getElementById('lblAmount').textContent = t('lblAmount');
+  document.getElementById('lblCategory').textContent = t('lblCategory');
+  document.getElementById('lblDesc').textContent = t('lblDesc');
+  document.getElementById('lblVendor').textContent = t('lblVendor');
+  document.getElementById('lblNote').textContent = t('lblNote');
+  document.getElementById('descInput').placeholder = t('descPh');
+  document.getElementById('paidToInput').placeholder = t('vendorPh');
+  document.getElementById('noteInput').placeholder = t('notePh');
+  document.getElementById('newCatInput').placeholder = t('newCatPh');
+  document.getElementById('lblReceiptBtn').textContent = t('receiptBtn');
+  document.getElementById('lblDeleteBtn').textContent = t('deleteBtn');
+  document.getElementById('sheetTitle').textContent = editingId ? t('editEntry') : t('addEntry');
+  document.getElementById('saveBtnText').textContent = editingId ? t('updateEntry') : t('saveEntry');
+  render();
+}
+document.querySelectorAll('.lang-toggle').forEach(tg=>{
+  tg.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(btn) applyLanguage(btn.dataset.lang);
+  });
+});
+
 // ---------------- NAME GATE ----------------
 document.getElementById('gateContinueBtn').addEventListener('click', enterLedger);
 document.getElementById('gateNameInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') enterLedger(); });
-document.getElementById('switchUserLink').addEventListener('click', (e)=>{
-  e.preventDefault();
-  currentUser = '';
-  document.getElementById('gateNameInput').value = '';
-  document.getElementById('gateOverlay').style.display = 'flex';
-});
-
 function enterLedger(){
   const name = document.getElementById('gateNameInput').value.trim();
-  if(!name){
-    document.getElementById('gateError').textContent = 'Please enter your name to continue.';
-    return;
-  }
+  if(!name){ document.getElementById('gateError').textContent = t('gateNameErr'); return; }
   currentUser = name;
   document.getElementById('gateError').textContent = '';
-  document.getElementById('youName').textContent = name;
   document.getElementById('gateOverlay').style.display = 'none';
 }
-
-if(!IS_CONFIGURED){
-  document.getElementById('gateStatus').innerHTML = 'Database not connected yet — see setup instructions behind this window.';
-}
+if(!IS_CONFIGURED){ document.getElementById('gateStatus').innerHTML = 'Database not connected yet — see setup instructions behind this window.'; }
 
 // ---------------- FIRESTORE WIRING ----------------
 function initData(){
   if(!IS_CONFIGURED) return;
-
   db.collection('entries').onSnapshot((snapshot)=>{
     entries = snapshot.docs.map(d => ({id:d.id, ...d.data()}));
     document.getElementById('gateStatus').innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Connected to live database';
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> ' + t('gateConnected');
     render();
-  }, (err)=>{
-    console.error(err);
-    showToast('Database error — check your Firestore rules');
-  });
+  }, (err)=>{ console.error(err); showToast('Database error — check your Firestore rules'); });
 
   db.collection('meta').doc('categories').onSnapshot((doc)=>{
     const custom = (doc.exists && doc.data().list) ? doc.data().list : [];
     CATEGORIES = DEFAULT_CATEGORIES.concat(custom);
     renderCatSelect();
-    renderCatsStrip();
+    renderCatSummary();
   }, (err)=>console.error(err));
 }
 async function saveCustomCategories(){
@@ -459,34 +528,51 @@ async function updateEntryInDb(id, data){ return db.collection('entries').doc(id
 async function deleteEntryFromDb(id){ return db.collection('entries').doc(id).delete(); }
 
 // ---------------- RENDER ----------------
-function render(){ renderTotals(); renderCatsStrip(); renderList(); }
-function renderTotals(){
+function render(){ renderHero(); renderCatSummary(); renderList(); }
+function renderHero(){
   const total = entries.reduce((s,e)=>s+Number(e.amount),0);
   document.getElementById('totalAmt').textContent = fmtINR(total);
-  document.getElementById('statCount').textContent = entries.length;
-  const uniqueDays = new Set(entries.map(e=>e.date));
-  document.getElementById('statDays').textContent = uniqueDays.size;
-  const avg = uniqueDays.size ? total/uniqueDays.size : 0;
-  document.getElementById('statAvg').textContent = '₹'+fmtINR(avg);
+  if(entries.length===0){
+    document.getElementById('heroLastLog').textContent = t('lastLogNone');
+  }else{
+    const last = entries.slice().sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||'')).slice(-1)[0];
+    const when = last.createdAt ? new Date(last.createdAt).toLocaleString(currentLang==='hi'?'hi-IN':'en-IN', {day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}) : '';
+    document.getElementById('heroLastLog').innerHTML = `${t('lastLogBy')} <b>${escapeHtml(last.addedBy||'—')}</b> · ${when}`;
+  }
 }
-function renderCatsStrip(){
-  const strip = document.getElementById('catsStrip');
+function renderCatSummary(){
+  const grid = document.getElementById('catGridSummary');
   const totalsByCategory = {};
   CATEGORIES.forEach(c=>totalsByCategory[c.key]=0);
   entries.forEach(e=>{ totalsByCategory[e.category] = (totalsByCategory[e.category]||0) + Number(e.amount); });
-  strip.innerHTML = CATEGORIES.map(c=>{
+  document.getElementById('catSummarySub').textContent = entries.length + ' ' + t('entriesWord');
+  grid.innerHTML = CATEGORIES.map(c=>{
     const active = activeCatFilter===c.key ? 'active' : '';
-    return `<div class="cat-chip ${active}" data-cat="${c.key}">
-      <svg viewBox="0 0 24 24" fill="none" stroke="${activeCatFilter===c.key?'var(--navy-3)':c.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconFor(c.key)}</svg>
-      ${escapeHtml(c.label)}
-      <span class="amt">₹${fmtINR(totalsByCategory[c.key]||0)}</span>
+    return `<div class="cat-card ${active}" data-cat="${c.key}">
+      <div class="top">
+        <div class="icon-wrap" style="background:${c.color}30;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="${c.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconFor(c.key)}</svg>
+        </div>
+        <button class="pdf-btn" data-pdf-cat="${c.key}" title="Download receipt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
+        </button>
+      </div>
+      <div class="lbl">${escapeHtml(catLabel(c))}</div>
+      <div class="amt">₹${fmtINR(totalsByCategory[c.key]||0)}</div>
     </div>`;
   }).join('');
-  strip.querySelectorAll('.cat-chip').forEach(el=>{
-    el.addEventListener('click', ()=>{
+  grid.querySelectorAll('.cat-card').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('.pdf-btn')) return;
       const cat = el.dataset.cat;
       activeCatFilter = activeCatFilter===cat ? null : cat;
       render();
+    });
+  });
+  grid.querySelectorAll('.pdf-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      generateCategoryReport(btn.dataset.pdfCat);
     });
   });
 }
@@ -506,8 +592,8 @@ function renderList(){
   if(filtered.length===0){
     list.innerHTML = `<div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
-      <h3>${entries.length===0 ? 'Your ledger is empty' : 'No matching entries'}</h3>
-      <p>${entries.length===0 ? 'Tap the + button to log your first renovation expense.' : 'Try a different search or clear filters.'}</p>
+      <h3>${entries.length===0 ? t('emptyTitle') : t('noMatchTitle')}</h3>
+      <p>${entries.length===0 ? t('emptyText') : t('noMatchText')}</p>
     </div>`;
     return;
   }
@@ -521,14 +607,14 @@ function renderList(){
     const rows = dayEntries.map(e=>{
       const cat = catByKey(e.category);
       const metaParts = [];
-      if(e.paidTo) metaParts.push('from ' + e.paidTo); else metaParts.push(cat.label);
-      if(e.addedBy) metaParts.push('added by ' + e.addedBy);
+      if(e.paidTo) metaParts.push(t('fromLabel') + ' ' + e.paidTo); else metaParts.push(catLabel(cat));
+      if(e.addedBy) metaParts.push(t('addedByLabel') + ' ' + e.addedBy);
       return `<div class="entry" data-id="${e.id}">
         <div class="icon-wrap" style="background:${cat.color}22;">
           <svg viewBox="0 0 24 24" fill="none" stroke="${cat.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconFor(cat.key)}</svg>
         </div>
         <div class="info">
-          <div class="desc">${escapeHtml(e.description || cat.label)}</div>
+          <div class="desc">${escapeHtml(e.description || catLabel(cat))}</div>
           <div class="meta">${escapeHtml(metaParts.join(' · '))}</div>
         </div>
         <div class="amt">₹${fmtINR(e.amount)}</div>
@@ -551,7 +637,7 @@ let selectedCat = null;
 
 function renderCatSelect(){
   const sel = document.getElementById('catSelect');
-  sel.innerHTML = CATEGORIES.map(c=>`<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+  sel.innerHTML = CATEGORIES.map(c=>`<option value="${c.key}">${escapeHtml(catLabel(c))}</option>`).join('');
   if(selectedCat) sel.value = selectedCat;
 }
 function populateDatalists(){
@@ -559,7 +645,6 @@ function populateDatalists(){
   const vendors = [...new Set(entries.map(e=>e.paidTo).filter(Boolean))];
   document.getElementById('vendorList').innerHTML = vendors.map(v=>`<option value="${escapeHtml(v)}">`).join('');
 }
-
 function openSheet(id=null){
   editingId = id;
   const entryActions = document.getElementById('entryActions');
@@ -567,24 +652,24 @@ function openSheet(id=null){
   if(id){
     const e = entries.find(x=>x.id===id);
     if(!e) return;
-    document.getElementById('sheetTitle').textContent = 'Edit Entry';
+    document.getElementById('sheetTitle').textContent = t('editEntry');
     document.getElementById('amountInput').value = e.amount;
     selectedCat = e.category;
     document.getElementById('descInput').value = e.description || '';
     document.getElementById('paidToInput').value = e.paidTo || '';
     document.getElementById('dateInput').value = e.date;
     document.getElementById('noteInput').value = e.notes || '';
-    document.getElementById('saveBtnText').textContent = 'Update Entry';
+    document.getElementById('saveBtnText').textContent = t('updateEntry');
     entryActions.classList.remove('hidden');
   }else{
-    document.getElementById('sheetTitle').textContent = 'Add Entry';
+    document.getElementById('sheetTitle').textContent = t('addEntry');
     document.getElementById('amountInput').value = '';
     selectedCat = CATEGORIES[0].key;
     document.getElementById('descInput').value = '';
     document.getElementById('paidToInput').value = '';
     document.getElementById('dateInput').value = todayISO();
     document.getElementById('noteInput').value = '';
-    document.getElementById('saveBtnText').textContent = 'Save Entry';
+    document.getElementById('saveBtnText').textContent = t('saveEntry');
     entryActions.classList.add('hidden');
   }
   document.getElementById('newCatRow').classList.remove('show');
@@ -601,7 +686,6 @@ document.getElementById('fabBtn').addEventListener('click', ()=>{
 document.getElementById('closeSheetBtn').addEventListener('click', closeSheet);
 overlay.addEventListener('click', closeSheet);
 document.getElementById('catSelect').addEventListener('change', (e)=>{ selectedCat = e.target.value; });
-
 document.getElementById('addCatBtn').addEventListener('click', ()=>{
   const row = document.getElementById('newCatRow');
   row.classList.toggle('show');
@@ -612,15 +696,14 @@ document.getElementById('confirmNewCatBtn').addEventListener('click', async ()=>
   if(!label) return;
   const key = 'c-' + slug(label) + '-' + Math.random().toString(36).slice(2,5);
   const color = CUSTOM_COLOR_POOL[CATEGORIES.length % CUSTOM_COLOR_POOL.length];
-  CATEGORIES.push({key, label, color});
+  CATEGORIES.push({key, label, labelHi:label, color});
   await saveCustomCategories();
   selectedCat = key;
   renderCatSelect();
   document.getElementById('newCatInput').value = '';
   document.getElementById('newCatRow').classList.remove('show');
-  showToast('Category added');
+  showToast(t('toastCatAdded'));
 });
-
 document.getElementById('saveBtn').addEventListener('click', async ()=>{
   const amount = parseFloat(document.getElementById('amountInput').value);
   if(!amount || amount<=0){ flashInvalid(document.getElementById('amountInput')); return; }
@@ -631,37 +714,24 @@ document.getElementById('saveBtn').addEventListener('click', async ()=>{
   const category = selectedCat || CATEGORIES[0].key;
   const saveBtn = document.getElementById('saveBtn');
   saveBtn.disabled = true;
-
   try{
     if(editingId){
       await updateEntryInDb(editingId, {amount, category, description, paidTo, date, notes, editedBy:currentUser, editedAt:new Date().toISOString()});
-      showToast('Entry updated');
+      showToast(t('toastUpdated'));
     }else{
       await addEntryToDb({amount, category, description, paidTo, date, notes, addedBy:currentUser, createdAt:new Date().toISOString()});
-      showToast('Entry saved');
+      showToast(t('toastSaved'));
     }
     closeSheet();
-  }catch(e){
-    console.error(e);
-    showToast('Save failed — check connection / Firestore rules');
-  }finally{
-    saveBtn.disabled = false;
-  }
+  }catch(e){ console.error(e); showToast('Save failed — check connection / Firestore rules'); }
+  finally{ saveBtn.disabled = false; }
 });
-
 document.getElementById('deleteBtn').addEventListener('click', async ()=>{
   if(!editingId) return;
   if(!confirm('Delete this entry? This removes it for everyone using this ledger.')) return;
-  try{
-    await deleteEntryFromDb(editingId);
-    showToast('Entry deleted');
-    closeSheet();
-  }catch(e){
-    console.error(e);
-    showToast('Delete failed — check connection');
-  }
+  try{ await deleteEntryFromDb(editingId); showToast(t('toastDeleted')); closeSheet(); }
+  catch(e){ console.error(e); showToast('Delete failed — check connection'); }
 });
-
 function flashInvalid(el){ el.style.borderColor = 'var(--rust)'; el.focus(); setTimeout(()=>{ el.style.borderColor=''; }, 900); }
 
 // ---------------- SEARCH ----------------
@@ -675,118 +745,199 @@ document.getElementById('clearFilterBtn').addEventListener('click', ()=>{
 // ---------------- TOAST ----------------
 let toastTimer;
 function showToast(msg){
-  const t = document.getElementById('toast');
+  const tt = document.getElementById('toast');
   document.getElementById('toastText').textContent = msg;
-  t.classList.add('show');
+  tt.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+  toastTimer = setTimeout(()=>tt.classList.remove('show'), 2200);
 }
 
-// ---------------- CSV EXPORT ----------------
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  if(entries.length===0){ showToast('No entries to export'); return; }
-  const rows = [['Date','Category','Description','Purchased From / Paid To','Amount','Added By','Notes']];
-  entries.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
-    rows.push([e.date, catByKey(e.category).label, e.description||'', e.paidTo||'', e.amount, e.addedBy||'', e.notes||'']);
+/* =====================================================================
+   PDF GENERATION  (jsPDF + autoTable)
+   PDFs are generated in English — the built-in PDF fonts don't support
+   Hindi (Devanagari) without embedding a custom font file, so downloaded
+   reports/receipts stay in English regardless of the app's display language.
+   ===================================================================== */
+function getJsPDF(){ return (window.jspdf && window.jspdf.jsPDF) || null; }
+
+function pdfHeader(doc, title, subtitle){
+  const W = doc.internal.pageSize.getWidth();
+  doc.setFillColor(21,36,66); doc.rect(0,0,W,32,'F');
+  for(let x=0;x<W;x+=6){ doc.setFillColor(x/6 %2===0 ? 226:21, x/6 %2===0 ? 161:36, x/6 %2===0 ? 59:66); doc.rect(x,0,3,2,'F'); }
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('HISAB', 14, 20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(226,161,59);
+  doc.text('RENOVATION EXPENSE RECORD', W-14, 20, {align:'right'});
+  doc.setTextColor(31,36,48);
+  doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text(title, 14, 45);
+  if(subtitle){
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.setTextColor(124,120,105);
+    doc.text(subtitle, 14, 52);
+  }
+  return 62;
+}
+function pdfFooter(doc){
+  const pageCount = doc.internal.getNumberOfPages();
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  for(let p=1;p<=pageCount;p++){
+    doc.setPage(p);
+    doc.setDrawColor(221,213,193);
+    doc.line(14, H-16, W-14, H-16);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(124,120,105);
+    doc.text('Generated by Hisab · ' + new Date().toLocaleString('en-IN'), 14, H-10);
+    doc.text('Page ' + p + ' of ' + pageCount, W-14, H-10, {align:'right'});
+  }
+}
+function categoryTotalsTable(list){
+  const totals = {};
+  list.forEach(e=>{ totals[e.category] = (totals[e.category]||0) + Number(e.amount); });
+  return Object.entries(totals)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=> [catByKey(k).label, '₹' + fmtINR(v)]);
+}
+function detailRows(list){
+  return list.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
+    fmtDateLong(e.date), catByKey(e.category).label, e.description||'—', e.paidTo||'—', e.addedBy||'—', '₹'+fmtINR(e.amount)
+  ]);
+}
+function projectDurationText(list){
+  if(list.length===0) return '';
+  const dates = list.map(e=>e.date).sort();
+  return `Duration: ${fmtDateLong(dates[0])} to ${fmtDateLong(dates[dates.length-1])}`;
+}
+function hexToRgb(hex){
+  hex = hex.replace('#','');
+  return {r:parseInt(hex.substr(0,2),16), g:parseInt(hex.substr(2,2),16), b:parseInt(hex.substr(4,2),16)};
+}
+
+function generateFullReport(){
+  const jsPDF = getJsPDF();
+  if(!jsPDF){ showToast('PDF library still loading, try again'); return; }
+  if(entries.length===0){ showToast(t('toastNoEntries')); return; }
+  const doc = new jsPDF();
+  const grandTotal = entries.reduce((s,e)=>s+Number(e.amount),0);
+  let y = pdfHeader(doc, 'Home Renovation — Full Expense Report', projectDurationText(entries));
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(31,36,48);
+  doc.text('Grand Total Spent: ₹' + fmtINR(grandTotal), 14, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(124,120,105);
+  doc.text(entries.length + ' entries logged', 14, y+6);
+  y += 14;
+
+  doc.autoTable({
+    startY:y, head:[['Category','Total']], body:categoryTotalsTable(entries),
+    theme:'grid', headStyles:{fillColor:[21,36,66], textColor:255, fontStyle:'bold'},
+    styles:{fontSize:9, cellPadding:4}, columnStyles:{1:{halign:'right', fontStyle:'bold'}},
+    margin:{left:14,right:14}
   });
-  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'hisab-renovation-ledger.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Ledger exported');
-});
+  y = doc.lastAutoTable.finalY + 12;
 
-// ---------------- RECEIPT DOWNLOAD (canvas) ----------------
-document.getElementById('receiptBtn').addEventListener('click', ()=>{
-  if(!editingId) return;
-  const e = entries.find(x=>x.id===editingId);
-  if(!e) return;
-  drawReceipt(e);
-});
-function drawReceipt(e){
-  const canvas = document.getElementById('receiptCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(31,36,48);
+  doc.text('All Entries (Date-wise)', 14, y);
+  y += 6;
+  doc.autoTable({
+    startY:y, head:[['Date','Category','Description','Purchased From','Added By','Amount']],
+    body:detailRows(entries),
+    theme:'striped', headStyles:{fillColor:[21,36,66], textColor:255, fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[246,242,232]},
+    styles:{fontSize:8.5, cellPadding:4},
+    columnStyles:{5:{halign:'right', fontStyle:'bold'}},
+    margin:{left:14,right:14}
+  });
+  pdfFooter(doc);
+  doc.save('Hisab-Renovation-Full-Report.pdf');
+  showToast(t('toastReportDown'));
+}
+
+function generateCategoryReport(catKey){
+  const jsPDF = getJsPDF();
+  if(!jsPDF){ showToast('PDF library still loading, try again'); return; }
+  const list = entries.filter(e=>e.category===catKey);
+  if(list.length===0){ showToast(t('toastNoEntries')); return; }
+  const cat = catByKey(catKey);
+  const total = list.reduce((s,e)=>s+Number(e.amount),0);
+  const doc = new jsPDF();
+  let y = pdfHeader(doc, cat.label + ' — Category Report', projectDurationText(list));
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(31,36,48);
+  doc.text('Category Total: ₹' + fmtINR(total), 14, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(124,120,105);
+  doc.text(list.length + ' entries in this category', 14, y+6);
+  y += 14;
+
+  doc.autoTable({
+    startY:y, head:[['Date','Description','Purchased From','Added By','Amount']],
+    body:list.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
+      fmtDateLong(e.date), e.description||'—', e.paidTo||'—', e.addedBy||'—', '₹'+fmtINR(e.amount)
+    ]),
+    theme:'striped', headStyles:{fillColor:[21,36,66], textColor:255, fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[246,242,232]},
+    styles:{fontSize:9, cellPadding:4.5},
+    columnStyles:{4:{halign:'right', fontStyle:'bold'}},
+    margin:{left:14,right:14}
+  });
+  const finalY = doc.lastAutoTable.finalY + 10;
+  doc.setDrawColor(226,161,59); doc.setLineWidth(0.6);
+  doc.line(14, finalY, doc.internal.pageSize.getWidth()-14, finalY);
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(21,36,66);
+  doc.text('Total: ₹' + fmtINR(total), doc.internal.pageSize.getWidth()-14, finalY+8, {align:'right'});
+  pdfFooter(doc);
+  doc.save(`Hisab-${slug(cat.label)}-report.pdf`);
+  showToast(t('toastReceiptDown'));
+}
+
+function generateEntryReceipt(e){
+  const jsPDF = getJsPDF();
+  if(!jsPDF){ showToast('PDF library still loading, try again'); return; }
   const cat = catByKey(e.category);
+  const doc = new jsPDF();
+  const W = doc.internal.pageSize.getWidth();
+  let y = pdfHeader(doc, 'Payment Voucher', 'Voucher ID: ' + e.id.toUpperCase());
 
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = '#f6f2e8';
-  ctx.fillRect(0,0,W,H);
+  doc.setDrawColor(221,213,193); doc.setLineDash([2,2]); doc.line(14,y,W-14,y); doc.setLineDash([]);
+  y += 14;
+  const rgb = hexToRgb(cat.color);
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.setTextColor(rgb.r, rgb.g, rgb.b);
+  doc.text(cat.label.toUpperCase(), 14, y);
+  y += 14;
+  doc.setFont('helvetica','bold'); doc.setFontSize(30); doc.setTextColor(21,36,66);
+  doc.text('₹ ' + fmtINR(e.amount), W/2, y, {align:'center'});
+  y += 12;
+  doc.setFont('helvetica','normal'); doc.setFontSize(13); doc.setTextColor(31,36,48);
+  doc.text(e.description || cat.label, W/2, y, {align:'center'});
+  y += 16;
 
-  const stripeH = 14;
-  for(let x=0;x<W;x+=28){ ctx.fillStyle=(x/28)%2===0?'#e2a13b':'#152442'; ctx.fillRect(x,0,28,stripeH); }
-
-  ctx.fillStyle = '#152442';
-  ctx.font = '700 34px Oswald, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('H I S A B', W/2, 90);
-  ctx.font = '500 13px Inter, sans-serif';
-  ctx.fillStyle = '#7c7869';
-  ctx.fillText('RENOVATION PAYMENT VOUCHER', W/2, 114);
-
-  ctx.strokeStyle = '#ddd5c1'; ctx.setLineDash([6,5]);
-  ctx.beginPath(); ctx.moveTo(40,140); ctx.lineTo(W-40,140); ctx.stroke(); ctx.setLineDash([]);
-
-  ctx.textAlign = 'left';
-  ctx.font = '600 12px Inter, sans-serif';
-  ctx.fillStyle = cat.color;
-  ctx.fillText(cat.label.toUpperCase(), 50, 175);
-
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#152442';
-  ctx.font = '700 60px "IBM Plex Mono", monospace';
-  ctx.fillText('₹ ' + fmtINR(e.amount), W/2, 250);
-
-  ctx.font = '600 22px Inter, sans-serif';
-  ctx.fillStyle = '#1f2430';
-  ctx.fillText(e.description || cat.label, W/2, 300);
-
-  let y = 360;
-  const details = [
-    ['Date', new Date(e.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],
+  const rows = [
+    ['Date', fmtDateLong(e.date)],
     ['Purchased From', e.paidTo || '—'],
     ['Category', cat.label],
     ['Added By', e.addedBy || '—'],
     ['Note', e.notes || '—'],
   ];
-  ctx.textAlign = 'left';
-  details.forEach(([k,v])=>{
-    ctx.font = '600 13px Inter, sans-serif';
-    ctx.fillStyle = '#8a8577';
-    ctx.fillText(k.toUpperCase(), 60, y);
-    ctx.font = '500 18px Inter, sans-serif';
-    ctx.fillStyle = '#1f2430';
-    ctx.textAlign = 'right';
-    ctx.fillText(String(v), W-60, y);
-    ctx.textAlign = 'left';
-    y += 46;
+  doc.autoTable({
+    startY:y, body:rows, theme:'plain',
+    styles:{fontSize:10, cellPadding:3},
+    columnStyles:{0:{fontStyle:'bold', textColor:[124,120,105], cellWidth:45}, 1:{halign:'left'}},
+    margin:{left:14,right:14}
   });
-
-  ctx.strokeStyle = '#ddd5c1'; ctx.setLineDash([6,5]);
-  ctx.beginPath(); ctx.moveTo(40,y+10); ctx.lineTo(W-40,y+10); ctx.stroke(); ctx.setLineDash([]);
-  y += 50;
-
-  ctx.textAlign = 'center';
-  ctx.font = '500 12px Inter, sans-serif';
-  ctx.fillStyle = '#7c7869';
-  ctx.fillText('Voucher ID: ' + e.id.toUpperCase(), W/2, y);
-  ctx.fillText('Generated by Hisab · ' + new Date().toLocaleString('en-IN'), W/2, y+22);
-
-  for(let x=0;x<W;x+=28){ ctx.fillStyle=(x/28)%2===0?'#e2a13b':'#152442'; ctx.fillRect(x,H-stripeH,28,stripeH); }
-
-  canvas.toBlob((blob)=>{
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `receipt-${e.date}-${e.id}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Receipt downloaded');
-  });
+  pdfFooter(doc);
+  doc.save(`receipt-${e.date}-${e.id}.pdf`);
+  showToast(t('toastReceiptDown'));
 }
+
+document.getElementById('exportBtn').addEventListener('click', generateFullReport);
+document.getElementById('receiptBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  const e = entries.find(x=>x.id===editingId);
+  if(e) generateEntryReceipt(e);
+});
 
 // ---------------- INIT ----------------
 initData();
