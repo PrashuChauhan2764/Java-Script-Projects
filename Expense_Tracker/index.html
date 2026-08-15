@@ -1,11 +1,734 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Hisab — Renovation Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#152442;
+  --navy-2:#1e3358;
+  --navy-3:#0e1a30;
+  --paper:#f6f2e8;
+  --paper-2:#efe9db;
+  --amber:#e2a13b;
+  --amber-dk:#b97e23;
+  --rust:#c1442d;
+  --teal:#3e8e8a;
+  --plum:#5b4b8a;
+  --olive:#7a8450;
+  --gold:#c9a227;
+  --grey:#8a8577;
+  --ink:#1f2430;
+  --muted:#7c7869;
+  --line:#ddd5c1;
+  --good:#3e7d5c;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{background:var(--navy-3); font-family:'Inter',sans-serif; color:var(--ink); min-height:100vh;}
+.app{max-width:560px; margin:0 auto; background:var(--paper); min-height:100vh; position:relative; box-shadow:0 0 60px rgba(0,0,0,0.5); padding-bottom:100px;}
+
+/* ---------- HEADER ---------- */
+.header{background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%); padding:22px 20px 0; color:var(--paper); position:relative; overflow:hidden;}
+.header::after{content:""; position:absolute; top:0;left:0;right:0;height:4px; background:repeating-linear-gradient(90deg,var(--amber) 0 14px, var(--navy-3) 14px 20px);}
+.brand-row{display:flex;align-items:flex-start;justify-content:space-between;}
+.brand h1{font-family:'Oswald',sans-serif; font-weight:700; font-size:26px; letter-spacing:2px; margin:0; text-transform:uppercase;}
+.brand h1 span{color:var(--amber);}
+.brand .tag{font-size:11px; letter-spacing:1.5px; color:#a9b6cf; text-transform:uppercase; margin-top:2px;}
+.head-btns{display:flex; gap:8px;}
+.menu-btn{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--paper); width:38px;height:38px; display:flex;align-items:center;justify-content:center; cursor:pointer;}
+.shared-pill{
+  margin-top:12px; display:flex; align-items:center; gap:6px;
+  background:rgba(226,161,59,0.12); border:1px solid rgba(226,161,59,0.35);
+  color:var(--amber); font-size:11px; font-weight:600; letter-spacing:0.4px;
+  padding:6px 10px; border-radius:20px; width:fit-content;
+}
+.shared-pill svg{width:13px;height:13px;}
+
+.tape{margin-top:14px; background:repeating-linear-gradient(135deg,var(--amber) 0 10px, var(--amber-dk) 10px 20px); border-radius:14px 14px 0 0; padding:3px;}
+.tape-inner{background:var(--navy-3); border-radius:11px 11px 0 0; padding:20px 18px 16px; text-align:center;}
+.tape-label{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--amber); font-weight:600;}
+.tape-amount{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:42px; color:var(--paper); margin-top:4px; letter-spacing:-1px;}
+.tape-amount .rupee{font-size:26px; opacity:0.8; margin-right:2px;}
+.stats-row{display:flex; justify-content:center; gap:22px; margin-top:10px; font-size:11px; color:#9fb0cf; letter-spacing:0.5px;}
+.stats-row b{color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13px; display:block;}
+
+.cats-strip{display:flex; gap:8px; overflow-x:auto; padding:14px 20px 18px; background:var(--navy-3); scrollbar-width:none;}
+.cats-strip::-webkit-scrollbar{display:none;}
+.cat-chip{flex:0 0 auto; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:7px 12px; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--paper); cursor:pointer; white-space:nowrap; transition:all .15s;}
+.cat-chip.active{background:var(--amber); border-color:var(--amber); color:var(--navy-3); font-weight:600;}
+.cat-chip svg{width:14px;height:14px;flex:none;}
+.cat-chip .amt{font-family:'IBM Plex Mono',monospace; opacity:0.85;}
+
+/* ---------- SEARCH ---------- */
+.search-bar{padding:14px 20px 6px; display:flex; gap:8px;}
+.search-bar input{flex:1; padding:11px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none;}
+.search-bar input:focus{border-color:var(--amber-dk);}
+.icon-btn{width:42px;height:42px; border-radius:10px; border:1.5px solid var(--line); background:#fff; display:flex;align-items:center;justify-content:center; cursor:pointer; flex:none;}
+.icon-btn svg{width:18px;height:18px; stroke:var(--navy);}
+
+/* ---------- ENTRIES LIST ---------- */
+.list{padding:8px 20px 20px;}
+.date-group{margin-top:18px;}
+.date-head{display:flex; justify-content:space-between; align-items:baseline; padding:0 2px 8px; border-bottom:1px dashed var(--line); margin-bottom:8px;}
+.date-head .d{font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:var(--navy); font-weight:600;}
+.date-head .sub{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted);}
+.entry{background:#fff; border:1px solid var(--line); border-left:4px solid var(--grey); border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:transform .12s, box-shadow .12s; animation:slideIn .25s ease;}
+.entry:active{transform:scale(0.98);}
+@keyframes slideIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+.entry .icon-wrap{width:36px;height:36px; border-radius:9px; display:flex;align-items:center;justify-content:center; flex:none;}
+.entry .icon-wrap svg{width:18px;height:18px;}
+.entry .info{flex:1; min-width:0;}
+.entry .desc{font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.entry .meta{font-size:11.5px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.entry .amt{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; color:var(--navy); flex:none;}
+.empty-state{text-align:center; padding:60px 30px; color:var(--muted);}
+.empty-state svg{width:56px;height:56px; stroke:var(--line); margin-bottom:14px;}
+.empty-state h3{font-family:'Oswald',sans-serif; color:var(--navy); margin:0 0 6px; letter-spacing:0.5px;}
+.empty-state p{font-size:13px; margin:0; line-height:1.5;}
+
+/* ---------- FAB ---------- */
+.fab{position:fixed; bottom:26px; right:20px; width:60px;height:60px; border-radius:50%; background:var(--amber); border:none; box-shadow:0 6px 18px rgba(0,0,0,0.35), 0 0 0 5px rgba(226,161,59,0.18); display:flex;align-items:center;justify-content:center; cursor:pointer; z-index:40; transition:transform .15s;}
+.fab:active{transform:scale(0.92);}
+.fab svg{width:26px;height:26px; stroke:var(--navy-3); stroke-width:2.5;}
+
+/* ---------- SHEET / MODAL ---------- */
+.overlay{position:fixed; inset:0; background:rgba(14,26,48,0.55); z-index:50; opacity:0; pointer-events:none; transition:opacity .2s;}
+.overlay.show{opacity:1; pointer-events:auto;}
+.sheet{position:fixed; left:50%; bottom:0; transform:translate(-50%,100%); width:100%; max-width:560px; background:var(--paper); border-radius:20px 20px 0 0; z-index:51; max-height:92vh; overflow-y:auto; transition:transform .28s cubic-bezier(.32,.72,0,1); padding-bottom:24px;}
+.sheet.show{transform:translate(-50%,0);}
+.sheet-handle{width:40px;height:4px;background:var(--line); border-radius:3px; margin:10px auto 4px;}
+.sheet-head{display:flex; justify-content:space-between; align-items:center; padding:10px 20px 14px; border-bottom:1px solid var(--line);}
+.sheet-head h2{font-family:'Oswald',sans-serif; font-size:18px; letter-spacing:0.5px; margin:0; color:var(--navy); text-transform:uppercase;}
+.close-btn{width:32px;height:32px; border-radius:50%; background:var(--paper-2); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+.close-btn svg{width:16px;height:16px;}
+.form{padding:18px 20px 6px;}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:11.5px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:7px;}
+.amount-input-wrap{display:flex; align-items:center; background:#fff; border:2px solid var(--line); border-radius:12px; padding:0 4px 0 16px;}
+.amount-input-wrap:focus-within{border-color:var(--amber-dk);}
+.amount-input-wrap .rs{font-family:'IBM Plex Mono',monospace; font-size:22px; color:var(--amber-dk); font-weight:700;}
+.amount-input-wrap input{border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:700; padding:12px 10px; width:100%; color:var(--ink);}
+input[type=text],input[type=date],select{width:100%; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none; appearance:none; -webkit-appearance:none;}
+select{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237c7869' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;
+}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--amber-dk);}
+.cat-select-row{display:flex; gap:8px;}
+.cat-select-row select{flex:1;}
+.add-cat-btn{
+  flex:none; width:44px; border-radius:10px; border:1.5px dashed var(--amber-dk);
+  background:#fdf3e2; color:var(--amber-dk); font-size:20px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.new-cat-row{display:none; gap:8px; margin-top:8px;}
+.new-cat-row.show{display:flex;}
+.new-cat-row input{flex:1;}
+.new-cat-row button{
+  flex:none; padding:0 14px; border-radius:10px; border:none;
+  background:var(--navy); color:#fff; font-size:13px; font-weight:600; cursor:pointer;
+}
+.row2{display:flex; gap:10px;}
+.row2 .field{flex:1;}
+.save-btn{width:100%; padding:15px; border:none; border-radius:12px; background:var(--navy); color:var(--paper); font-family:'Oswald',sans-serif; font-size:15px; letter-spacing:1px; text-transform:uppercase; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; transition:transform .1s;}
+.save-btn:active{transform:scale(0.98);}
+.save-btn svg{width:17px;height:17px;}
+.entry-actions{display:flex; gap:8px; padding:0 20px 18px;}
+.entry-actions button{flex:1; padding:11px; border-radius:10px; border:1.5px solid var(--line); background:#fff; font-size:12.5px; font-weight:600; color:var(--navy); display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;}
+.entry-actions button svg{width:15px;height:15px;}
+.entry-actions .del{color:var(--rust); border-color:#f0d3cc;}
+.hint{font-size:11px; color:var(--muted); margin-top:6px; line-height:1.4;}
+
+.toast{position:fixed; left:50%; bottom:100px; transform:translateX(-50%) translateY(20px); background:var(--navy-3); color:var(--paper); padding:11px 20px; border-radius:30px; font-size:13px; font-weight:600; z-index:60; opacity:0; pointer-events:none; transition:all .25s; box-shadow:0 8px 24px rgba(0,0,0,0.3); display:flex; align-items:center; gap:8px;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast svg{width:16px;height:16px; stroke:var(--amber);}
+
+.hidden{display:none !important;}
+</style>
 </head>
 <body>
-    
+
+<div class="app" id="app">
+
+  <div class="header">
+    <div class="brand-row">
+      <div>
+        <h1>H<span>i</span>sab</h1>
+        <div class="tag">Home Renovation Ledger</div>
+      </div>
+      <div class="head-btns">
+        <button class="menu-btn" id="refreshBtn" title="Refresh">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 4.36A9 9 0 0020.49 15"/></svg>
+        </button>
+        <button class="menu-btn" id="exportBtn" title="Export CSV">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="shared-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Shared ledger — anyone with this link can add, edit or delete
+    </div>
+
+    <div class="tape">
+      <div class="tape-inner">
+        <div class="tape-label">Total Spent So Far</div>
+        <div class="tape-amount"><span class="rupee">₹</span><span id="totalAmt">0</span></div>
+        <div class="stats-row">
+          <div><b id="statCount">0</b>entries</div>
+          <div><b id="statDays">0</b>days tracked</div>
+          <div><b id="statAvg">₹0</b>avg / day</div>
+        </div>
+      </div>
+    </div>
+    <div class="cats-strip" id="catsStrip"></div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search item, vendor, note, person...">
+    <button class="icon-btn" id="clearFilterBtn" title="Clear filters">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+</div>
+
+<button class="fab" id="fabBtn">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h2 id="sheetTitle">Add Entry</h2>
+    <button class="close-btn" id="closeSheetBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="form">
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="dateInput">
+    </div>
+    <div class="field">
+      <label>Amount</label>
+      <div class="amount-input-wrap">
+        <span class="rs">₹</span>
+        <input type="number" inputmode="decimal" id="amountInput" placeholder="0" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <div class="cat-select-row">
+        <select id="catSelect"></select>
+        <button class="add-cat-btn" id="addCatBtn" title="Add new category">+</button>
+      </div>
+      <div class="new-cat-row" id="newCatRow">
+        <input type="text" id="newCatInput" placeholder="New category name">
+        <button id="confirmNewCatBtn">Add</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>What was it for</label>
+      <input type="text" id="descInput" placeholder="e.g. colddrink, tiles, dihadi" list="descList">
+      <datalist id="descList"></datalist>
+    </div>
+    <div class="field">
+      <label>Purchased From / Paid To</label>
+      <input type="text" id="paidToInput" placeholder="e.g. Irfan thekedar, local hardware shop" list="vendorList">
+      <datalist id="vendorList"></datalist>
+    </div>
+    <div class="field">
+      <label>Your Name</label>
+      <input type="text" id="nameInput" placeholder="Who is adding this entry?">
+      <div class="hint">Saved on this device so you won't need to type it again.</div>
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="noteInput" placeholder="Any extra detail">
+    </div>
+    <button class="save-btn" id="saveBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      <span id="saveBtnText">Save Entry</span>
+    </button>
+  </div>
+  <div class="entry-actions hidden" id="entryActions">
+    <button id="receiptBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>Receipt</button>
+    <button class="del" id="deleteBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>Delete</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toastText">Saved</span>
+</div>
+
+<canvas id="receiptCanvas" width="640" height="960" style="display:none;"></canvas>
+
+<script>
+// ---------------- CATEGORY DEFINITIONS ----------------
+const ICONS = {
+  colddrink: '<path d="M6 3h12l-1.2 15.5a2 2 0 01-2 1.8h-5.6a2 2 0 01-2-1.8L6 3z"/><path d="M6 8h12"/><path d="M12 3v-1"/>',
+  materials: '<rect x="3" y="14" width="7" height="5"/><rect x="10" y="14" width="7" height="5"/><rect x="6.5" y="8" width="7" height="5"/><rect x="14" y="8" width="7" height="5"/>',
+  electrical: '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
+  plumbing: '<path d="M12 2s7 8 7 13a7 7 0 01-14 0c0-5 7-13 7-13z"/>',
+  labour: '<circle cx="9" cy="7" r="3"/><path d="M2 21v-1a6 6 0 016-6h2a6 6 0 016 6v1"/><path d="M17 8l2-2 2 2"/><path d="M19 6v6"/>',
+  contractor: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 13h18"/>',
+  transport: '<rect x="2" y="7" width="13" height="9" rx="1"/><path d="M15 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18" r="1.7"/><circle cx="16.5" cy="18" r="1.7"/>',
+  other: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  custom: '<path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z"/>'
+};
+const DEFAULT_CATEGORIES = [
+  {key:'colddrink',  label:'Cold Drinks & Snacks', color:'#e2a13b'},
+  {key:'materials',  label:'Materials',            color:'#4a7a96'},
+  {key:'electrical', label:'Electrical',           color:'#c9a227'},
+  {key:'plumbing',   label:'Plumbing',             color:'#3e8e8a'},
+  {key:'labour',     label:'Labour Wages',         color:'#c1442d'},
+  {key:'contractor', label:'Contractor Payment',   color:'#5b4b8a'},
+  {key:'transport',  label:'Transport & Rent',     color:'#7a8450'},
+  {key:'other',      label:'Other',                color:'#8a8577'},
+];
+const CUSTOM_COLOR_POOL = ['#b25a8c','#3f6b8a','#8a6a3f','#5a8a5f','#8a3f5e','#3f8a7d','#8a7a3f','#6a5a8a'];
+let CATEGORIES = DEFAULT_CATEGORIES.slice();
+const catByKey = k => CATEGORIES.find(c=>c.key===k) || CATEGORIES[CATEGORIES.length-1];
+function iconFor(key){ return ICONS[key] || ICONS.custom; }
+
+const DESC_SUGGESTIONS = ['Colddrink','Namkeen','Tiles','Marble','Bricks','Cement','Sand (Balu)','Welding','Electrician material','Plumber','Gate frame','Bulb','Wages - Dihadi','Wages - Majdoor','Thekedar advance','Rent - Ghodi','Rent - Shipping','Carpenter','Paint','Elbow pipes'];
+
+// ---------------- STATE ----------------
+let entries = [];
+let editingId = null;
+let activeCatFilter = null;
+let searchQuery = '';
+const ENTRIES_KEY = 'hisab-entries-v2';
+const CATEGORIES_KEY = 'hisab-categories-v2';
+const NAME_KEY = 'hisab-user-name';
+
+// ---------------- STORAGE ----------------
+async function loadCategories(){
+  try{
+    const res = await window.storage.get(CATEGORIES_KEY, true);
+    const custom = res && res.value ? JSON.parse(res.value) : [];
+    CATEGORIES = DEFAULT_CATEGORIES.concat(custom);
+  }catch(e){
+    CATEGORIES = DEFAULT_CATEGORIES.slice();
+  }
+}
+async function saveCustomCategories(){
+  const custom = CATEGORIES.filter(c => !DEFAULT_CATEGORIES.find(d=>d.key===c.key));
+  try{
+    await window.storage.set(CATEGORIES_KEY, JSON.stringify(custom), true);
+  }catch(e){ console.error('Could not save categories', e); }
+}
+async function loadEntries(){
+  try{
+    const res = await window.storage.get(ENTRIES_KEY, true);
+    entries = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    entries = [];
+  }
+}
+async function persistEntries(){
+  try{
+    await window.storage.set(ENTRIES_KEY, JSON.stringify(entries), true);
+  }catch(e){
+    console.error('Storage failed', e);
+    showToast('Could not save — try again');
+  }
+}
+async function loadMyName(){
+  try{
+    const res = await window.storage.get(NAME_KEY, false);
+    return res && res.value ? res.value : '';
+  }catch(e){ return ''; }
+}
+async function saveMyName(name){
+  try{ await window.storage.set(NAME_KEY, name, false); }catch(e){}
+}
+
+// ---------------- HELPERS ----------------
+function fmtINR(n){
+  n = Math.round(n*100)/100;
+  return n.toLocaleString('en-IN', {maximumFractionDigits: n%1===0?0:2});
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function dateLabel(iso){
+  const d = new Date(iso+'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yest = new Date(today); yest.setDate(yest.getDate()-1);
+  const dd = new Date(d); dd.setHours(0,0,0,0);
+  if(dd.getTime()===today.getTime()) return 'Today';
+  if(dd.getTime()===yest.getTime()) return 'Yesterday';
+  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+}
+function uid(){ return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function slug(s){ return s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || uid(); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+// ---------------- RENDER ----------------
+function render(){
+  renderTotals();
+  renderCatsStrip();
+  renderList();
+}
+function renderTotals(){
+  const total = entries.reduce((s,e)=>s+Number(e.amount),0);
+  document.getElementById('totalAmt').textContent = fmtINR(total);
+  document.getElementById('statCount').textContent = entries.length;
+  const uniqueDays = new Set(entries.map(e=>e.date));
+  document.getElementById('statDays').textContent = uniqueDays.size;
+  const avg = uniqueDays.size ? total/uniqueDays.size : 0;
+  document.getElementById('statAvg').textContent = '₹'+fmtINR(avg);
+}
+function renderCatsStrip(){
+  const strip = document.getElementById('catsStrip');
+  const totalsByCategory = {};
+  CATEGORIES.forEach(c=>totalsByCategory[c.key]=0);
+  entries.forEach(e=>{ totalsByCategory[e.category] = (totalsByCategory[e.category]||0) + Number(e.amount); });
+  strip.innerHTML = CATEGORIES.map(c=>{
+    const active = activeCatFilter===c.key ? 'active' : '';
+    return `<div class="cat-chip ${active}" data-cat="${c.key}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="${activeCatFilter===c.key?'var(--navy-3)':c.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconFor(c.key)}</svg>
+      ${escapeHtml(c.label)}
+      <span class="amt">₹${fmtINR(totalsByCategory[c.key]||0)}</span>
+    </div>`;
+  }).join('');
+  strip.querySelectorAll('.cat-chip').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const cat = el.dataset.cat;
+      activeCatFilter = activeCatFilter===cat ? null : cat;
+      render();
+    });
+  });
+}
+function renderList(){
+  const list = document.getElementById('list');
+  let filtered = entries.slice();
+  if(activeCatFilter) filtered = filtered.filter(e=>e.category===activeCatFilter);
+  if(searchQuery){
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(e =>
+      (e.description||'').toLowerCase().includes(q) ||
+      (e.paidTo||'').toLowerCase().includes(q) ||
+      (e.notes||'').toLowerCase().includes(q) ||
+      (e.addedBy||'').toLowerCase().includes(q)
+    );
+  }
+  if(filtered.length===0){
+    list.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
+      <h3>${entries.length===0 ? 'Your ledger is empty' : 'No matching entries'}</h3>
+      <p>${entries.length===0 ? 'Tap the + button to log your first renovation expense.' : 'Try a different search or clear filters.'}</p>
+    </div>`;
+    return;
+  }
+  filtered.sort((a,b)=> (b.date+b.createdAt).localeCompare(a.date+a.createdAt));
+  const groups = {};
+  filtered.forEach(e=>{ (groups[e.date] = groups[e.date]||[]).push(e); });
+  const dateKeys = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  list.innerHTML = dateKeys.map(dk=>{
+    const dayEntries = groups[dk];
+    const daySum = dayEntries.reduce((s,e)=>s+Number(e.amount),0);
+    const rows = dayEntries.map(e=>{
+      const cat = catByKey(e.category);
+      const metaParts = [];
+      if(e.paidTo) metaParts.push('from ' + e.paidTo);
+      else metaParts.push(cat.label);
+      if(e.addedBy) metaParts.push('added by ' + e.addedBy);
+      return `<div class="entry" data-id="${e.id}">
+        <div class="icon-wrap" style="background:${cat.color}22;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="${cat.color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconFor(cat.key)}</svg>
+        </div>
+        <div class="info">
+          <div class="desc">${escapeHtml(e.description || cat.label)}</div>
+          <div class="meta">${escapeHtml(metaParts.join(' · '))}</div>
+        </div>
+        <div class="amt">₹${fmtINR(e.amount)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="date-group">
+      <div class="date-head"><span class="d">${dateLabel(dk)}</span><span class="sub">₹${fmtINR(daySum)}</span></div>
+      ${rows}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.entry').forEach(el=>{
+    el.addEventListener('click', ()=> openSheet(el.dataset.id));
+  });
+}
+
+// ---------------- SHEET (ADD/EDIT) ----------------
+const sheet = document.getElementById('sheet');
+const overlay = document.getElementById('overlay');
+let selectedCat = null;
+
+function renderCatSelect(){
+  const sel = document.getElementById('catSelect');
+  sel.innerHTML = CATEGORIES.map(c=>`<option value="${c.key}">${escapeHtml(c.label)}</option>`).join('');
+  if(selectedCat) sel.value = selectedCat;
+}
+function populateDatalists(){
+  document.getElementById('descList').innerHTML = DESC_SUGGESTIONS.map(s=>`<option value="${s}">`).join('');
+  const vendors = [...new Set(entries.map(e=>e.paidTo).filter(Boolean))];
+  document.getElementById('vendorList').innerHTML = vendors.map(v=>`<option value="${escapeHtml(v)}">`).join('');
+}
+
+async function openSheet(id=null){
+  editingId = id;
+  const entryActions = document.getElementById('entryActions');
+  populateDatalists();
+  const myName = await loadMyName();
+  if(id){
+    const e = entries.find(x=>x.id===id);
+    if(!e) return;
+    document.getElementById('sheetTitle').textContent = 'Edit Entry';
+    document.getElementById('amountInput').value = e.amount;
+    selectedCat = e.category;
+    document.getElementById('descInput').value = e.description || '';
+    document.getElementById('paidToInput').value = e.paidTo || '';
+    document.getElementById('dateInput').value = e.date;
+    document.getElementById('noteInput').value = e.notes || '';
+    document.getElementById('nameInput').value = myName || e.addedBy || '';
+    document.getElementById('saveBtnText').textContent = 'Update Entry';
+    entryActions.classList.remove('hidden');
+  }else{
+    document.getElementById('sheetTitle').textContent = 'Add Entry';
+    document.getElementById('amountInput').value = '';
+    selectedCat = CATEGORIES[0].key;
+    document.getElementById('descInput').value = '';
+    document.getElementById('paidToInput').value = '';
+    document.getElementById('dateInput').value = todayISO();
+    document.getElementById('noteInput').value = '';
+    document.getElementById('nameInput').value = myName || '';
+    document.getElementById('saveBtnText').textContent = 'Save Entry';
+    entryActions.classList.add('hidden');
+  }
+  document.getElementById('newCatRow').classList.remove('show');
+  renderCatSelect();
+  overlay.classList.add('show');
+  sheet.classList.add('show');
+  setTimeout(()=>document.getElementById('amountInput').focus(), 300);
+}
+function closeSheet(){
+  overlay.classList.remove('show');
+  sheet.classList.remove('show');
+  editingId = null;
+}
+document.getElementById('fabBtn').addEventListener('click', ()=>openSheet(null));
+document.getElementById('closeSheetBtn').addEventListener('click', closeSheet);
+overlay.addEventListener('click', closeSheet);
+document.getElementById('catSelect').addEventListener('change', (e)=>{ selectedCat = e.target.value; });
+
+document.getElementById('addCatBtn').addEventListener('click', ()=>{
+  const row = document.getElementById('newCatRow');
+  row.classList.toggle('show');
+  if(row.classList.contains('show')) document.getElementById('newCatInput').focus();
+});
+document.getElementById('confirmNewCatBtn').addEventListener('click', async ()=>{
+  const label = document.getElementById('newCatInput').value.trim();
+  if(!label) return;
+  const key = 'c-' + slug(label) + '-' + Math.random().toString(36).slice(2,5);
+  const color = CUSTOM_COLOR_POOL[CATEGORIES.length % CUSTOM_COLOR_POOL.length];
+  CATEGORIES.push({key, label, color});
+  await saveCustomCategories();
+  selectedCat = key;
+  renderCatSelect();
+  document.getElementById('newCatInput').value = '';
+  document.getElementById('newCatRow').classList.remove('show');
+  showToast('Category added');
+});
+
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  if(!amount || amount<=0){ flashInvalid(document.getElementById('amountInput')); return; }
+  const name = document.getElementById('nameInput').value.trim();
+  if(!name){ flashInvalid(document.getElementById('nameInput')); showToast('Please enter your name'); return; }
+  const description = document.getElementById('descInput').value.trim();
+  const paidTo = document.getElementById('paidToInput').value.trim();
+  const date = document.getElementById('dateInput').value || todayISO();
+  const notes = document.getElementById('noteInput').value.trim();
+  const category = selectedCat || CATEGORIES[0].key;
+
+  await saveMyName(name);
+
+  if(editingId){
+    const e = entries.find(x=>x.id===editingId);
+    Object.assign(e, {amount, category, description, paidTo, date, notes, editedBy:name, editedAt:new Date().toISOString()});
+    showToast('Entry updated');
+  }else{
+    entries.push({
+      id: uid(), amount, category, description, paidTo, date, notes,
+      addedBy:name, createdAt:new Date().toISOString()
+    });
+    showToast('Entry saved');
+  }
+  await persistEntries();
+  render();
+  closeSheet();
+});
+
+document.getElementById('deleteBtn').addEventListener('click', async ()=>{
+  if(!editingId) return;
+  if(!confirm('Delete this entry? This removes it for everyone using this ledger.')) return;
+  entries = entries.filter(e=>e.id!==editingId);
+  await persistEntries();
+  render();
+  closeSheet();
+  showToast('Entry deleted');
+});
+
+function flashInvalid(el){
+  el.style.borderColor = 'var(--rust)';
+  el.focus();
+  setTimeout(()=>{ el.style.borderColor=''; }, 900);
+}
+
+// ---------------- SEARCH ----------------
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchQuery = e.target.value;
+  renderList();
+});
+document.getElementById('clearFilterBtn').addEventListener('click', ()=>{
+  searchQuery=''; activeCatFilter=null;
+  document.getElementById('searchInput').value='';
+  render();
+});
+
+// ---------------- REFRESH (pull latest shared data) ----------------
+document.getElementById('refreshBtn').addEventListener('click', async ()=>{
+  await Promise.all([loadEntries(), loadCategories()]);
+  render();
+  showToast('Ledger refreshed');
+});
+
+// ---------------- TOAST ----------------
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ---------------- CSV EXPORT ----------------
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  if(entries.length===0){ showToast('No entries to export'); return; }
+  const rows = [['Date','Category','Description','Purchased From / Paid To','Amount','Added By','Notes']];
+  entries.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+    rows.push([e.date, catByKey(e.category).label, e.description||'', e.paidTo||'', e.amount, e.addedBy||'', e.notes||'']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'hisab-renovation-ledger.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Ledger exported');
+});
+
+// ---------------- RECEIPT DOWNLOAD (canvas) ----------------
+document.getElementById('receiptBtn').addEventListener('click', ()=>{
+  if(!editingId) return;
+  const e = entries.find(x=>x.id===editingId);
+  if(!e) return;
+  drawReceipt(e);
+});
+function drawReceipt(e){
+  const canvas = document.getElementById('receiptCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cat = catByKey(e.category);
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#f6f2e8';
+  ctx.fillRect(0,0,W,H);
+
+  const stripeH = 14;
+  for(let x=0;x<W;x+=28){ ctx.fillStyle=(x/28)%2===0?'#e2a13b':'#152442'; ctx.fillRect(x,0,28,stripeH); }
+
+  ctx.fillStyle = '#152442';
+  ctx.font = '700 34px Oswald, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('H I S A B', W/2, 90);
+  ctx.font = '500 13px Inter, sans-serif';
+  ctx.fillStyle = '#7c7869';
+  ctx.fillText('RENOVATION PAYMENT VOUCHER', W/2, 114);
+
+  ctx.strokeStyle = '#ddd5c1'; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(40,140); ctx.lineTo(W-40,140); ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.textAlign = 'left';
+  ctx.font = '600 12px Inter, sans-serif';
+  ctx.fillStyle = cat.color;
+  ctx.fillText(cat.label.toUpperCase(), 50, 175);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#152442';
+  ctx.font = '700 60px "IBM Plex Mono", monospace';
+  ctx.fillText('₹ ' + fmtINR(e.amount), W/2, 250);
+
+  ctx.font = '600 22px Inter, sans-serif';
+  ctx.fillStyle = '#1f2430';
+  ctx.fillText(e.description || cat.label, W/2, 300);
+
+  let y = 360;
+  const details = [
+    ['Date', new Date(e.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})],
+    ['Purchased From', e.paidTo || '—'],
+    ['Category', cat.label],
+    ['Added By', e.addedBy || '—'],
+    ['Note', e.notes || '—'],
+  ];
+  ctx.textAlign = 'left';
+  details.forEach(([k,v])=>{
+    ctx.font = '600 13px Inter, sans-serif';
+    ctx.fillStyle = '#8a8577';
+    ctx.fillText(k.toUpperCase(), 60, y);
+    ctx.font = '500 18px Inter, sans-serif';
+    ctx.fillStyle = '#1f2430';
+    ctx.textAlign = 'right';
+    ctx.fillText(String(v), W-60, y);
+    ctx.textAlign = 'left';
+    y += 46;
+  });
+
+  ctx.strokeStyle = '#ddd5c1'; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(40,y+10); ctx.lineTo(W-40,y+10); ctx.stroke(); ctx.setLineDash([]);
+  y += 50;
+
+  ctx.textAlign = 'center';
+  ctx.font = '500 12px Inter, sans-serif';
+  ctx.fillStyle = '#7c7869';
+  ctx.fillText('Voucher ID: ' + e.id.toUpperCase(), W/2, y);
+  ctx.fillText('Generated by Hisab · ' + new Date().toLocaleString('en-IN'), W/2, y+22);
+
+  for(let x=0;x<W;x+=28){ ctx.fillStyle=(x/28)%2===0?'#e2a13b':'#152442'; ctx.fillRect(x,H-stripeH,28,stripeH); }
+
+  canvas.toBlob((blob)=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${e.date}-${e.id}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Receipt downloaded');
+  });
+}
+
+// ---------------- INIT ----------------
+(async function init(){
+  await Promise.all([loadEntries(), loadCategories()]);
+  render();
+})();
+</script>
 </body>
 </html>
