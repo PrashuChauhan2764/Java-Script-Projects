@@ -802,11 +802,11 @@ function categoryTotalsTable(list){
   list.forEach(e=>{ totals[e.category] = (totals[e.category]||0) + Number(e.amount); });
   return Object.entries(totals)
     .sort((a,b)=>b[1]-a[1])
-    .map(([k,v])=> [catByKey(k).label, '₹' + fmtINR(v)]);
+    .map(([k,v])=> [catByKey(k).label, pdfRupee(v)]);
 }
 function detailRows(list){
   return list.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
-    fmtDateLong(e.date), catByKey(e.category).label, e.description||'—', e.paidTo||'—', e.addedBy||'—', '₹'+fmtINR(e.amount)
+    fmtDateLong(e.date), catByKey(e.category).label, e.description||'—', e.paidTo||'—', e.addedBy||'—', pdfRupee(e.amount)
   ]);
 }
 function projectDurationText(list){
@@ -818,6 +818,8 @@ function hexToRgb(hex){
   hex = hex.replace('#','');
   return {r:parseInt(hex.substr(0,2),16), g:parseInt(hex.substr(2,2),16), b:parseInt(hex.substr(4,2),16)};
 }
+// jsPDF's built-in fonts don't render the ₹ glyph reliably, so PDFs spell it out instead.
+function pdfRupee(n){ return 'Rupees ' + fmtINR(n) + '/-'; }
 
 function generateFullReport(){
   const jsPDF = getJsPDF();
@@ -827,16 +829,16 @@ function generateFullReport(){
   const grandTotal = entries.reduce((s,e)=>s+Number(e.amount),0);
   let y = pdfHeader(doc, 'Home Renovation — Full Expense Report', projectDurationText(entries));
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(31,36,48);
-  doc.text('Grand Total Spent: ₹' + fmtINR(grandTotal), 14, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(31,36,48);
+  doc.text('Grand Total Spent: ' + pdfRupee(grandTotal), 14, y);
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(124,120,105);
-  doc.text(entries.length + ' entries logged', 14, y+6);
-  y += 14;
+  doc.text(entries.length + ' entries logged', 14, y+7);
+  y += 16;
 
   doc.autoTable({
     startY:y, head:[['Category','Total']], body:categoryTotalsTable(entries),
     theme:'grid', headStyles:{fillColor:[21,36,66], textColor:255, fontStyle:'bold'},
-    styles:{fontSize:9, cellPadding:4}, columnStyles:{1:{halign:'right', fontStyle:'bold'}},
+    styles:{fontSize:9, cellPadding:4}, columnStyles:{1:{halign:'right', fontStyle:'bold', cellWidth:55}},
     margin:{left:14,right:14}
   });
   y = doc.lastAutoTable.finalY + 12;
@@ -868,16 +870,16 @@ function generateCategoryReport(catKey){
   const doc = new jsPDF();
   let y = pdfHeader(doc, cat.label + ' — Category Report', projectDurationText(list));
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(31,36,48);
-  doc.text('Category Total: ₹' + fmtINR(total), 14, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(31,36,48);
+  doc.text('Category Total: ' + pdfRupee(total), 14, y);
   doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(124,120,105);
-  doc.text(list.length + ' entries in this category', 14, y+6);
-  y += 14;
+  doc.text(list.length + ' entries in this category', 14, y+7);
+  y += 16;
 
   doc.autoTable({
     startY:y, head:[['Date','Description','Purchased From','Added By','Amount']],
     body:list.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
-      fmtDateLong(e.date), e.description||'—', e.paidTo||'—', e.addedBy||'—', '₹'+fmtINR(e.amount)
+      fmtDateLong(e.date), e.description||'—', e.paidTo||'—', e.addedBy||'—', pdfRupee(e.amount)
     ]),
     theme:'striped', headStyles:{fillColor:[21,36,66], textColor:255, fontStyle:'bold'},
     alternateRowStyles:{fillColor:[246,242,232]},
@@ -889,7 +891,7 @@ function generateCategoryReport(catKey){
   doc.setDrawColor(226,161,59); doc.setLineWidth(0.6);
   doc.line(14, finalY, doc.internal.pageSize.getWidth()-14, finalY);
   doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(21,36,66);
-  doc.text('Total: ₹' + fmtINR(total), doc.internal.pageSize.getWidth()-14, finalY+8, {align:'right'});
+  doc.text('Total: ' + pdfRupee(total), doc.internal.pageSize.getWidth()-14, finalY+8, {align:'right'});
   pdfFooter(doc);
   doc.save(`Hisab-${slug(cat.label)}-report.pdf`);
   showToast(t('toastReceiptDown'));
@@ -910,8 +912,8 @@ function generateEntryReceipt(e){
   doc.setTextColor(rgb.r, rgb.g, rgb.b);
   doc.text(cat.label.toUpperCase(), 14, y);
   y += 14;
-  doc.setFont('helvetica','bold'); doc.setFontSize(30); doc.setTextColor(21,36,66);
-  doc.text('₹ ' + fmtINR(e.amount), W/2, y, {align:'center'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(21,36,66);
+  doc.text(pdfRupee(e.amount), W/2, y, {align:'center'});
   y += 12;
   doc.setFont('helvetica','normal'); doc.setFontSize(13); doc.setTextColor(31,36,48);
   doc.text(e.description || cat.label, W/2, y, {align:'center'});
