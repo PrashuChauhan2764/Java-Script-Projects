@@ -73,3 +73,6 @@
 # Version4:
 
 - added previous entries from the text file by importing it.
+
+# version5:
+- report changes with proper amount font text
