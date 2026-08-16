@@ -76,3 +76,8 @@
 
 # version5:
 - report changes with proper amount font text
+
+# version5.1
+- add rupee sign only
+- INS[indian number system] for grand total in words
+- show all when choose no category
