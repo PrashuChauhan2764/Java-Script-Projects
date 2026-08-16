@@ -69,3 +69,7 @@
 * Include materials and renovation expenses
 * Generate a complete expenditure summary for the entire renovation duration
 * Easy-to-understand receipts for sharing with family or others
+
+# Version4:
+
+- added previous entries from the text file by importing it.
