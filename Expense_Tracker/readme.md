@@ -81,3 +81,9 @@
 - add rupee sign only
 - INS[indian number system] for grand total in words
 - show all when choose no category
+
+# version6:
+- added PWA
+- added manifest.json
+- added sw.js
+- added icon-192,512 png file
