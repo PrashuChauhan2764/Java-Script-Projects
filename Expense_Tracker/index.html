@@ -226,6 +226,9 @@ input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--am
           <button data-lang="en" class="active">EN</button>
           <button data-lang="hi">हिं</button>
         </div>
+        <button class="menu-btn hidden" id="importBtn" title="Import WhatsApp backup">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        </button>
         <button class="menu-btn" id="exportBtn" title="Download report">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>
         </button>
@@ -939,8 +942,128 @@ document.getElementById('receiptBtn').addEventListener('click', ()=>{
   if(e) generateEntryReceipt(e);
 });
 
+/* =====================================================================
+   ONE-TIME WHATSAPP BACKUP IMPORT
+   Parsed from "WhatsApp Chat with Hisab.txt" (27 Jun – 14 Aug 2026).
+   Excluded as non-expenses: ₹3,40,000 received from maaji (income, not
+   spend), ₹7,000 to Lalita tai (committee loan, not renovation), and a
+   running subtotal note that would have double-counted entries.
+   ===================================================================== */
+const WHATSAPP_IMPORT = [
+  {date:'2026-06-27',amount:10000,category:'contractor',description:'Thekedar payment',paidTo:'Irfan thekedar',notes:'8pm'},
+  {date:'2026-06-27',amount:480,category:'colddrink',description:'Basan ladoo',paidTo:''},
+  {date:'2026-06-27',amount:700,category:'materials',description:'Balu (sand)',paidTo:''},
+  {date:'2026-06-27',amount:1200,category:'labour',description:'Welding',paidTo:'Saleem'},
+  {date:'2026-06-27',amount:70,category:'colddrink',description:'Colddrink + namkeen',paidTo:''},
+  {date:'2026-06-27',amount:50,category:'other',description:'Newspaper',paidTo:''},
+  {date:'2026-06-29',amount:5000,category:'contractor',description:'Thekedar payment',paidTo:''},
+  {date:'2026-07-03',amount:100,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-03',amount:4200,category:'plumbing',description:'Gatter (drainage)',paidTo:'Ahsaan'},
+  {date:'2026-07-03',amount:400,category:'transport',description:'Ghodi rent',paidTo:''},
+  {date:'2026-07-03',amount:50,category:'transport',description:'Rent',paidTo:''},
+  {date:'2026-07-04',amount:26880,category:'materials',description:'Tiles',paidTo:''},
+  {date:'2026-07-04',amount:1800,category:'transport',description:'Rent of tiles',paidTo:''},
+  {date:'2026-07-04',amount:50,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-05',amount:50,category:'colddrink',description:'Colddrink (due)',paidTo:''},
+  {date:'2026-07-10',amount:540,category:'other',description:'Bill (685-762=77*7)',paidTo:'Saurabh'},
+  {date:'2026-07-10',amount:4950,category:'other',description:'Bill',paidTo:'Soni bhabhi'},
+  {date:'2026-07-11',amount:140,category:'colddrink',description:'Glass + colddrink + biscuit + namkeen',paidTo:''},
+  {date:'2026-07-11',amount:50,category:'colddrink',description:'Fanta',paidTo:''},
+  {date:'2026-07-11',amount:602,category:'transport',description:'Bill / rent',paidTo:'Mini di'},
+  {date:'2026-07-12',amount:500,category:'labour',description:'Labour payment',paidTo:'Shishpal'},
+  {date:'2026-07-13',amount:60,category:'colddrink',description:'Maja + namkeen x2',paidTo:''},
+  {date:'2026-07-13',amount:70,category:'colddrink',description:'Banana',paidTo:''},
+  {date:'2026-07-13',amount:40,category:'colddrink',description:'Maja',paidTo:''},
+  {date:'2026-07-13',amount:150,category:'electrical',description:'Elbow pipes (store)',paidTo:''},
+  {date:'2026-06-26',amount:625,category:'electrical',description:'Electricity material',paidTo:'Bhola'},
+  {date:'2026-07-14',amount:50,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-15',amount:50,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-16',amount:50,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-16',amount:15000,category:'contractor',description:'Payment to Irfan',paidTo:'Irfan'},
+  {date:'2026-07-16',amount:5500,category:'materials',description:'Sand payment',paidTo:'Balu wale'},
+  {date:'2026-07-17',amount:10000,category:'materials',description:'Advance for material — gate frame',paidTo:'Ahsaan'},
+  {date:'2026-07-17',amount:50,category:'transport',description:'Shipping rent',paidTo:''},
+  {date:'2026-07-17',amount:10000,category:'materials',description:'Return of tiles (refund)',paidTo:'Ankur uncle'},
+  {date:'2026-07-18',amount:150,category:'materials',description:'White marble dana (1 pack)',paidTo:''},
+  {date:'2026-07-18',amount:50,category:'colddrink',description:'Maja colddrink',paidTo:''},
+  {date:'2026-07-19',amount:5000,category:'labour',description:'Payment',paidTo:'Pankaj Bihari'},
+  {date:'2026-07-19',amount:4400,category:'materials',description:'Bricks',paidTo:''},
+  {date:'2026-07-20',amount:40,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-23',amount:100,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-24',amount:200,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-25',amount:6000,category:'plumbing',description:'Plumber payment',paidTo:'Anuj'},
+  {date:'2026-07-25',amount:6000,category:'labour',description:'Previous due payment',paidTo:'Sheeshpal'},
+  {date:'2026-07-25',amount:50,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-26',amount:1500,category:'labour',description:'Majdoor wages — kitchen repair',paidTo:''},
+  {date:'2026-07-27',amount:300,category:'electrical',description:'Bulb',paidTo:''},
+  {date:'2026-07-27',amount:100,category:'colddrink',description:'Lunch',paidTo:'Monu'},
+  {date:'2026-07-27',amount:5280,category:'materials',description:'Marble',paidTo:''},
+  {date:'2026-07-27',amount:100,category:'colddrink',description:'Lunch',paidTo:'Monu'},
+  {date:'2026-07-27',amount:500,category:'labour',description:'Labour payment',paidTo:'Mayank'},
+  {date:'2026-07-29',amount:100,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-07-29',amount:500,category:'labour',description:'Labour payment',paidTo:'Anil'},
+  {date:'2026-07-30',amount:13000,category:'materials',description:'Door (derr)',paidTo:'Ahsan',notes:'Measurement receipt: 218.05 x rate 105 = 22,895; less 10,000 advance'},
+  {date:'2026-08-01',amount:100,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-08-01',amount:2000,category:'plumbing',description:'Plumber payment',paidTo:''},
+  {date:'2026-08-01',amount:1000,category:'labour',description:'Carpenter payment',paidTo:'Carpenter'},
+  {date:'2026-08-01',amount:190,category:'materials',description:'Keel (nails)',paidTo:''},
+  {date:'2026-08-02',amount:750,category:'materials',description:'Tiles',paidTo:''},
+  {date:'2026-08-02',amount:200,category:'colddrink',description:'Colddrink',paidTo:''},
+  {date:'2026-08-04',amount:600,category:'labour',description:'Dihadi wages',paidTo:''},
+  {date:'2026-08-04',amount:2000,category:'contractor',description:'Thekedar payment',paidTo:''},
+  {date:'2026-08-03',amount:380,category:'materials',description:'Tiles',paidTo:''},
+  {date:'2026-08-05',amount:1300,category:'contractor',description:'Thekedar payment',paidTo:''},
+  {date:'2026-08-05',amount:600,category:'labour',description:'Dihadi wages',paidTo:''},
+  {date:'2026-08-07',amount:600,category:'labour',description:'Payment',paidTo:'Deepak'},
+  {date:'2026-08-13',amount:300,category:'labour',description:'Dihadi wages',paidTo:''},
+  {date:'2026-08-13',amount:6300,category:'materials',description:'Sand payment',paidTo:'Balu wale'},
+  {date:'2026-08-14',amount:1200,category:'labour',description:'Majdoor wages x2',paidTo:''},
+];
+
+function checkImportStatus(){
+  if(!IS_CONFIGURED) return;
+  db.collection('meta').doc('importStatus').get().then(doc=>{
+    const already = doc.exists && doc.data().whatsappImported;
+    document.getElementById('importBtn').classList.toggle('hidden', !!already);
+  }).catch(()=>{
+    document.getElementById('importBtn').classList.remove('hidden');
+  });
+}
+document.getElementById('importBtn').addEventListener('click', async ()=>{
+  const total = WHATSAPP_IMPORT.reduce((s,e)=>s+e.amount,0);
+  const ok = confirm(
+    `Import ${WHATSAPP_IMPORT.length} entries from your WhatsApp backup (27 Jun – 14 Aug 2026)?\n\n` +
+    `Total: ₹${fmtINR(total)}\n\nThis adds them to the live ledger for everyone. This button hides itself after a successful import so it can't be run twice.`
+  );
+  if(!ok) return;
+  const btn = document.getElementById('importBtn');
+  btn.disabled = true;
+  try{
+    const batch = db.batch();
+    WHATSAPP_IMPORT.forEach(entry=>{
+      const ref = db.collection('entries').doc();
+      batch.set(ref, {
+        ...entry,
+        addedBy: currentUser || 'Prashu Chauhan',
+        createdAt: new Date().toISOString(),
+        importedFromWhatsapp: true
+      });
+    });
+    await batch.commit();
+    await db.collection('meta').doc('importStatus').set({whatsappImported:true, importedAt:new Date().toISOString()});
+    showToast(`Imported ${WHATSAPP_IMPORT.length} entries`);
+    btn.classList.add('hidden');
+  }catch(e){
+    console.error(e);
+    showToast('Import failed — check connection / Firestore rules');
+  }finally{
+    btn.disabled = false;
+  }
+});
+
 // ---------------- INIT ----------------
 initData();
+checkImportStatus();
 </script>
 </body>
 </html>
