@@ -4,6 +4,8 @@ Name: Prashu Chauhan
 SAPID: 590016978
 Program: Btech CSE
 
+## added PWA(progressive web application) on 16th aug
+
 **A real-time Ground Control Station (GCS) interface for the XO11 UAV**, built for monitoring, mission planning, and flight safety. Developed as part of the XO11 UAV Systems CS/IT project assignment.
 
 > Cockpit on the ground — live map, live telemetry, live alerts.
