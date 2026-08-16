@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Hisab — Renovation Ledger</title>
 <link rel="icon" id="faviconLink" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23152442'/%3E%3Ctext x='50' y='70' font-family='Georgia,serif' font-size='58' fill='%23e2a13b' text-anchor='middle'%3E%E2%82%B9%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/12.16.0/firebase-app-compat.min.js"></script>
@@ -1133,6 +1135,19 @@ document.getElementById('importBtn').addEventListener('click', async ()=>{
 // ---------------- INIT ----------------
 initData();
 checkImportStatus();
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./sw.js")
+                .then(() => {
+                    console.log("Service Worker registered successfully");
+                })
+                .catch(error => {
+                    console.error("Service Worker registration failed:", error);
+                });
+        });
+    }
 </script>
 </body>
 </html>
