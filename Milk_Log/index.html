@@ -5,36 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="theme-color" content="#1F3D2B" />
-<title>Milk Log &mdash; Milk Ledger</title>
+<meta name="theme-color" content="#0D47A1" />
+<title>Milk Log &mdash; Daily Dairy Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --page:#F7F2E4;
-    --page-alt:#F1EAD6;
-    --card:#FFFEFA;
-    --card-alt:#FBF6E9;
-    --ink:#2B2318;
-    --ink-soft:#6B6250;
-    --ink-faint:#A79C85;
-    --hair:#E4D7B4;
-    --hair-strong:#D3C093;
-    --pasture:#1F3D2B;
-    --pasture-deep:#152A1E;
-    --pasture-soft:#E4EDE1;
-    --gold:#B9902E;
-    --gold-deep:#8C6C1F;
-    --gold-soft:#F3E7C4;
-    --cream-ink:#F6F1E2;
+    --page:#F2F7FD;
+    --page-alt:#E8F1FB;
+    --card:#FFFFFF;
+    --card-alt:#F4F9FE;
+    --ink:#13233F;
+    --ink-soft:#4C5E7D;
+    --ink-faint:#93A4C0;
+    --hair:#D9E6F7;
+    --hair-strong:#BBD2ED;
+    --pasture:#0D47A1;
+    --pasture-deep:#082A5E;
+    --pasture-soft:#E3EDFB;
+    --gold:#D14D82;
+    --gold-deep:#A03565;
+    --gold-soft:#FCE4EE;
+    --cream-ink:#F5F9FF;
     --red:#A23B33;
     --red-soft:#F5E1DD;
     --green:#356B45;
     --green-soft:#E1EEE2;
-    --shadow-sm:0 1px 2px rgba(43,35,24,0.06), 0 1px 1px rgba(43,35,24,0.04);
-    --shadow-md:0 6px 20px rgba(21,42,30,0.10), 0 2px 6px rgba(21,42,30,0.06);
-    --shadow-lg:0 16px 40px rgba(21,42,30,0.22);
+    --shadow-sm:0 1px 2px rgba(13,40,90,0.07), 0 1px 1px rgba(13,40,90,0.05);
+    --shadow-md:0 6px 20px rgba(8,42,94,0.12), 0 2px 6px rgba(8,42,94,0.07);
+    --shadow-lg:0 16px 40px rgba(8,42,94,0.24);
     --radius-lg:20px;
     --radius-md:14px;
     --radius-sm:10px;
@@ -42,27 +42,28 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{
-    font-family:'Jost', sans-serif;
+    font-family:'Manrope', sans-serif;
+    font-weight:500;
     color:var(--ink);
     background:
-      radial-gradient(ellipse at 15% 8%, rgba(31,61,43,0.05) 0%, transparent 45%),
-      radial-gradient(ellipse at 85% 92%, rgba(185,144,46,0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 15% 8%, rgba(13,71,161,0.06) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 92%, rgba(209,77,130,0.06) 0%, transparent 45%),
       var(--page);
     min-height:100vh;
     -webkit-font-smoothing:antialiased;
   }
   .cow-print{
-    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.55;
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.6;
     background-image:
-      radial-gradient(ellipse 46px 34px at 8% 12%, rgba(43,35,24,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 60px 40px at 72% 6%, rgba(43,35,24,0.04) 40%, transparent 41%),
-      radial-gradient(ellipse 38px 50px at 40% 30%, rgba(43,35,24,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 55px 36px at 90% 40%, rgba(43,35,24,0.04) 40%, transparent 41%),
-      radial-gradient(ellipse 42px 30px at 15% 55%, rgba(43,35,24,0.04) 40%, transparent 41%),
-      radial-gradient(ellipse 64px 44px at 60% 68%, rgba(43,35,24,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 36px 48px at 92% 82%, rgba(43,35,24,0.04) 40%, transparent 41%),
-      radial-gradient(ellipse 50px 34px at 25% 90%, rgba(43,35,24,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 40px 30px at 55% 95%, rgba(43,35,24,0.04) 40%, transparent 41%);
+      radial-gradient(ellipse 46px 34px at 8% 12%, rgba(13,71,161,0.05) 40%, transparent 41%),
+      radial-gradient(ellipse 60px 40px at 72% 6%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 38px 50px at 40% 30%, rgba(13,71,161,0.05) 40%, transparent 41%),
+      radial-gradient(ellipse 55px 36px at 90% 40%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 42px 30px at 15% 55%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 64px 44px at 60% 68%, rgba(13,71,161,0.05) 40%, transparent 41%),
+      radial-gradient(ellipse 36px 48px at 92% 82%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 50px 34px at 25% 90%, rgba(13,71,161,0.05) 40%, transparent 41%),
+      radial-gradient(ellipse 40px 30px at 55% 95%, rgba(13,71,161,0.045) 40%, transparent 41%);
     background-size: 480px 480px;
     background-repeat:repeat;
   }
@@ -70,41 +71,72 @@
 
   /* Header */
   .hdr{
-    background:
-      linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%);
+    background:var(--pasture-deep);
     color:var(--cream-ink);
-    padding: calc(env(safe-area-inset-top,0px) + 20px) 20px 0;
     border-bottom-left-radius:26px; border-bottom-right-radius:26px;
     box-shadow: var(--shadow-lg);
     position:relative; overflow:hidden;
   }
-  .hdr::before{
-    content:""; position:absolute; inset:0; opacity:0.10; pointer-events:none;
+
+  /*
+    HERO IMAGE BAND
+    -----------------------------------------------------------------
+    The milk-splash artwork you shared is embedded below as base64,
+    so this file works standalone with no extra image file needed.
+    To swap in a different picture later: replace everything between
+    data:image/webp;base64,  and  the closing "  with your own image
+    converted to base64 (any image-to-base64 tool online works).
+  */
+  .hero-photo{
+    position:relative; min-height:152px; overflow:hidden;
+    padding: calc(env(safe-area-inset-top,0px) + 14px) 20px 16px;
+    display:flex; align-items:flex-end;
     background-image:
-      radial-gradient(ellipse 70px 50px at 10% 15%, #000 40%, transparent 41%),
-      radial-gradient(ellipse 90px 60px at 80% 0%, #000 40%, transparent 41%),
-      radial-gradient(ellipse 55px 75px at 45% 60%, #000 40%, transparent 41%),
-      radial-gradient(ellipse 80px 55px at 95% 70%, #000 40%, transparent 41%);
+      linear-gradient(100deg, rgba(6,32,74,0.95) 0%, rgba(8,42,94,0.86) 30%, rgba(8,42,94,0.32) 58%, rgba(8,42,94,0.06) 100%),
+      url("PLACEHOLDER_DATA_URI");
+    background-size:cover; background-position:center 32%;
+    background-color:var(--pasture-deep);
   }
-  .hdr-top{ display:flex; align-items:center; justify-content:space-between; position:relative; }
-  .brand{ display:flex; align-items:center; gap:12px; }
-  .brand-mark{
-    width:46px; height:46px; border-radius:50%; background:rgba(246,241,226,0.08);
-    border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
-  .brand-text .title{ font-family:'Playfair Display', serif; font-weight:700; font-size:22px; letter-spacing:0.3px; line-height:1.05;}
-  .brand-text .sub{ font-size:11px; color:var(--gold); text-transform:uppercase; letter-spacing:1.6px; margin-top:3px; }
   .gear-btn{
-    width:40px; height:40px; border-radius:12px; border:1px solid rgba(246,241,226,0.22);
-    background:rgba(246,241,226,0.07); display:flex; align-items:center; justify-content:center;
+    position:absolute; top:calc(env(safe-area-inset-top,0px) + 12px); right:16px; z-index:2;
+    width:40px; height:40px; border-radius:12px; border:1px solid rgba(245,249,255,0.28);
+    background:rgba(8,42,94,0.35); display:flex; align-items:center; justify-content:center;
     color:var(--cream-ink); cursor:pointer; transition:transform .1s ease, background .15s ease;
   }
-  .gear-btn:active{ transform:scale(0.94); background:rgba(246,241,226,0.14); }
+  .gear-btn:active{ transform:scale(0.94); background:rgba(8,42,94,0.5); }
 
-  .month-nav{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; position:relative; }
-  .month-btn{ background:none; border:none; color:#D8CFAE; cursor:pointer; padding:8px; border-radius:8px; transition:background .15s ease; }
-  .month-btn:active{ background:rgba(246,241,226,0.08); }
-  .month-label{ font-family:'Playfair Display', serif; font-size:19px; font-weight:600; letter-spacing:0.3px; }
+  .brand{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+  .brand-mark{
+    width:48px; height:48px; border-radius:50%; background:rgba(8,42,94,0.4);
+    border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 2px 10px rgba(4,20,46,0.35);
+  }
+  .brand-text .title{
+    font-family:'Fraunces', serif; font-weight:800; font-size:24px; letter-spacing:0.2px; line-height:1.05;
+    text-shadow:0 2px 12px rgba(3,16,38,0.6);
+  }
+  .brand-text .sub{
+    font-size:11px; color:var(--gold-soft); text-transform:uppercase; letter-spacing:1.8px; margin-top:4px;
+    font-weight:700; text-shadow:0 1px 8px rgba(3,16,38,0.55);
+  }
+
+  .hdr-body{
+    padding:16px 20px 20px; position:relative;
+    background:linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%);
+  }
+  .hdr-body::before{
+    content:""; position:absolute; inset:0; opacity:0.08; pointer-events:none;
+    background-image:
+      radial-gradient(ellipse 70px 50px at 10% 10%, #000 40%, transparent 41%),
+      radial-gradient(ellipse 90px 60px at 80% -5%, #000 40%, transparent 41%),
+      radial-gradient(ellipse 55px 75px at 45% 55%, #000 40%, transparent 41%),
+      radial-gradient(ellipse 80px 55px at 95% 65%, #000 40%, transparent 41%);
+  }
+
+  .month-nav{ display:flex; align-items:center; justify-content:space-between; position:relative; }
+  .month-btn{ background:none; border:none; color:#CFE0F7; cursor:pointer; padding:8px; border-radius:8px; transition:background .15s ease; }
+  .month-btn:active{ background:rgba(245,249,255,0.1); }
+  .month-label{ font-family:'Fraunces', serif; font-size:19px; font-weight:700; letter-spacing:0.3px; }
 
   .summary{
     margin-top:16px; position:relative; background:rgba(246,241,226,0.07);
@@ -113,10 +145,10 @@
   .summary-grid{ display:flex; }
   .summary-col{ flex:1; }
   .summary-divider{ width:1px; background:rgba(246,241,226,0.16); margin:2px 16px; }
-  .summary-label{ font-size:10.5px; color:#B7C4B9; text-transform:uppercase; letter-spacing:1.2px; }
-  .summary-value{ font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:600; margin-top:5px; }
-  .summary-value .unit{ font-size:13px; color:#B7C4B9; font-weight:500;}
-  .summary-sub{ font-size:11px; color:#93A398; margin-top:3px; }
+  .summary-label{ font-size:10.5px; color:#B9CFEE; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
+  .summary-value{ font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; margin-top:5px; }
+  .summary-value .unit{ font-size:13px; color:#B9CFEE; font-weight:500;}
+  .summary-sub{ font-size:11px; color:#8FA8C9; margin-top:3px; }
 
   .paid-stamp{
     position:absolute; top:-10px; right:-6px; width:78px; height:78px; pointer-events:none;
@@ -127,7 +159,7 @@
   .paid-toggle{
     margin-top:12px; width:100%; padding:11px 0; border-radius:11px; cursor:pointer;
     font-size:13px; font-weight:500; display:flex; align-items:center; justify-content:center; gap:7px;
-    border:1px solid rgba(246,241,226,0.2); background:rgba(246,241,226,0.05); color:#D8CFAE;
+    border:1px solid rgba(245,249,255,0.22); background:rgba(245,249,255,0.06); color:#CFE0F7;
     transition:all .15s ease; letter-spacing:0.2px;
   }
   .paid-toggle.is-paid{ border-color:rgba(120,196,140,0.4); background:rgba(120,196,140,0.12); color:#8FCB9C; }
@@ -140,16 +172,16 @@
   }
   .section-gap{ margin:22px 20px 0; }
   .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .card-title{ font-family:'Playfair Display', serif; font-size:16.5px; font-weight:600; color:var(--ink); }
+  .card-title{ font-family:'Fraunces', serif; font-size:16.5px; font-weight:700; color:var(--ink); }
   .card-title .orn{ color:var(--gold); margin:0 6px; font-size:13px; }
   .cancel-link{
     font-size:12.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer;
     display:flex; align-items:center; gap:4px; padding:4px;
   }
 
-  label.field-label{ display:block; font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+  label.field-label{ display:block; font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; font-weight:700; }
   input[type="date"], input[type="number"], input[type="text"]{
-    font-family:'Jost', sans-serif; font-size:15px; color:var(--ink); background:var(--card-alt);
+    font-family:'Manrope', sans-serif; font-weight:600; font-size:15px; color:var(--ink); background:var(--card-alt);
     border:1px solid var(--hair); border-radius:var(--radius-sm); padding:11px 13px; width:100%;
   }
   input:focus{ outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold); }
@@ -232,11 +264,11 @@
     display:flex; align-items:center; justify-content:space-between; padding:13px 16px;
     background:linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%); color:var(--cream-ink);
   }
-  .ledger-total .lbl{ font-size:12.5px; color:#B7C4B9; font-weight:500; }
+  .ledger-total .lbl{ font-size:12.5px; color:#B9CFEE; font-weight:600; }
   .ledger-total .val{ font-family:'JetBrains Mono', monospace; font-size:16px; font-weight:700; }
 
   .storage-warn{
-    margin:16px 20px 0; padding:11px 15px; background:var(--gold-soft); border:1px solid #E2C878;
+    margin:16px 20px 0; padding:11px 15px; background:var(--gold-soft); border:1px solid #F0AFC9;
     border-radius:12px; font-size:12px; color:var(--gold-deep); line-height:1.5;
   }
 
@@ -255,7 +287,7 @@
   }
   .overlay.open .sheet{ transform:translateY(0); }
   .sheet-handle{ width:38px; height:4px; background:var(--hair-strong); border-radius:4px; margin:0 auto 18px; }
-  .sheet-title{ font-family:'Playfair Display', serif; font-size:18px; font-weight:600; margin-bottom:16px; }
+  .sheet-title{ font-family:'Fraunces', serif; font-size:18px; font-weight:700; margin-bottom:16px; }
   .field-row{ display:flex; gap:10px; }
   .field-row > div{ flex:1; }
   .field-hint{ font-size:11.5px; color:var(--ink-faint); margin-top:7px; line-height:1.5; }
@@ -536,7 +568,7 @@
   function iconPencil(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>'; }
   function iconTrash(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4.8c0-.4.4-.8.9-.8h4.2c.5 0 .9.4.9.8V7M6 7l1 13.2c0 .5.5.8 1 .8h8c.5 0 1-.3 1-.8L18 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
   function iconStamp(){
-    return '<svg width="78" height="78" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#C0453C" stroke-width="3" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#C0453C" stroke-width="2"/><text x="50" y="47" text-anchor="middle" font-family="Playfair Display, serif" font-weight="700" font-size="17" fill="#C0453C" letter-spacing="2">PAID</text><text x="50" y="63" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7.5" fill="#C0453C" letter-spacing="1">SETTLED IN FULL</text></svg>';
+    return '<svg width="78" height="78" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#C0453C" stroke-width="3" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#C0453C" stroke-width="2"/><text x="50" y="47" text-anchor="middle" font-family="Fraunces, serif" font-weight="800" font-size="17" fill="#C0453C" letter-spacing="2">PAID</text><text x="50" y="63" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7.5" fill="#C0453C" letter-spacing="1">SETTLED IN FULL</text></svg>';
   }
 
   /* ---------- Render ---------- */
@@ -559,12 +591,14 @@
 
     /* Header */
     html += '<div class="hdr">';
-    html += '<div class="hdr-top">';
-    html += '<div class="brand"><div class="brand-mark">'+iconCow(28,"#F3E7C4","#B9902E")+'</div>';
-    html += '<div class="brand-text"><div class="title">Milk Log</div><div class="sub">'+escapeHtml(state.settings.dairyName)+'</div></div></div>';
-    html += '<button class="gear-btn" id="btn-settings" aria-label="Settings">'+iconGear(18,"#F6F1E2")+'</button>';
-    html += '</div>';
 
+    html += '<div class="hero-photo">';
+    html += '<button class="gear-btn" id="btn-settings" aria-label="Settings">'+iconGear(18,"#F6F1E2")+'</button>';
+    html += '<div class="brand"><div class="brand-mark">'+iconCow(28,"#F5F9FF","#F48FB1")+'</div>';
+    html += '<div class="brand-text"><div class="title">Milk Log</div><div class="sub">'+escapeHtml(state.settings.dairyName)+'</div></div></div>';
+    html += '</div>'; // hero-photo
+
+    html += '<div class="hdr-body">';
     html += '<div class="month-nav"><button class="month-btn" id="btn-prev-month" aria-label="Previous month">'+iconChevron("left")+'</button>';
     html += '<div class="month-label">'+MONTH_NAMES[state.viewMonth]+' '+state.viewYear+'</div>';
     html += '<button class="month-btn" id="btn-next-month" aria-label="Next month">'+iconChevron("right")+'</button></div>';
@@ -574,10 +608,11 @@
     html += '<div class="summary-grid">';
     html += '<div class="summary-col"><div class="summary-label">Total milk</div><div class="summary-value">'+fmtNum(totalQty)+' <span class="unit">L</span></div><div class="summary-sub">'+entries.length+' '+(entries.length===1?"day":"days")+' logged</div></div>';
     html += '<div class="summary-divider"></div>';
-    html += '<div class="summary-col"><div class="summary-label">Amount due</div><div class="summary-value" style="color:'+(isPaid?"#8FCB9C":"#F0C878")+'">'+fmtMoney(totalAmount,currency)+'</div><div class="summary-sub">@ '+currency+fmtNum(state.settings.rate)+'/L</div></div>';
+    html += '<div class="summary-col"><div class="summary-label">Amount due</div><div class="summary-value" style="color:'+(isPaid?"#8FCB9C":"#FF9EC4")+'">'+fmtMoney(totalAmount,currency)+'</div><div class="summary-sub">@ '+currency+fmtNum(state.settings.rate)+'/L</div></div>';
     html += '</div>';
     html += '<button class="paid-toggle'+(isPaid?' is-paid':'')+'" id="btn-toggle-paid">'+(isPaid?iconCheck(14):'')+(isPaid?" Paid for this month":"Mark this month as paid")+'</button>';
     html += '</div>'; // summary
+    html += '</div>'; // hdr-body
     html += '</div>'; // hdr
 
     /* Entry form */
