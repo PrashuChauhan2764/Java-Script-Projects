@@ -6,43 +6,44 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="theme-color" content="#0D47A1" />
-<title>Milk Log &mdash; Daily Dairy Ledger</title>
+<title>Milky &mdash; Daily Dairy Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
     --page:#F2F7FD;
     --page-alt:#E8F1FB;
     --card:#FFFFFF;
     --card-alt:#F4F9FE;
-    --ink:#13233F;
+    --ink:#12213C;
     --ink-soft:#4C5E7D;
     --ink-faint:#93A4C0;
     --hair:#D9E6F7;
-    --hair-strong:#BBD2ED;
-    --pasture:#0D47A1;
-    --pasture-deep:#082A5E;
-    --pasture-soft:#E3EDFB;
-    --gold:#D14D82;
-    --gold-deep:#A03565;
-    --gold-soft:#FCE4EE;
+    --hair-strong:#B9D0EC;
+    --blue:#0D47A1;
+    --blue-deep:#082A5E;
+    --blue-soft:#E3EDFB;
+    --pink:#D14D82;
+    --pink-deep:#A03565;
+    --pink-soft:#FCE4EE;
     --cream-ink:#F5F9FF;
-    --red:#A23B33;
+    --red:#B23A33;
     --red-soft:#F5E1DD;
-    --green:#356B45;
-    --green-soft:#E1EEE2;
-    --shadow-sm:0 1px 2px rgba(13,40,90,0.07), 0 1px 1px rgba(13,40,90,0.05);
-    --shadow-md:0 6px 20px rgba(8,42,94,0.12), 0 2px 6px rgba(8,42,94,0.07);
-    --shadow-lg:0 16px 40px rgba(8,42,94,0.24);
+    --green:#2E7D4F;
+    --green-soft:#E1F1E7;
+    --shadow-sm:0 1px 2px rgba(13,40,90,0.06), 0 1px 1px rgba(13,40,90,0.04);
+    --shadow-md:0 10px 24px rgba(8,42,94,0.10), 0 2px 8px rgba(8,42,94,0.06);
+    --shadow-lg:0 20px 48px rgba(8,42,94,0.22);
     --radius-lg:20px;
     --radius-md:14px;
-    --radius-sm:10px;
+    --radius-sm:11px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{
-    font-family:'Manrope', sans-serif;
+    font-family:'Manrope','Noto Sans Devanagari', sans-serif;
     font-weight:500;
     color:var(--ink);
     background:
@@ -53,77 +54,76 @@
     -webkit-font-smoothing:antialiased;
   }
   .cow-print{
-    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.6;
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.55;
     background-image:
-      radial-gradient(ellipse 46px 34px at 8% 12%, rgba(13,71,161,0.05) 40%, transparent 41%),
-      radial-gradient(ellipse 60px 40px at 72% 6%, rgba(13,71,161,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 38px 50px at 40% 30%, rgba(13,71,161,0.05) 40%, transparent 41%),
-      radial-gradient(ellipse 55px 36px at 90% 40%, rgba(13,71,161,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 42px 30px at 15% 55%, rgba(13,71,161,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 64px 44px at 60% 68%, rgba(13,71,161,0.05) 40%, transparent 41%),
-      radial-gradient(ellipse 36px 48px at 92% 82%, rgba(13,71,161,0.045) 40%, transparent 41%),
-      radial-gradient(ellipse 50px 34px at 25% 90%, rgba(13,71,161,0.05) 40%, transparent 41%),
-      radial-gradient(ellipse 40px 30px at 55% 95%, rgba(13,71,161,0.045) 40%, transparent 41%);
+      radial-gradient(ellipse 46px 34px at 8% 12%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 60px 40px at 72% 6%, rgba(13,71,161,0.04) 40%, transparent 41%),
+      radial-gradient(ellipse 38px 50px at 40% 30%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 55px 36px at 90% 40%, rgba(13,71,161,0.04) 40%, transparent 41%),
+      radial-gradient(ellipse 42px 30px at 15% 55%, rgba(13,71,161,0.04) 40%, transparent 41%),
+      radial-gradient(ellipse 64px 44px at 60% 68%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 36px 48px at 92% 82%, rgba(13,71,161,0.04) 40%, transparent 41%),
+      radial-gradient(ellipse 50px 34px at 25% 90%, rgba(13,71,161,0.045) 40%, transparent 41%),
+      radial-gradient(ellipse 40px 30px at 55% 95%, rgba(13,71,161,0.04) 40%, transparent 41%);
     background-size: 480px 480px;
     background-repeat:repeat;
   }
   .app{ position:relative; z-index:1; max-width:480px; margin:0 auto; min-height:100vh; padding-bottom:2.5rem;}
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .fade-in{ animation:fadeUp .32s ease both; }
 
   /* Header */
-  .hdr{
-    background:var(--pasture-deep);
-    color:var(--cream-ink);
-    border-bottom-left-radius:26px; border-bottom-right-radius:26px;
-    box-shadow: var(--shadow-lg);
-    position:relative; overflow:hidden;
-  }
+  .hdr{ background:var(--blue-deep); color:var(--cream-ink); border-bottom-left-radius:26px; border-bottom-right-radius:26px; box-shadow:var(--shadow-lg); position:relative; overflow:hidden; }
 
   /*
     HERO IMAGE BAND
-    -----------------------------------------------------------------
-    The milk-splash artwork you shared is embedded below as base64,
-    so this file works standalone with no extra image file needed.
-    To swap in a different picture later: replace everything between
-    data:image/webp;base64,  and  the closing "  with your own image
-    converted to base64 (any image-to-base64 tool online works).
+    The milk-splash artwork is embedded below as base64 so this file
+    works standalone. To swap the picture, replace the base64 string
+    after "data:image/webp;base64," with your own image's base64.
   */
   .hero-photo{
-    position:relative; min-height:152px; overflow:hidden;
-    padding: calc(env(safe-area-inset-top,0px) + 14px) 20px 16px;
+    position:relative; min-height:150px; overflow:hidden;
+    padding: calc(env(safe-area-inset-top,0px) + 14px) 18px 16px;
     display:flex; align-items:flex-end;
     background-image:
       linear-gradient(100deg, rgba(6,32,74,0.95) 0%, rgba(8,42,94,0.86) 30%, rgba(8,42,94,0.32) 58%, rgba(8,42,94,0.06) 100%),
-      url("PLACEHOLDER_DATA_URI");
+      url("data:image/webp;base64,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");
     background-size:cover; background-position:center 32%;
-    background-color:var(--pasture-deep);
+    background-color:var(--blue-deep);
   }
+  .hdr-controls{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 12px); right:16px; z-index:2; display:flex; gap:8px; }
+  .lang-toggle{
+    display:flex; border:1px solid rgba(245,249,255,0.28); border-radius:10px; overflow:hidden;
+    background:rgba(8,42,94,0.35);
+  }
+  .lang-btn{
+    border:none; background:transparent; color:#CFE0F7; font-size:11.5px; font-weight:700; padding:0 9px; height:38px;
+    cursor:pointer; letter-spacing:0.3px; font-family:'Manrope', sans-serif;
+  }
+  .lang-btn.active{ background:var(--pink); color:#fff; }
   .gear-btn{
-    position:absolute; top:calc(env(safe-area-inset-top,0px) + 12px); right:16px; z-index:2;
-    width:40px; height:40px; border-radius:12px; border:1px solid rgba(245,249,255,0.28);
+    width:38px; height:38px; border-radius:10px; border:1px solid rgba(245,249,255,0.28);
     background:rgba(8,42,94,0.35); display:flex; align-items:center; justify-content:center;
-    color:var(--cream-ink); cursor:pointer; transition:transform .1s ease, background .15s ease;
+    color:var(--cream-ink); cursor:pointer; transition:transform .1s ease, background .15s ease; flex-shrink:0;
   }
-  .gear-btn:active{ transform:scale(0.94); background:rgba(8,42,94,0.5); }
+  .gear-btn:active{ transform:scale(0.92) rotate(20deg); background:rgba(8,42,94,0.5); }
 
   .brand{ display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
   .brand-mark{
-    width:48px; height:48px; border-radius:50%; background:rgba(8,42,94,0.4);
-    border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    box-shadow:0 2px 10px rgba(4,20,46,0.35);
+    width:50px; height:50px; border-radius:50%; background:rgba(8,42,94,0.45);
+    border:2px solid var(--pink); display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 2px 12px rgba(4,20,46,0.4);
   }
   .brand-text .title{
-    font-family:'Fraunces', serif; font-weight:800; font-size:24px; letter-spacing:0.2px; line-height:1.05;
-    text-shadow:0 2px 12px rgba(3,16,38,0.6);
+    font-family:'Fraunces', serif; font-weight:800; font-size:26px; letter-spacing:0.2px; line-height:1;
+    text-shadow:0 2px 14px rgba(3,16,38,0.65);
   }
   .brand-text .sub{
-    font-size:11px; color:var(--gold-soft); text-transform:uppercase; letter-spacing:1.8px; margin-top:4px;
+    font-size:11px; color:#F6C9DC; text-transform:uppercase; letter-spacing:1.8px; margin-top:5px;
     font-weight:700; text-shadow:0 1px 8px rgba(3,16,38,0.55);
   }
 
-  .hdr-body{
-    padding:16px 20px 20px; position:relative;
-    background:linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%);
-  }
+  .hdr-body{ padding:14px 20px 20px; position:relative; background:linear-gradient(180deg, var(--blue) 0%, var(--blue-deep) 100%); }
   .hdr-body::before{
     content:""; position:absolute; inset:0; opacity:0.08; pointer-events:none;
     background-image:
@@ -132,186 +132,166 @@
       radial-gradient(ellipse 55px 75px at 45% 55%, #000 40%, transparent 41%),
       radial-gradient(ellipse 80px 55px at 95% 65%, #000 40%, transparent 41%);
   }
+  .greeting{ font-size:13px; color:#CFE0F7; font-weight:600; position:relative; margin-bottom:10px; }
+  .greeting b{ color:#fff; }
 
   .month-nav{ display:flex; align-items:center; justify-content:space-between; position:relative; }
   .month-btn{ background:none; border:none; color:#CFE0F7; cursor:pointer; padding:8px; border-radius:8px; transition:background .15s ease; }
   .month-btn:active{ background:rgba(245,249,255,0.1); }
   .month-label{ font-family:'Fraunces', serif; font-size:19px; font-weight:700; letter-spacing:0.3px; }
 
-  .summary{
-    margin-top:16px; position:relative; background:rgba(246,241,226,0.07);
-    border:1px solid rgba(246,241,226,0.16); border-radius:16px; padding:16px 18px 14px;
-  }
+  .summary{ margin-top:16px; position:relative; background:rgba(246,241,226,0.07); border:1px solid rgba(246,241,226,0.16); border-radius:16px; padding:16px 18px 14px; }
   .summary-grid{ display:flex; }
   .summary-col{ flex:1; }
   .summary-divider{ width:1px; background:rgba(246,241,226,0.16); margin:2px 16px; }
-  .summary-label{ font-size:10.5px; color:#B9CFEE; text-transform:uppercase; letter-spacing:1.2px; font-weight:600; }
+  .summary-label{ font-size:10.5px; color:#B9CFEE; text-transform:uppercase; letter-spacing:1.2px; font-weight:700; }
   .summary-value{ font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:700; margin-top:5px; }
   .summary-value .unit{ font-size:13px; color:#B9CFEE; font-weight:500;}
   .summary-sub{ font-size:11px; color:#8FA8C9; margin-top:3px; }
 
-  .paid-stamp{
-    position:absolute; top:-10px; right:-6px; width:78px; height:78px; pointer-events:none;
-    transform:rotate(14deg); opacity:0; transition:opacity .25s ease, transform .25s ease;
-  }
+  .paid-stamp{ position:absolute; top:-10px; right:-6px; width:78px; height:78px; pointer-events:none; transform:rotate(14deg); opacity:0; transition:opacity .25s ease, transform .25s ease; }
   .paid-stamp.show{ opacity:0.94; transform:rotate(14deg) scale(1); }
 
   .paid-toggle{
     margin-top:12px; width:100%; padding:11px 0; border-radius:11px; cursor:pointer;
-    font-size:13px; font-weight:500; display:flex; align-items:center; justify-content:center; gap:7px;
+    font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:7px;
     border:1px solid rgba(245,249,255,0.22); background:rgba(245,249,255,0.06); color:#CFE0F7;
-    transition:all .15s ease; letter-spacing:0.2px;
+    transition:all .15s ease; letter-spacing:0.2px; font-family:inherit;
   }
   .paid-toggle.is-paid{ border-color:rgba(120,196,140,0.4); background:rgba(120,196,140,0.12); color:#8FCB9C; }
   .paid-toggle:active{ transform:scale(0.98); }
 
   /* Cards */
-  .card{
-    background:var(--card); border:1px solid var(--hair); border-radius:var(--radius-lg);
-    box-shadow:var(--shadow-sm); padding:18px 18px 20px;
-  }
+  .card{ background:var(--card); border:1px solid var(--hair); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); padding:20px 18px 22px; }
   .section-gap{ margin:22px 20px 0; }
-  .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .card-title{ font-family:'Fraunces', serif; font-size:16.5px; font-weight:700; color:var(--ink); }
-  .card-title .orn{ color:var(--gold); margin:0 6px; font-size:13px; }
-  .cancel-link{
-    font-size:12.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer;
-    display:flex; align-items:center; gap:4px; padding:4px;
-  }
+  .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .card-title{ font-family:'Fraunces', serif; font-size:17px; font-weight:700; color:var(--ink); }
+  .cancel-link{ font-size:12.5px; color:var(--ink-soft); background:none; border:none; cursor:pointer; display:flex; align-items:center; gap:4px; padding:4px; font-family:inherit; font-weight:600; }
 
   label.field-label{ display:block; font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; font-weight:700; }
   input[type="date"], input[type="number"], input[type="text"]{
     font-family:'Manrope', sans-serif; font-weight:600; font-size:15px; color:var(--ink); background:var(--card-alt);
-    border:1px solid var(--hair); border-radius:var(--radius-sm); padding:11px 13px; width:100%;
+    border:1.5px solid var(--hair); border-radius:var(--radius-sm); padding:11px 13px; width:100%;
   }
-  input:focus{ outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold); }
-  input[type="date"]::-webkit-calendar-picker-indicator{ filter: invert(38%) sepia(45%) saturate(500%) hue-rotate(0deg); opacity:0.75;}
+  input:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft); }
+  input[type="date"]::-webkit-calendar-picker-indicator{ filter: invert(20%) sepia(90%) saturate(1500%) hue-rotate(200deg); opacity:0.8;}
+
+  .na-toggle{
+    width:100%; margin-top:14px; padding:12px 14px; border-radius:12px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; gap:8px; font-size:13.5px; font-weight:700;
+    border:1.5px dashed var(--hair-strong); background:var(--card-alt); color:var(--ink-soft); font-family:inherit;
+    transition:all .15s ease;
+  }
+  .na-toggle.active{ border:1.5px solid var(--red); background:var(--red-soft); color:var(--red); border-style:solid; }
+  .na-note{ margin-top:12px; padding:12px 14px; background:var(--red-soft); border-radius:12px; font-size:12.5px; color:var(--red); text-align:center; font-weight:600; }
 
   .qty-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-  .rate-edit-link{
-    font-size:11.5px; color:var(--gold-deep); background:var(--gold-soft); border:none; cursor:pointer;
-    font-family:'JetBrains Mono', monospace; padding:4px 9px; border-radius:999px; font-weight:600;
-  }
+  .rate-edit-link{ font-size:11.5px; color:var(--pink-deep); background:var(--pink-soft); border:none; cursor:pointer; font-family:'JetBrains Mono', monospace; padding:5px 10px; border-radius:999px; font-weight:700; }
   .rate-input-wrap{ margin-bottom:10px; }
 
   .stepper{ display:flex; align-items:center; gap:10px; }
-  .step-btn{
-    width:46px; height:46px; border-radius:12px; border:1px solid var(--hair-strong); background:var(--card-alt);
-    font-size:22px; color:var(--pasture); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-    transition:transform .08s ease, background .15s ease;
-  }
-  .step-btn:active{ transform:scale(0.94); background:var(--pasture-soft); }
-  .qty-input{
-    flex:1; text-align:center; font-family:'JetBrains Mono', monospace; font-size:21px; font-weight:600;
-    padding:11px 6px; border-radius:12px; border:1px solid var(--hair); background:var(--card-alt); color:var(--ink);
-  }
+  .step-btn{ width:46px; height:46px; border-radius:12px; border:1.5px solid var(--hair-strong); background:var(--card-alt); font-size:22px; color:var(--blue); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform .08s ease, background .15s ease; font-family:inherit; }
+  .step-btn:active{ transform:scale(0.94); background:var(--blue-soft); }
+  .qty-input{ flex:1; text-align:center; font-family:'JetBrains Mono', monospace; font-size:21px; font-weight:700; padding:11px 6px; border-radius:12px; border:1.5px solid var(--hair); background:var(--card-alt); color:var(--ink); }
 
   .chip-row{ display:flex; gap:7px; margin-top:10px; flex-wrap:wrap; }
-  .chip{
-    padding:6px 13px; border-radius:999px; font-size:13px; cursor:pointer; font-family:'JetBrains Mono', monospace;
-    border:1px solid var(--hair); background:var(--card-alt); color:var(--ink-soft); transition:all .12s ease;
-  }
-  .chip.active{ border-color:var(--pasture); background:var(--pasture-soft); color:var(--pasture); font-weight:700; }
+  .chip{ padding:6px 13px; border-radius:999px; font-size:13px; cursor:pointer; font-family:'JetBrains Mono', monospace; border:1.5px solid var(--hair); background:var(--card-alt); color:var(--ink-soft); transition:all .12s ease; font-weight:600; }
+  .chip.active{ border-color:var(--blue); background:var(--blue-soft); color:var(--blue); font-weight:700; }
 
-  .amount-preview{
-    margin-top:16px; padding:12px 15px; background:var(--pasture-soft); border-radius:12px;
-    display:flex; align-items:center; justify-content:space-between; border:1px solid #D3E0CE;
-  }
-  .amount-preview .lbl{ font-size:12.5px; color:var(--pasture); }
-  .amount-preview .val{ font-family:'JetBrains Mono', monospace; font-size:19px; font-weight:700; color:var(--pasture-deep); }
+  .amount-preview{ margin-top:16px; padding:13px 15px; background:var(--blue-soft); border-radius:12px; display:flex; align-items:center; justify-content:space-between; border:1px solid #C9DBF4; }
+  .amount-preview .lbl{ font-size:12.5px; color:var(--blue); font-weight:700; }
+  .amount-preview .val{ font-family:'JetBrains Mono', monospace; font-size:19px; font-weight:700; color:var(--blue-deep); }
 
   .submit-btn{
     margin-top:14px; width:100%; padding:14px 0; border-radius:13px; border:none; cursor:pointer;
-    background:linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%); color:var(--cream-ink);
-    font-size:15px; font-weight:600; letter-spacing:0.3px; display:flex; align-items:center; justify-content:center; gap:8px;
-    box-shadow:var(--shadow-sm); transition:transform .08s ease;
+    background:linear-gradient(180deg, var(--blue) 0%, var(--blue-deep) 100%); color:var(--cream-ink);
+    font-size:15px; font-weight:700; letter-spacing:0.3px; display:flex; align-items:center; justify-content:center; gap:8px;
+    box-shadow:var(--shadow-sm); transition:transform .08s ease; font-family:inherit;
   }
   .submit-btn:active{ transform:scale(0.98); }
 
   /* Ledger */
-  .ledger-count{ font-size:11.5px; color:var(--ink-faint); font-family:'JetBrains Mono', monospace; }
-  .ledger-card{ background:var(--card); border:1px solid var(--hair); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
-  .ledger-empty{
-    background:var(--card); border:1.5px dashed var(--hair-strong); border-radius:var(--radius-lg);
-    padding:34px 18px; text-align:center; color:var(--ink-soft); font-size:13.5px; line-height:1.6;
-  }
-  .row{
-    display:flex; align-items:center; padding:12px 16px; border-bottom:1px solid var(--hair);
-  }
+  .ledger-count{ font-size:11.5px; color:var(--ink-faint); font-family:'JetBrains Mono', monospace; font-weight:700; }
+  .ledger-card{ background:var(--card); border:1px solid var(--hair); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); }
+  .ledger-empty{ background:var(--card); border:1.5px dashed var(--hair-strong); border-radius:var(--radius-lg); padding:36px 18px; text-align:center; color:var(--ink-soft); font-size:13.5px; line-height:1.6; font-weight:600; }
+  .row{ display:flex; align-items:center; padding:13px 16px; border-bottom:1px solid var(--hair); }
   .row:nth-child(even){ background:var(--card-alt); }
+  .row.is-na{ opacity:0.82; }
   .row-date{ flex:1.3; }
-  .row-date .d1{ font-size:13.5px; color:var(--ink); font-weight:500; }
-  .row-date .d2{ font-size:11px; color:var(--ink-faint); font-family:'JetBrains Mono', monospace; margin-top:1px; }
-  .row-amt{ flex:1; text-align:right; font-family:'JetBrains Mono', monospace; font-size:14.5px; font-weight:600; color:var(--ink); margin-right:8px; }
+  .row-date .d1{ font-size:13.5px; color:var(--ink); font-weight:700; }
+  .row-date .d2{ font-size:11px; color:var(--ink-faint); font-family:'JetBrains Mono', monospace; margin-top:1px; font-weight:600; }
+  .row-date .d2.na-label{ color:var(--red); font-family:'Manrope', sans-serif; font-style:italic; }
+  .row-amt{ flex:1; text-align:right; font-family:'JetBrains Mono', monospace; font-size:14.5px; font-weight:700; color:var(--ink); margin-right:8px; }
+  .row-amt.na{ color:var(--ink-faint); font-weight:600; }
   .row-actions{ display:flex; gap:2px; }
-  .icon-btn{
-    width:32px; height:32px; border-radius:9px; border:none; background:transparent; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; transition:background .15s ease;
-  }
-  .icon-btn.edit{ color:var(--pasture); }
+  .icon-btn{ width:32px; height:32px; border-radius:9px; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s ease; }
+  .icon-btn.edit{ color:var(--blue); }
   .icon-btn.del{ color:var(--red); }
-  .icon-btn:active{ background:var(--pasture-soft); }
-  .confirm-row{
-    display:flex; align-items:center; justify-content:space-between; padding:10px 16px;
-    background:var(--red-soft); border-bottom:1px solid var(--hair);
-  }
-  .confirm-row span{ font-size:12.5px; color:var(--red); }
+  .icon-btn:active{ background:var(--blue-soft); }
+  .confirm-row{ display:flex; align-items:center; justify-content:space-between; padding:10px 16px; background:var(--red-soft); border-bottom:1px solid var(--hair); }
+  .confirm-row span{ font-size:12.5px; color:var(--red); font-weight:600; }
   .confirm-actions{ display:flex; gap:8px; }
-  .confirm-actions button{ font-size:12px; padding:6px 11px; border-radius:8px; cursor:pointer; font-weight:600; }
+  .confirm-actions button{ font-size:12px; padding:6px 11px; border-radius:8px; cursor:pointer; font-weight:700; font-family:inherit; }
   .btn-keep{ border:1px solid var(--hair-strong); background:var(--card); color:var(--ink-soft); }
   .btn-del{ border:none; background:var(--red); color:#FDF2EF; }
-  .ledger-total{
-    display:flex; align-items:center; justify-content:space-between; padding:13px 16px;
-    background:linear-gradient(180deg, var(--pasture) 0%, var(--pasture-deep) 100%); color:var(--cream-ink);
-  }
-  .ledger-total .lbl{ font-size:12.5px; color:#B9CFEE; font-weight:600; }
+  .ledger-total{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:linear-gradient(180deg, var(--blue) 0%, var(--blue-deep) 100%); color:var(--cream-ink); }
+  .ledger-total .lbl{ font-size:12.5px; color:#B9CFEE; font-weight:700; }
   .ledger-total .val{ font-family:'JetBrains Mono', monospace; font-size:16px; font-weight:700; }
 
-  .storage-warn{
-    margin:16px 20px 0; padding:11px 15px; background:var(--gold-soft); border:1px solid #F0AFC9;
-    border-radius:12px; font-size:12px; color:var(--gold-deep); line-height:1.5;
+  .receipt-btn{
+    margin-top:12px; width:100%; padding:13px 0; border-radius:13px; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; gap:8px; font-size:14px; font-weight:700; font-family:inherit;
+    border:1.5px solid var(--blue); background:#fff; color:var(--blue); transition:transform .08s ease;
   }
+  .receipt-btn:active{ transform:scale(0.98); background:var(--blue-soft); }
 
-  .footer-note{ text-align:center; font-size:11px; color:var(--ink-faint); margin-top:26px; letter-spacing:0.3px; }
+  .storage-warn{ margin:16px 20px 0; padding:11px 15px; background:var(--pink-soft); border:1px solid #EFC1D6; border-radius:12px; font-size:12px; color:var(--pink-deep); line-height:1.5; font-weight:600; }
+  .footer-note{ text-align:center; font-size:11.5px; color:var(--ink-faint); margin-top:26px; letter-spacing:0.3px; font-weight:600; }
 
   /* Settings sheet */
-  .overlay{
-    position:fixed; inset:0; background:rgba(21,42,30,0.5); z-index:50; display:flex;
-    align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s ease;
-  }
+  .overlay{ position:fixed; inset:0; background:rgba(8,20,42,0.5); z-index:50; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .overlay.open{ opacity:1; pointer-events:auto; }
-  .sheet{
-    background:var(--card); width:100%; max-width:480px; border-top-left-radius:24px; border-top-right-radius:24px;
-    padding:14px 22px calc(env(safe-area-inset-bottom,0px) + 22px); transform:translateY(30px); transition:transform .25s ease;
-    box-shadow:var(--shadow-lg);
-  }
+  .sheet{ background:var(--card); width:100%; max-width:480px; border-top-left-radius:24px; border-top-right-radius:24px; padding:14px 22px calc(env(safe-area-inset-bottom,0px) + 22px); transform:translateY(30px); transition:transform .25s ease; box-shadow:var(--shadow-lg); max-height:88vh; overflow-y:auto; }
   .overlay.open .sheet{ transform:translateY(0); }
   .sheet-handle{ width:38px; height:4px; background:var(--hair-strong); border-radius:4px; margin:0 auto 18px; }
-  .sheet-title{ font-family:'Fraunces', serif; font-size:18px; font-weight:700; margin-bottom:16px; }
+  .sheet-title{ font-family:'Fraunces', serif; font-size:19px; font-weight:700; margin-bottom:16px; }
   .field-row{ display:flex; gap:10px; }
   .field-row > div{ flex:1; }
-  .field-hint{ font-size:11.5px; color:var(--ink-faint); margin-top:7px; line-height:1.5; }
+  .field-hint{ font-size:11.5px; color:var(--ink-faint); margin-top:7px; line-height:1.5; font-weight:600; }
+  .field-block{ margin-bottom:14px; }
+  .lang-row{ display:flex; gap:8px; }
+  .lang-row button{
+    flex:1; padding:11px 0; border-radius:11px; border:1.5px solid var(--hair-strong); background:var(--card-alt);
+    color:var(--ink-soft); font-weight:700; cursor:pointer; font-family:inherit; font-size:13.5px;
+  }
+  .lang-row button.active{ border-color:var(--blue); background:var(--blue-soft); color:var(--blue); }
   .sheet-actions{ display:flex; gap:10px; margin-top:22px; }
-  .sheet-actions button{ padding:13px 0; border-radius:12px; font-size:14.5px; cursor:pointer; }
-  .btn-cancel{ flex:1; border:1px solid var(--hair-strong); background:var(--card); color:var(--ink-soft); }
-  .btn-save{ flex:1.5; border:none; background:linear-gradient(180deg, var(--pasture), var(--pasture-deep)); color:var(--cream-ink); font-weight:600; }
+  .sheet-actions button{ padding:13px 0; border-radius:12px; font-size:14.5px; cursor:pointer; font-family:inherit; }
+  .btn-cancel{ flex:1; border:1.5px solid var(--hair-strong); background:var(--card); color:var(--ink-soft); font-weight:700; }
+  .btn-save{ flex:1.5; border:none; background:linear-gradient(180deg, var(--blue), var(--blue-deep)); color:var(--cream-ink); font-weight:700; }
 
   /* Toast */
-  .toast{
-    position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 20px); left:50%; transform:translateX(-50%) translateY(10px);
-    background:var(--pasture-deep); color:var(--cream-ink); padding:11px 20px; border-radius:999px; font-size:13px;
-    box-shadow:var(--shadow-lg); z-index:60; white-space:nowrap; opacity:0; pointer-events:none; transition:all .25s ease;
-    border:1px solid var(--gold);
-  }
+  .toast{ position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 20px); left:50%; transform:translateX(-50%) translateY(10px); background:var(--blue-deep); color:var(--cream-ink); padding:11px 20px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:var(--shadow-lg); z-index:60; white-space:nowrap; opacity:0; pointer-events:none; transition:all .25s ease; border:1px solid var(--pink); }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  .loading-wrap{ display:flex; align-items:center; justify-content:center; min-height:70vh; color:var(--ink-soft); font-size:14px; }
+  .loading-wrap{ display:flex; align-items:center; justify-content:center; min-height:70vh; color:var(--ink-soft); font-size:14px; font-weight:600; }
+
+  /* Onboarding */
+  .onboard{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; z-index:1; }
+  .onboard-card{ background:var(--card); border-radius:26px; box-shadow:var(--shadow-lg); padding:34px 26px 28px; max-width:400px; width:100%; text-align:center; border:1px solid var(--hair); }
+  .onboard-icon{ width:76px; height:76px; border-radius:50%; background:var(--blue-soft); border:2px solid var(--pink); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+  .onboard-title{ font-family:'Fraunces', serif; font-weight:800; font-size:24px; color:var(--blue-deep); margin-bottom:6px; }
+  .onboard-sub{ font-size:13.5px; color:var(--ink-soft); margin-bottom:22px; font-weight:600; line-height:1.5; }
+  .onboard-input{ margin-bottom:16px; text-align:center; font-size:17px !important; padding:13px !important; }
+  .onboard-btn{ width:100%; padding:14px 0; border-radius:13px; border:none; cursor:pointer; background:linear-gradient(180deg, var(--blue), var(--blue-deep)); color:#fff; font-size:15px; font-weight:700; font-family:inherit; box-shadow:var(--shadow-sm); }
+  .onboard-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .onboard-skip{ margin-top:14px; background:none; border:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer; font-weight:600; text-decoration:underline; font-family:inherit; }
+  .onboard-lang{ display:flex; justify-content:center; gap:8px; margin-bottom:20px; }
+  .onboard-lang button{ padding:6px 14px; border-radius:999px; border:1.5px solid var(--hair-strong); background:var(--card-alt); color:var(--ink-soft); font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit; }
+  .onboard-lang button.active{ border-color:var(--blue); background:var(--blue-soft); color:var(--blue); }
 
   @media (min-width:481px){
-    body{ background:
-      radial-gradient(ellipse at 15% 8%, rgba(31,61,43,0.05) 0%, transparent 45%),
-      radial-gradient(ellipse at 85% 92%, rgba(185,144,46,0.06) 0%, transparent 45%),
-      var(--page-alt); }
+    body{ background: radial-gradient(ellipse at 15% 8%, rgba(13,71,161,0.05) 0%, transparent 45%), radial-gradient(ellipse at 85% 92%, rgba(209,77,130,0.06) 0%, transparent 45%), var(--page-alt); }
     .app{ margin-top:24px; margin-bottom:24px; border-radius:28px; overflow:hidden; box-shadow:var(--shadow-lg); }
   }
 </style>
@@ -319,229 +299,304 @@
 <body>
 <div class="cow-print"></div>
 <div class="app" id="app">
-  <div class="loading-wrap" id="loading">Loading your milk log&hellip;</div>
+  <div class="loading-wrap" id="loading">Loading Milky&hellip;</div>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  var COLORS_CURRENCY_DEFAULT = "\u20B9";
-  var DEFAULT_SETTINGS = { rate: 60, currency: COLORS_CURRENCY_DEFAULT, dairyName: "Daily Dairy", payments: {} };
+  var CUR_DEFAULT = "\u20B9";
+  var DEFAULT_SETTINGS = { rate:60, currency:CUR_DEFAULT, dairyName:"Daily Dairy", userName:"", lang:"en", payments:{} };
   var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var MONTH_NAMES_HI = ["\u091c\u0928\u0935\u0930\u0940","\u092b\u0930\u0935\u0930\u0940","\u092e\u093e\u0930\u094d\u091a","\u0905\u092a\u094d\u0930\u0948\u0932","\u092e\u0908","\u091c\u0942\u0928","\u091c\u0941\u0932\u093e\u0908","\u0905\u0917\u0938\u094d\u0924","\u0938\u093f\u0924\u0902\u092c\u0930","\u0905\u0915\u094d\u0924\u0942\u092c\u0930","\u0928\u0935\u0902\u092c\u0930","\u0926\u093f\u0938\u0902\u092c\u0930"];
   var DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var DAY_NAMES_HI = ["\u0930\u0935\u093f","\u0938\u094b\u092e","\u092e\u0902\u0917\u0932","\u092c\u0941\u0927","\u0917\u0941\u0930\u0941","\u0936\u0941\u0915\u094d\u0930","\u0936\u0928\u093f"];
 
-  var state = {
-    ready:false,
-    storageOk:true,
-    entries:[],
-    settings: Object.assign({}, DEFAULT_SETTINGS),
-    viewYear: new Date().getFullYear(),
-    viewMonth: new Date().getMonth(),
-    editingId:null,
-    formDate: todayStr(),
-    formQty: 1,
-    formRate: 60,
-    rateEditOpen:false,
-    deleteConfirmId:null,
-    settingsOpen:false,
-    settingsDraft:{}
+  var I18N = {
+    en: {
+      brand:"Milky", tagline:"DAILY DAIRY",
+      totalMilk:"Total milk", amountDue:"Amount due",
+      markPaid:"Mark this month as paid", paidThisMonth:"Paid for this month",
+      downloadReceipt:"Download receipt",
+      todaysDelivery:"Today's delivery", updateEntryTitle:"Update entry", cancel:"Cancel",
+      dateLabel:"Date", quantityLabel:"Quantity (litres)", editRate:"Edit rate",
+      noDelivery:"No delivery today", noDeliveryNote:"Marked as N/A \u2014 no milk came today.",
+      amountLabel:"Amount", addEntry:"Add entry", updateEntry:"Update entry",
+      entriesTitle:"This month's entries",
+      emptyLine1:"No entries yet this month.", emptyLine2:"Add today's delivery above.",
+      monthTotal:"Month total", deleteConfirm:"Delete this entry?", keepIt:"Keep it", deleteBtn:"Delete",
+      noDeliveryRow:"No delivery",
+      settingsTitle:"Settings", yourName:"Your name", dairyName:"Dairy name",
+      currencySymbol:"Currency symbol", defaultRate:"Default rate / litre",
+      rateHint:"New entries use this rate by default. Past entries keep their own rate.",
+      language:"Language", saveSettings:"Save settings",
+      storageWarn:"Saving may not be available right now \u2014 entries could be lost if you close this window.",
+      footerNote:"Fresh from the dairy, tallied with care",
+      welcomeTitle:"Welcome to Milky", welcomeSub:"Who's adding today's entries?",
+      namePlaceholder:"Enter your name", continueBtn:"Continue", skipBtn:"Skip for now",
+      toastAdded:"Entry added", toastUpdated:"Entry updated", toastDeleted:"Entry deleted",
+      toastPaid:"Marked as paid", toastPending:"Marked as pending", toastSettingsSaved:"Settings saved",
+      toastPickDate:"Pick a date", toastEnterQty:"Enter quantity", toastEnterRate:"Enter a valid rate",
+      toastReceiptDown:"Receipt downloaded", toastNoEntries:"No entries to include in receipt",
+      greetingPrefix:"Hello,"
+    },
+    hi: {
+      brand:"\u092e\u093f\u0932\u094d\u0915\u0940", tagline:"\u0921\u0947\u0932\u0940 \u0921\u0947\u092f\u0930\u0940",
+      totalMilk:"\u0915\u0941\u0932 \u0926\u0942\u0927", amountDue:"\u092c\u0915\u093e\u092f\u093e \u0930\u093e\u0936\u093f",
+      markPaid:"\u0907\u0938 \u092e\u0939\u0940\u0928\u0947 \u0915\u094b \u092d\u0941\u0917\u0924\u093e\u0928 \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u0930\u0947\u0902", paidThisMonth:"\u0907\u0938 \u092e\u0939\u0940\u0928\u0947 \u0915\u093e \u092d\u0941\u0917\u0924\u093e\u0928 \u0939\u094b \u0917\u092f\u093e",
+      downloadReceipt:"\u0930\u0938\u0940\u0926 \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0915\u0930\u0947\u0902",
+      todaysDelivery:"\u0906\u091c \u0915\u0940 \u0921\u093f\u0932\u0940\u0935\u0930\u0940", updateEntryTitle:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902", cancel:"\u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902",
+      dateLabel:"\u0924\u093e\u0930\u0940\u0964", quantityLabel:"\u092e\u093e\u0924\u094d\u0930\u093e (\u0932\u0940\u091f\u0930)", editRate:"\u0926\u0930 \u092c\u0926\u0932\u0947\u0902",
+      noDelivery:"\u0906\u091c \u0926\u0942\u0927 \u0928\u0939\u0940\u0902 \u0906\u092f\u093e", noDeliveryNote:"N/A \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u2014 \u0906\u091c \u0926\u0942\u0927 \u0928\u0939\u0940\u0902 \u0906\u092f\u093e\u0964",
+      amountLabel:"\u0930\u093e\u0936\u093f", addEntry:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u091c\u094b\u0921\u093c\u0947\u0902", updateEntry:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0905\u092a\u0921\u0947\u091f \u0915\u0930\u0947\u0902",
+      entriesTitle:"\u0907\u0938 \u092e\u0939\u0940\u0928\u0947 \u0915\u0940 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0902",
+      emptyLine1:"\u0907\u0938 \u092e\u0939\u0940\u0928\u0947 \u0905\u092d\u0940 \u0915\u094b\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0928\u0939\u0940\u0902\u0964", emptyLine2:"\u090a\u092a\u0930 \u0906\u091c \u0915\u0940 \u0921\u093f\u0932\u0940\u0935\u0930\u0940 \u091c\u094b\u0921\u093c\u0947\u0902\u0964",
+      monthTotal:"\u092e\u0939\u0940\u0928\u0947 \u0915\u093e \u0915\u0941\u0932", deleteConfirm:"\u0915\u094d\u092f\u093e \u092f\u0939 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0939\u091f\u093e\u090f\u0902?", keepIt:"\u0930\u0916\u0947\u0902", deleteBtn:"\u0939\u091f\u093e\u090f\u0902",
+      noDeliveryRow:"\u0926\u0942\u0927 \u0928\u0939\u0940\u0902 \u0906\u092f\u093e",
+      settingsTitle:"\u0938\u0947\u091f\u093f\u0902\u0917\u094d\u0938", yourName:"\u0906\u092a\u0915\u093e \u0928\u093e\u092e", dairyName:"\u0921\u0947\u092f\u0930\u0940 \u0915\u093e \u0928\u093e\u092e",
+      currencySymbol:"\u092e\u0941\u0926\u094d\u0930\u093e \u091a\u093f\u0939\u094d\u0928", defaultRate:"\u0921\u093f\u092b\u093c\u0949\u0932\u094d\u091f \u0926\u0930 / \u0932\u0940\u091f\u0930",
+      rateHint:"\u0928\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0921\u093f\u092b\u093c\u0949\u0932\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u092f\u0939 \u0926\u0930 \u0909\u092a\u092f\u094b\u0917 \u0915\u0930\u0947\u0902\u0917\u0940\u0964 \u092a\u0941\u0930\u093e\u0928\u0940 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0905\u092a\u0928\u0940 \u0926\u0930 \u092c\u0928\u093e\u090f \u0930\u0916\u0947\u0902\u0917\u0940\u0964",
+      language:"\u092d\u093e\u0937\u093e", saveSettings:"\u0938\u0947\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0939\u0947\u091c\u0947\u0902",
+      storageWarn:"\u0905\u092d\u0940 \u0938\u0939\u0947\u091c\u0928\u093e \u0938\u0902\u092d\u0935 \u0928\u0939\u0940\u0902 \u2014 \u0935\u093f\u0902\u0921\u094b \u092c\u0902\u0926 \u0915\u0930\u0928\u0947 \u092a\u0930 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0916\u094b \u0938\u0915\u0924\u0940 \u0939\u0948\u0902\u0964",
+      footerNote:"\u0921\u0947\u092f\u0930\u0940 \u0938\u0947 \u0924\u093e\u091c\u093e, \u092a\u094d\u092f\u093e\u0930 \u0938\u0947 \u0939\u093f\u0938\u093e\u092c",
+      welcomeTitle:"\u092e\u093f\u0932\u094d\u0915\u0940 \u092e\u0947\u0902 \u0906\u092a\u0915\u093e \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", welcomeSub:"\u0906\u091c \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0915\u094c\u0928 \u091c\u094b\u0921\u093c \u0930\u0939\u093e \u0939\u0948?",
+      namePlaceholder:"\u0905\u092a\u0928\u093e \u0928\u093e\u092e \u0932\u093f\u0916\u0947\u0902", continueBtn:"\u091c\u093e\u0930\u0940 \u0930\u0916\u0947\u0902", skipBtn:"\u0905\u092d\u0940 \u0915\u0947 \u0932\u093f\u090f \u091b\u094b\u0921\u093c\u0947\u0902",
+      toastAdded:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u091c\u094b\u0921\u093c\u0940 \u0917\u0908", toastUpdated:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0905\u092a\u0921\u0947\u091f \u0939\u0941\u0908", toastDeleted:"\u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0939\u091f\u093e\u0908 \u0917\u0908",
+      toastPaid:"\u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091a\u093f\u0939\u094d\u0928\u093f\u0924", toastPending:"\u0932\u0902\u092c\u093f\u0924 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091a\u093f\u0939\u094d\u0928\u093f\u0924", toastSettingsSaved:"\u0938\u0947\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0939\u0947\u091c\u0940 \u0917\u0908\u0902",
+      toastPickDate:"\u0924\u093e\u0930\u0940\u0916 \u091a\u0941\u0928\u0947\u0902", toastEnterQty:"\u092e\u093e\u0924\u094d\u0930\u093e \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902", toastEnterRate:"\u092e\u093e\u0928\u094d\u092f \u0926\u0930 \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902",
+      toastReceiptDown:"\u0930\u0938\u0940\u0926 \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0939\u0941\u0908", toastNoEntries:"\u0930\u0938\u0940\u0926 \u0915\u0947 \u0932\u093f\u090f \u0915\u094b\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0928\u0939\u0940\u0902",
+      greetingPrefix:"\u0928\u092e\u0938\u094d\u0924\u0947,"
+    }
   };
 
+  var state = {
+    ready:false, storageOk:true, entries:[], settings:Object.assign({}, DEFAULT_SETTINGS),
+    lang:"en",
+    viewYear:new Date().getFullYear(), viewMonth:new Date().getMonth(),
+    editingId:null, formDate:todayStr(), formQty:1, formRate:60, formNA:false, rateEditOpen:false,
+    settingsOpen:false, deleteConfirmId:null, settingsDraft:{},
+    onboardName:""
+  };
   var toastTimer=null;
 
   function pad2(n){ return String(n).padStart(2,"0"); }
   function toKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
   function todayStr(){ return toKey(new Date()); }
   function monthKeyOf(dateStr){ return dateStr.slice(0,7); }
-  function fmtNum(n){
-    var r = Math.round(n*100)/100;
-    return (r % 1 === 0) ? String(r) : String(r.toFixed(2)).replace(/0$/,"");
-  }
-  function fmtMoney(n, cur){
-    var r = Math.round(n*100)/100;
-    return cur + r.toLocaleString("en-IN", { minimumFractionDigits:2, maximumFractionDigits:2 });
-  }
+  function fmtNum(n){ var r=Math.round(n*100)/100; return (r%1===0)?String(r):String(r.toFixed(2)).replace(/0$/,""); }
+  function fmtMoney(n,cur){ var r=Math.round(n*100)/100; return cur+r.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function monthName(idx){ return (state.lang==="hi"?MONTH_NAMES_HI:MONTH_NAMES)[idx]; }
+  function dayName(idx){ return (state.lang==="hi"?DAY_NAMES_HI:DAY_NAMES)[idx]; }
   function fmtDateLabel(dateStr){
-    var parts = dateStr.split("-").map(Number);
-    var dt = new Date(parts[0], parts[1]-1, parts[2]);
-    return DAY_NAMES[dt.getDay()] + ", " + dt.getDate() + " " + MONTH_NAMES[parts[1]-1].slice(0,3);
+    var p=dateStr.split("-").map(Number); var dt=new Date(p[0],p[1]-1,p[2]);
+    return dayName(dt.getDay())+", "+dt.getDate()+" "+monthName(p[1]-1).slice(0, state.lang==="hi"?4:3);
   }
-  function uid(){ return "e_" + Date.now() + "_" + Math.random().toString(36).slice(2,8); }
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
+  function uid(){ return "e_"+Date.now()+"_"+Math.random().toString(36).slice(2,8); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];}); }
+  function t(key){ var d=I18N[state.lang]||I18N.en; return (d[key]!==undefined)?d[key]:(I18N.en[key]||key); }
 
   function showToast(msg){
-    var el = document.getElementById("toast");
-    if(!el) return;
-    el.textContent = msg;
-    el.classList.add("show");
+    var el=document.getElementById("toast"); if(!el) return;
+    el.textContent=msg; el.classList.add("show");
     if(toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+    toastTimer=setTimeout(function(){ el.classList.remove("show"); },2200);
   }
 
   async function loadData(){
-    var loadedEntries = [];
-    var loadedSettings = Object.assign({}, DEFAULT_SETTINGS);
-    var ok = true;
+    var loadedEntries=[]; var loadedSettings=Object.assign({},DEFAULT_SETTINGS); var ok=true;
     try{
-      if(!window.storage) ok = false;
+      if(!window.storage) ok=false;
       else{
+        try{ var r1=await window.storage.get("milky_entries",false); if(r1&&r1.value) loadedEntries=JSON.parse(r1.value); }catch(e){}
+        try{ var r2=await window.storage.get("milky_settings",false); if(r2&&r2.value) loadedSettings=Object.assign({},DEFAULT_SETTINGS,JSON.parse(r2.value)); }catch(e){}
         try{
-          var r1 = await window.storage.get("milklog_entries", false);
-          if(r1 && r1.value) loadedEntries = JSON.parse(r1.value);
-        }catch(e){ /* key absent on first run */ }
-        try{
-          var r2 = await window.storage.get("milklog_settings", false);
-          if(r2 && r2.value) loadedSettings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(r2.value));
-        }catch(e){ /* key absent on first run */ }
+          var legacy=await window.storage.get("milklog_entries",false);
+          if(legacy&&legacy.value&&loadedEntries.length===0){ loadedEntries=JSON.parse(legacy.value); }
+        }catch(e){}
       }
-    }catch(e){ ok = false; }
-    state.entries = loadedEntries;
-    state.settings = loadedSettings;
-    state.storageOk = ok;
-    state.formRate = loadedSettings.rate;
-    resetFormDefaults();
-    state.ready = true;
-    render();
+    }catch(e){ ok=false; }
+    state.entries=loadedEntries; state.settings=loadedSettings;
+    state.lang = loadedSettings.lang || "en";
+    state.formRate=loadedSettings.rate; state.storageOk=ok;
+    resetFormDefaults(); state.ready=true; render();
   }
 
-  async function persistEntries(next){
-    state.entries = next;
-    try{ await window.storage.set("milklog_entries", JSON.stringify(next), false); }
-    catch(e){ showToast("Could not save \u2014 check connection"); }
-  }
-  async function persistSettings(next){
-    state.settings = next;
-    try{ await window.storage.set("milklog_settings", JSON.stringify(next), false); }
-    catch(e){ showToast("Could not save settings"); }
-  }
+  async function persistEntries(next){ state.entries=next; try{ await window.storage.set("milky_entries",JSON.stringify(next),false);}catch(e){ showToast("\u26a0 "+t("toastEnterQty")); } }
+  async function persistSettings(next){ state.settings=next; try{ await window.storage.set("milky_settings",JSON.stringify(next),false);}catch(e){} }
 
-  function currentMonthKey(){ return state.viewYear + "-" + pad2(state.viewMonth+1); }
-  function isCurrentCalendarMonth(){
-    var n = new Date();
-    return n.getFullYear()===state.viewYear && n.getMonth()===state.viewMonth;
-  }
+  function currentMonthKey(){ return state.viewYear+"-"+pad2(state.viewMonth+1); }
+  function isCurrentCalendarMonth(){ var n=new Date(); return n.getFullYear()===state.viewYear && n.getMonth()===state.viewMonth; }
   function monthEntries(){
-    var mk = currentMonthKey();
-    return state.entries.filter(function(e){ return monthKeyOf(e.date)===mk; })
-      .sort(function(a,b){ return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+    var mk=currentMonthKey();
+    return state.entries.filter(function(e){return monthKeyOf(e.date)===mk;}).sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);});
   }
-  function existingForDate(dateStr, excludeId){
-    return state.entries.find(function(e){ return e.date===dateStr && e.id!==excludeId; });
-  }
+  function existingForDate(dateStr,excludeId){ return state.entries.find(function(e){return e.date===dateStr && e.id!==excludeId;}); }
 
   function resetFormDefaults(){
-    state.editingId = null;
-    var sorted = state.entries.slice().sort(function(a,b){ return a.date<b.date?1:-1; });
-    var last = sorted[0];
-    state.formDate = isCurrentCalendarMonth() ? todayStr() : (currentMonthKey()+"-01");
-    state.formQty = last ? last.qty : 1;
-    state.formRate = state.settings.rate;
-    state.rateEditOpen = false;
+    state.editingId=null;
+    var sorted=state.entries.slice().sort(function(a,b){return a.date<b.date?1:-1;});
+    var last=sorted.find(function(e){return !e.na;});
+    state.formDate=isCurrentCalendarMonth()?todayStr():(currentMonthKey()+"-01");
+    state.formQty=last?last.qty:1; state.formRate=state.settings.rate; state.formNA=false; state.rateEditOpen=false;
   }
 
   function handleDateChange(val){
-    state.formDate = val;
-    var match = existingForDate(val, state.editingId);
-    if(match){
-      state.editingId = match.id;
-      state.formQty = match.qty;
-      state.formRate = match.rate;
-    } else if(state.editingId){
-      var stillEditing = state.entries.find(function(e){ return e.id===state.editingId; });
-      if(stillEditing && stillEditing.date !== val){ state.editingId = null; }
+    state.formDate=val;
+    var match=existingForDate(val,state.editingId);
+    if(match){ state.editingId=match.id; state.formQty=match.qty; state.formRate=match.rate; state.formNA=!!match.na; }
+    else if(state.editingId){
+      var still=state.entries.find(function(e){return e.id===state.editingId;});
+      if(still && still.date!==val){ state.editingId=null; }
     }
     render();
   }
 
   function startEdit(id){
-    var entry = state.entries.find(function(e){ return e.id===id; });
-    if(!entry) return;
-    state.editingId = id;
-    state.formDate = entry.date;
-    state.formQty = entry.qty;
-    state.formRate = entry.rate;
-    state.rateEditOpen = false;
-    state.deleteConfirmId = null;
+    var entry=state.entries.find(function(e){return e.id===id;}); if(!entry) return;
+    state.editingId=id; state.formDate=entry.date; state.formQty=entry.qty; state.formRate=entry.rate;
+    state.formNA=!!entry.na; state.rateEditOpen=false; state.deleteConfirmId=null;
     render();
-    var card = document.getElementById("entry-card");
-    if(card) card.scrollIntoView({ behavior:"smooth", block:"start" });
+    var card=document.getElementById("entry-card"); if(card) card.scrollIntoView({behavior:"smooth",block:"start"});
   }
 
+  function cancelEdit(){ resetFormDefaults(); render(); }
+
+  function toggleNA(){ state.formNA=!state.formNA; render(); }
+
   async function submitForm(){
-    if(!state.formDate){ showToast("Pick a date"); return; }
-    if(!state.formQty || state.formQty<=0){ showToast("Enter quantity"); return; }
-    if(!state.formRate || state.formRate<=0){ showToast("Enter a valid rate"); return; }
-    var existing = existingForDate(state.formDate, state.editingId);
-    var targetId = state.editingId || (existing ? existing.id : null);
+    if(!state.formDate){ showToast(t("toastPickDate")); return; }
+    if(!state.formNA){
+      if(!state.formQty||state.formQty<=0){ showToast(t("toastEnterQty")); return; }
+      if(!state.formRate||state.formRate<=0){ showToast(t("toastEnterRate")); return; }
+    }
+    var existing=existingForDate(state.formDate,state.editingId);
+    var targetId=state.editingId||(existing?existing.id:null);
+    var payload = state.formNA
+      ? { date:state.formDate, qty:0, rate:0, na:true, by:state.settings.userName||"" }
+      : { date:state.formDate, qty:state.formQty, rate:state.formRate, na:false, by:state.settings.userName||"" };
     var next;
     if(targetId){
-      next = state.entries.map(function(e){
-        return e.id===targetId ? Object.assign({}, e, { date:state.formDate, qty:state.formQty, rate:state.formRate }) : e;
-      });
-      await persistEntries(next);
-      showToast("Entry updated");
+      next=state.entries.map(function(e){ return e.id===targetId?Object.assign({},e,payload):e; });
+      await persistEntries(next); showToast(t("toastUpdated"));
     } else {
-      next = state.entries.concat([{ id:uid(), date:state.formDate, qty:state.formQty, rate:state.formRate }]);
-      await persistEntries(next);
-      showToast("Entry added");
+      next=state.entries.concat([Object.assign({id:uid()},payload)]);
+      await persistEntries(next); showToast(t("toastAdded"));
     }
-    resetFormDefaults();
-    render();
+    resetFormDefaults(); render();
   }
 
   async function deleteEntry(id){
-    var next = state.entries.filter(function(e){ return e.id!==id; });
-    await persistEntries(next);
-    state.deleteConfirmId = null;
+    var next=state.entries.filter(function(e){return e.id!==id;});
+    await persistEntries(next); state.deleteConfirmId=null;
     if(state.editingId===id) resetFormDefaults();
-    showToast("Entry deleted");
-    render();
+    showToast(t("toastDeleted")); render();
   }
 
   async function togglePaid(){
-    var mk = currentMonthKey();
-    var isPaid = !!state.settings.payments[mk];
-    var payments = Object.assign({}, state.settings.payments);
-    payments[mk] = !isPaid;
-    await persistSettings(Object.assign({}, state.settings, { payments: payments }));
-    showToast(!isPaid ? "Marked as paid" : "Marked as pending");
-    render();
+    var mk=currentMonthKey(); var isPaid=!!state.settings.payments[mk];
+    var payments=Object.assign({},state.settings.payments); payments[mk]=!isPaid;
+    await persistSettings(Object.assign({},state.settings,{payments:payments}));
+    showToast(!isPaid?t("toastPaid"):t("toastPending")); render();
   }
 
   function changeMonth(delta){
-    var d = new Date(state.viewYear, state.viewMonth+delta, 1);
-    state.viewYear = d.getFullYear();
-    state.viewMonth = d.getMonth();
-    state.deleteConfirmId = null;
-    render();
+    var d=new Date(state.viewYear,state.viewMonth+delta,1);
+    state.viewYear=d.getFullYear(); state.viewMonth=d.getMonth(); state.deleteConfirmId=null; render();
   }
 
-  function adjustQty(delta){
-    state.formQty = Math.max(0.5, Math.round((state.formQty+delta)*2)/2);
-    render();
-  }
+  function adjustQty(delta){ state.formQty=Math.max(0.5,Math.round((state.formQty+delta)*2)/2); render(); }
 
-  function saveSettings(){
-    var rate = parseFloat(state.settingsDraft.rate) || DEFAULT_SETTINGS.rate;
-    var currency = state.settingsDraft.currency || DEFAULT_SETTINGS.currency;
-    var dairyName = state.settingsDraft.dairyName || DEFAULT_SETTINGS.dairyName;
-    persistSettings(Object.assign({}, state.settings, { rate:rate, currency:currency, dairyName:dairyName }));
-    state.settingsOpen = false;
-    showToast("Settings saved");
+  function setLang(lang){
+    state.lang=lang;
+    persistSettings(Object.assign({},state.settings,{lang:lang}));
     render();
   }
 
   function openSettings(){
-    state.settingsDraft = { rate:state.settings.rate, currency:state.settings.currency, dairyName:state.settings.dairyName };
-    state.settingsOpen = true;
+    state.settingsDraft={ rate:state.settings.rate, currency:state.settings.currency, dairyName:state.settings.dairyName, userName:state.settings.userName, lang:state.lang };
+    state.settingsOpen=true; render();
+  }
+  function saveSettings(){
+    var rate=parseFloat(state.settingsDraft.rate)||DEFAULT_SETTINGS.rate;
+    var currency=state.settingsDraft.currency||DEFAULT_SETTINGS.currency;
+    var dairyName=state.settingsDraft.dairyName||DEFAULT_SETTINGS.dairyName;
+    var userName=(state.settingsDraft.userName||"").trim();
+    var lang=state.settingsDraft.lang||state.lang;
+    state.lang=lang;
+    persistSettings(Object.assign({},state.settings,{rate:rate,currency:currency,dairyName:dairyName,userName:userName,lang:lang}));
+    state.settingsOpen=false; showToast(t("toastSettingsSaved")); render();
+  }
+
+  /* ---------- Onboarding ---------- */
+  function completeOnboarding(name){
+    var finalName=(name||"").trim();
+    persistSettings(Object.assign({},state.settings,{userName:finalName||"Friend"}));
     render();
   }
 
-  /* ---------- Icons ---------- */
-  function iconMilk(size,color){
-    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M9 2h6v3.2l2.4 4.6c.4.7.6 1.5.6 2.3V20a2 2 0 01-2 2H8a2 2 0 01-2-2v-7.9c0-.8.2-1.6.6-2.3L9 5.2V2z" stroke="'+color+'" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.8 13.5h10.4" stroke="'+color+'" stroke-width="1.6"/></svg>';
+  /* ---------- Receipt (PDF) ---------- */
+  function downloadReceipt(){
+    if(!window.jspdf || !window.jspdf.jsPDF){ showToast("PDF library unavailable"); return; }
+    var chron=monthEntries().slice().sort(function(a,b){return a.date<b.date?-1:1;});
+    if(chron.length===0){ showToast(t("toastNoEntries")); return; }
+    var jsPDF=window.jspdf.jsPDF;
+    var doc=new jsPDF({unit:"mm",format:"a4"});
+    var cur=state.settings.currency||CUR_DEFAULT;
+    var mk=currentMonthKey();
+    var monthLabel=MONTH_NAMES[state.viewMonth]+" "+state.viewYear;
+    var isPaid=!!state.settings.payments[mk];
+
+    doc.setFillColor(13,71,161); doc.rect(0,0,210,32,"F");
+    doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(22);
+    doc.text("Milky",15,17);
+    doc.setFontSize(10); doc.setFont("helvetica","normal");
+    doc.text(state.settings.dairyName||"Daily Dairy",15,25);
+    doc.setFontSize(13); doc.setFont("helvetica","bold");
+    doc.text("Receipt \u2014 "+monthLabel,195,17,{align:"right"});
+    doc.setFontSize(10); doc.setFont("helvetica","normal");
+    doc.text(isPaid?"Status: Paid":"Status: Pending",195,25,{align:"right"});
+
+    var y=44;
+    doc.setTextColor(18,33,60); doc.setFont("helvetica","bold"); doc.setFontSize(9.5);
+    doc.text("Date",15,y); doc.text("Qty (L)",110,y,{align:"right"}); doc.text("Rate",150,y,{align:"right"}); doc.text("Amount",195,y,{align:"right"});
+    y+=3; doc.setDrawColor(190,205,235); doc.line(15,y,195,y); y+=6;
+
+    doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+    var totalQty=0, totalAmt=0;
+    chron.forEach(function(e,idx){
+      if(idx%2===1){ doc.setFillColor(243,247,255); doc.rect(15,y-4.3,180,6.3,"F"); }
+      doc.setTextColor(35,45,65);
+      doc.text(fmtDateLabel(e.date).replace(/[^\x00-\x7F]/g,""),15,y);
+      if(e.na){
+        doc.setTextColor(160,60,60);
+        doc.text("No delivery",195,y,{align:"right"});
+      } else {
+        doc.setTextColor(35,45,65);
+        doc.text(fmtNum(e.qty),110,y,{align:"right"});
+        doc.text(cur+fmtNum(e.rate),150,y,{align:"right"});
+        doc.text(fmtMoney(e.qty*e.rate,cur),195,y,{align:"right"});
+        totalQty+=e.qty; totalAmt+=e.qty*e.rate;
+      }
+      y+=7.2;
+      if(y>270){ doc.addPage(); y=20; }
+    });
+
+    y+=3; doc.setDrawColor(13,71,161); doc.setLineWidth(0.7); doc.line(15,y,195,y); y+=9;
+    doc.setFont("helvetica","bold"); doc.setFontSize(12.5); doc.setTextColor(13,71,161);
+    doc.text("Total:",140,y,{align:"right"});
+    doc.text(fmtNum(totalQty)+"L   "+fmtMoney(totalAmt,cur),195,y,{align:"right"});
+
+    y+=13; doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(130,140,160);
+    doc.text("Generated on "+new Date().toLocaleDateString(),15,y);
+    if(state.settings.userName){ doc.text("Logged by: "+state.settings.userName,15,y+5); }
+
+    doc.save("Milky-Receipt-"+mk+".pdf");
+    showToast(t("toastReceiptDown"));
   }
+
+  /* ---------- Icons ---------- */
+  function iconMilk(size,color){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M9 2h6v3.2l2.4 4.6c.4.7.6 1.5.6 2.3V20a2 2 0 01-2 2H8a2 2 0 01-2-2v-7.9c0-.8.2-1.6.6-2.3L9 5.2V2z" stroke="'+color+'" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.8 13.5h10.4" stroke="'+color+'" stroke-width="1.6"/></svg>'; }
   function iconCow(size,color,accent){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 48 48" fill="none">'
       +'<ellipse cx="24" cy="27" rx="14.5" ry="12.5" fill="none" stroke="'+color+'" stroke-width="2"/>'
@@ -556,195 +611,236 @@
       +'</svg>';
   }
   function iconGear(size,color){
-    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="'+color+'" stroke-width="1.6"/><path d="M19.4 13.5a1.65 1.65 0 000-3l1.1-1.9-2.1-2.1-1.9 1.1a1.65 1.65 0 00-3 0L12.5 3H10.3l-1 2.6a1.65 1.65 0 00-3 0l-1.9-1.1-2.1 2.1 1.1 1.9a1.65 1.65 0 000 3l-1.1 1.9 2.1 2.1 1.9-1.1a1.65 1.65 0 003 0l1 2.6h2.2l1-2.6a1.65 1.65 0 003 0l1.9 1.1 2.1-2.1z" stroke="'+color+'" stroke-width="1.15" stroke-linejoin="round"/></svg>';
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none">'
+      +'<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="'+color+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<circle cx="12" cy="12" r="3" stroke="'+color+'" stroke-width="1.6"/></svg>';
   }
-  function iconChevron(dir){
-    var d = dir==="left" ? "M14 5l-7 7 7 7" : "M10 5l7 7-7 7";
-    return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="'+d+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  }
-  function iconCheck(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
-  function iconPlus(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>'; }
-  function iconX(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'; }
-  function iconPencil(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>'; }
-  function iconTrash(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4.8c0-.4.4-.8.9-.8h4.2c.5 0 .9.4.9.8V7M6 7l1 13.2c0 .5.5.8 1 .8h8c.5 0 1-.3 1-.8L18 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
-  function iconStamp(){
-    return '<svg width="78" height="78" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#C0453C" stroke-width="3" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#C0453C" stroke-width="2"/><text x="50" y="47" text-anchor="middle" font-family="Fraunces, serif" font-weight="800" font-size="17" fill="#C0453C" letter-spacing="2">PAID</text><text x="50" y="63" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7.5" fill="#C0453C" letter-spacing="1">SETTLED IN FULL</text></svg>';
+  function iconChevron(dir){ var d=dir==="left"?"M14 5l-7 7 7 7":"M10 5l7 7-7 7"; return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="'+d+'" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function iconCheck(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function iconPlus(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'; }
+  function iconX(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>'; }
+  function iconPencil(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>'; }
+  function iconTrash(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4.8c0-.4.4-.8.9-.8h4.2c.5 0 .9.4.9.8V7M6 7l1 13.2c0 .5.5.8 1 .8h8c.5 0 1-.3 1-.8L18 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function iconDownload(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4.5 19.5h15" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function iconBan(size){ return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'; }
+  function iconStamp(){ return '<svg width="78" height="78" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#0D47A1" stroke-width="3" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#0D47A1" stroke-width="2"/><text x="50" y="47" text-anchor="middle" font-family="Georgia, serif" font-weight="700" font-size="16" fill="#0D47A1" letter-spacing="2">PAID</text><text x="50" y="63" text-anchor="middle" font-family="monospace" font-size="7" fill="#D14D82" letter-spacing="1">SETTLED IN FULL</text></svg>'; }
+
+  /* ---------- Render: Onboarding ---------- */
+  function renderOnboarding(){
+    var app=document.getElementById("app");
+    var lang=state.lang;
+    var html='<div class="onboard fade-in"><div class="onboard-card">';
+    html+='<div class="onboard-lang">';
+    html+='<button class="'+(lang==="en"?"active":"")+'" id="ob-lang-en">EN \u00b7 English</button>';
+    html+='<button class="'+(lang==="hi"?"active":"")+'" id="ob-lang-hi">\u0939\u093f \u00b7 \u0939\u093f\u0902\u0926\u0940</button>';
+    html+='</div>';
+    html+='<div class="onboard-icon">'+iconCow(40,"#0D47A1","#D14D82")+'</div>';
+    html+='<div class="onboard-title">'+t("welcomeTitle")+'</div>';
+    html+='<div class="onboard-sub">'+t("welcomeSub")+'</div>';
+    html+='<input type="text" class="onboard-input" id="ob-name-input" placeholder="'+escapeHtml(t("namePlaceholder"))+'" value="'+escapeHtml(state.onboardName)+'" autofocus />';
+    html+='<button class="onboard-btn" id="ob-continue">'+t("continueBtn")+'</button>';
+    html+='<button class="onboard-skip" id="ob-skip">'+t("skipBtn")+'</button>';
+    html+='</div></div>';
+    app.innerHTML=html;
+
+    document.getElementById("ob-lang-en").addEventListener("click",function(){ state.lang="en"; render(); });
+    document.getElementById("ob-lang-hi").addEventListener("click",function(){ state.lang="hi"; render(); });
+    var inp=document.getElementById("ob-name-input");
+    var btn=document.getElementById("ob-continue");
+    inp.addEventListener("input",function(e){ state.onboardName=e.target.value; });
+    inp.addEventListener("keydown",function(e){ if(e.key==="Enter") completeOnboarding(state.onboardName); });
+    btn.addEventListener("click",function(){ completeOnboarding(state.onboardName); });
+    document.getElementById("ob-skip").addEventListener("click",function(){ completeOnboarding(""); });
+    setTimeout(function(){ try{ inp.focus(); }catch(e){} },50);
   }
 
-  /* ---------- Render ---------- */
+  /* ---------- Render: Main ---------- */
   function render(){
-    var app = document.getElementById("app");
-    if(!state.ready){
-      app.innerHTML = '<div class="loading-wrap">Loading your milk log&hellip;</div>';
-      return;
+    var app=document.getElementById("app");
+    if(!state.ready){ app.innerHTML='<div class="loading-wrap">Loading Milky&hellip;</div>'; return; }
+    if(!state.settings.userName){ renderOnboarding(); return; }
+
+    var entries=monthEntries();
+    var delivered=entries.filter(function(e){return !e.na;});
+    var naEntries=entries.filter(function(e){return e.na;});
+    var totalQty=delivered.reduce(function(s,e){return s+e.qty;},0);
+    var totalAmount=delivered.reduce(function(s,e){return s+e.qty*e.rate;},0);
+    var mk=currentMonthKey();
+    var isPaid=!!state.settings.payments[mk];
+    var currency=state.settings.currency||CUR_DEFAULT;
+    var isEditing=!!state.editingId;
+    var previewAmount=(state.formQty||0)*(state.formRate||0);
+    var lang=state.lang;
+
+    var daysSub = naEntries.length>0
+      ? (delivered.length+" \u00b7 "+naEntries.length+" N/A")
+      : (delivered.length+(lang==="hi"?" \u0926\u093f\u0928 \u0926\u0930\u094d\u091c":(delivered.length===1?" day logged":" days logged")));
+
+    var html='';
+
+    html+='<div class="hdr">';
+    html+='<div class="hero-photo">';
+    html+='<div class="hdr-controls">';
+    html+='<div class="lang-toggle"><button class="lang-btn '+(lang==="en"?"active":"")+'" id="btn-lang-en">EN</button><button class="lang-btn '+(lang==="hi"?"active":"")+'" id="btn-lang-hi">\u0939\u093f</button></div>';
+    html+='<button class="gear-btn" id="btn-settings" aria-label="Settings">'+iconGear(19,"#F6F1E2")+'</button>';
+    html+='</div>';
+    html+='<div class="brand"><div class="brand-mark">'+iconCow(30,"#F5F9FF","#F48FB1")+'</div>';
+    html+='<div class="brand-text"><div class="title">'+t("brand")+'</div><div class="sub">'+escapeHtml(state.settings.dairyName)+'</div></div></div>';
+    html+='</div>'; // hero-photo
+
+    html+='<div class="hdr-body">';
+    if(state.settings.userName){
+      html+='<div class="greeting">'+t("greetingPrefix")+' <b>'+escapeHtml(state.settings.userName)+'</b></div>';
     }
-    var entries = monthEntries();
-    var totalQty = entries.reduce(function(s,e){ return s+e.qty; },0);
-    var totalAmount = entries.reduce(function(s,e){ return s+e.qty*e.rate; },0);
-    var mk = currentMonthKey();
-    var isPaid = !!state.settings.payments[mk];
-    var currency = state.settings.currency || COLORS_CURRENCY_DEFAULT;
-    var isEditing = !!state.editingId;
-    var previewAmount = (state.formQty||0) * (state.formRate||0);
+    html+='<div class="month-nav"><button class="month-btn" id="btn-prev-month" aria-label="Previous month">'+iconChevron("left")+'</button>';
+    html+='<div class="month-label">'+monthName(state.viewMonth)+' '+state.viewYear+'</div>';
+    html+='<button class="month-btn" id="btn-next-month" aria-label="Next month">'+iconChevron("right")+'</button></div>';
 
-    var html = '';
-
-    /* Header */
-    html += '<div class="hdr">';
-
-    html += '<div class="hero-photo">';
-    html += '<button class="gear-btn" id="btn-settings" aria-label="Settings">'+iconGear(18,"#F6F1E2")+'</button>';
-    html += '<div class="brand"><div class="brand-mark">'+iconCow(28,"#F5F9FF","#F48FB1")+'</div>';
-    html += '<div class="brand-text"><div class="title">Milk Log</div><div class="sub">'+escapeHtml(state.settings.dairyName)+'</div></div></div>';
-    html += '</div>'; // hero-photo
-
-    html += '<div class="hdr-body">';
-    html += '<div class="month-nav"><button class="month-btn" id="btn-prev-month" aria-label="Previous month">'+iconChevron("left")+'</button>';
-    html += '<div class="month-label">'+MONTH_NAMES[state.viewMonth]+' '+state.viewYear+'</div>';
-    html += '<button class="month-btn" id="btn-next-month" aria-label="Next month">'+iconChevron("right")+'</button></div>';
-
-    html += '<div class="summary">';
-    html += '<div class="paid-stamp'+(isPaid?' show':'')+'">'+iconStamp()+'</div>';
-    html += '<div class="summary-grid">';
-    html += '<div class="summary-col"><div class="summary-label">Total milk</div><div class="summary-value">'+fmtNum(totalQty)+' <span class="unit">L</span></div><div class="summary-sub">'+entries.length+' '+(entries.length===1?"day":"days")+' logged</div></div>';
-    html += '<div class="summary-divider"></div>';
-    html += '<div class="summary-col"><div class="summary-label">Amount due</div><div class="summary-value" style="color:'+(isPaid?"#8FCB9C":"#FF9EC4")+'">'+fmtMoney(totalAmount,currency)+'</div><div class="summary-sub">@ '+currency+fmtNum(state.settings.rate)+'/L</div></div>';
-    html += '</div>';
-    html += '<button class="paid-toggle'+(isPaid?' is-paid':'')+'" id="btn-toggle-paid">'+(isPaid?iconCheck(14):'')+(isPaid?" Paid for this month":"Mark this month as paid")+'</button>';
-    html += '</div>'; // summary
-    html += '</div>'; // hdr-body
-    html += '</div>'; // hdr
+    html+='<div class="summary">';
+    html+='<div class="paid-stamp'+(isPaid?" show":"")+'">'+iconStamp()+'</div>';
+    html+='<div class="summary-grid">';
+    html+='<div class="summary-col"><div class="summary-label">'+t("totalMilk")+'</div><div class="summary-value">'+fmtNum(totalQty)+' <span class="unit">L</span></div><div class="summary-sub">'+daysSub+'</div></div>';
+    html+='<div class="summary-divider"></div>';
+    html+='<div class="summary-col"><div class="summary-label">'+t("amountDue")+'</div><div class="summary-value" style="color:'+(isPaid?"#8FCB9C":"#FF9EC4")+'">'+fmtMoney(totalAmount,currency)+'</div><div class="summary-sub">@ '+currency+fmtNum(state.settings.rate)+'/L</div></div>';
+    html+='</div>';
+    html+='<button class="paid-toggle'+(isPaid?" is-paid":"")+'" id="btn-toggle-paid">'+(isPaid?iconCheck(14):"")+" "+(isPaid?t("paidThisMonth"):t("markPaid"))+'</button>';
+    html+='</div>'; // summary
+    html+='</div>'; // hdr-body
+    html+='</div>'; // hdr
 
     /* Entry form */
-    html += '<div class="section-gap">';
-    html += '<div class="card" id="entry-card">';
-    html += '<div class="card-head"><div class="card-title">'+(isEditing?"Update entry":"Today&rsquo;s delivery")+'</div>';
-    if(isEditing) html += '<button class="cancel-link" id="btn-cancel-edit">'+iconX(13)+' Cancel</button>';
-    html += '</div>';
+    html+='<div class="section-gap"><div class="card fade-in" id="entry-card">';
+    html+='<div class="card-head"><div class="card-title">'+(isEditing?t("updateEntryTitle"):t("todaysDelivery"))+'</div>';
+    if(isEditing) html+='<button class="cancel-link" id="btn-cancel-edit">'+iconX(13)+' '+t("cancel")+'</button>';
+    html+='</div>';
 
-    html += '<label class="field-label">Date</label>';
-    html += '<input type="date" id="input-date" value="'+state.formDate+'" />';
+    html+='<label class="field-label">'+t("dateLabel")+'</label>';
+    html+='<input type="date" id="input-date" value="'+state.formDate+'" />';
 
-    html += '<div style="margin-top:16px;">';
-    html += '<div class="qty-row"><label class="field-label" style="margin:0;">Quantity (litres)</label>';
-    html += '<button class="rate-edit-link" id="btn-toggle-rate">@ '+currency+fmtNum(state.formRate)+'/L &#9998;</button></div>';
-    if(state.rateEditOpen){
-      html += '<div class="rate-input-wrap"><input type="number" min="0" step="0.5" id="input-rate" value="'+state.formRate+'" placeholder="Rate per litre" /></div>';
+    html+='<button class="na-toggle'+(state.formNA?" active":"")+'" id="btn-toggle-na">'+iconBan(15)+' '+t("noDelivery")+'</button>';
+
+    if(state.formNA){
+      html+='<div class="na-note">'+t("noDeliveryNote")+'</div>';
+    } else {
+      html+='<div style="margin-top:16px;">';
+      html+='<div class="qty-row"><label class="field-label" style="margin:0;">'+t("quantityLabel")+'</label>';
+      html+='<button class="rate-edit-link" id="btn-toggle-rate">@ '+currency+fmtNum(state.formRate)+'/L &#9998;</button></div>';
+      if(state.rateEditOpen){
+        html+='<div class="rate-input-wrap"><input type="number" min="0" step="0.5" id="input-rate" value="'+state.formRate+'" placeholder="'+escapeHtml(t("editRate"))+'" /></div>';
+      }
+      html+='<div class="stepper"><button class="step-btn" id="btn-qty-minus" aria-label="Decrease">&minus;</button>';
+      html+='<input type="number" min="0" step="0.5" class="qty-input" id="input-qty" value="'+state.formQty+'" />';
+      html+='<button class="step-btn" id="btn-qty-plus" aria-label="Increase">+</button></div>';
+      html+='<div class="chip-row">';
+      [0.5,1,1.5,2,2.5].forEach(function(v){ html+='<button class="chip'+(state.formQty===v?" active":"")+'" data-qty="'+v+'">'+fmtNum(v)+'L</button>'; });
+      html+='</div></div>';
+      html+='<div class="amount-preview"><span class="lbl">'+t("amountLabel")+'</span><span class="val">'+fmtMoney(previewAmount,currency)+'</span></div>';
     }
-    html += '<div class="stepper"><button class="step-btn" id="btn-qty-minus" aria-label="Decrease">&minus;</button>';
-    html += '<input type="number" min="0" step="0.5" class="qty-input" id="input-qty" value="'+state.formQty+'" />';
-    html += '<button class="step-btn" id="btn-qty-plus" aria-label="Increase">+</button></div>';
-    html += '<div class="chip-row">';
-    [0.5,1,1.5,2,2.5].forEach(function(v){
-      html += '<button class="chip'+(state.formQty===v?' active':'')+'" data-qty="'+v+'">'+fmtNum(v)+'L</button>';
-    });
-    html += '</div></div>';
 
-    html += '<div class="amount-preview"><span class="lbl">Amount</span><span class="val">'+fmtMoney(previewAmount,currency)+'</span></div>';
-    html += '<button class="submit-btn" id="btn-submit">'+(isEditing?iconCheck(15):iconPlus(15))+' '+(isEditing?"Update entry":"Add entry")+'</button>';
-    html += '</div></div>'; // card, section-gap
+    html+='<button class="submit-btn" id="btn-submit">'+(isEditing?iconCheck(15):iconPlus(15))+' '+(isEditing?t("updateEntry"):t("addEntry"))+'</button>';
+    html+='</div></div>';
 
     /* Ledger */
-    html += '<div class="section-gap">';
-    html += '<div class="card-head" style="padding:0 2px;"><div class="card-title">This month&rsquo;s entries</div><div class="ledger-count">'+entries.length+'</div></div>';
+    html+='<div class="section-gap">';
+    html+='<div class="card-head" style="padding:0 2px;"><div class="card-title">'+t("entriesTitle")+'</div><div class="ledger-count">'+entries.length+'</div></div>';
     if(entries.length===0){
-      html += '<div class="ledger-empty">'+iconMilk(26,"#A79C85")+'<div style="margin-top:8px;">No entries yet this month.<br/>Add today&rsquo;s delivery above.</div></div>';
+      html+='<div class="ledger-empty">'+iconMilk(28,"#93A4C0")+'<div style="margin-top:10px;">'+t("emptyLine1")+'<br/>'+t("emptyLine2")+'</div></div>';
     } else {
-      html += '<div class="ledger-card">';
-      entries.forEach(function(entry, idx){
-        html += '<div class="row" data-row-id="'+entry.id+'"'+(idx===entries.length-1?' style="border-bottom:none;"':'')+'>';
-        html += '<div class="row-date"><div class="d1">'+fmtDateLabel(entry.date)+'</div><div class="d2">'+fmtNum(entry.qty)+'L @ '+currency+fmtNum(entry.rate)+'</div></div>';
-        html += '<div class="row-amt">'+fmtMoney(entry.qty*entry.rate,currency)+'</div>';
-        html += '<div class="row-actions"><button class="icon-btn edit" data-edit-id="'+entry.id+'" aria-label="Edit">'+iconPencil(15)+'</button>';
-        html += '<button class="icon-btn del" data-del-id="'+entry.id+'" aria-label="Delete">'+iconTrash(15)+'</button></div>';
-        html += '</div>';
+      html+='<div class="ledger-card fade-in">';
+      entries.forEach(function(entry,idx){
+        var last=idx===entries.length-1;
+        html+='<div class="row'+(entry.na?" is-na":"")+'" data-row-id="'+entry.id+'"'+(last?' style="border-bottom:none;"':"")+'>';
+        html+='<div class="row-date"><div class="d1">'+fmtDateLabel(entry.date)+'</div>';
+        html+= entry.na
+          ? '<div class="d2 na-label">'+t("noDeliveryRow")+'</div>'
+          : '<div class="d2">'+fmtNum(entry.qty)+'L @ '+currency+fmtNum(entry.rate)+'</div>';
+        html+='</div>';
+        html+='<div class="row-amt'+(entry.na?" na":"")+'">'+(entry.na?"\u2014":fmtMoney(entry.qty*entry.rate,currency))+'</div>';
+        html+='<div class="row-actions"><button class="icon-btn edit" data-edit-id="'+entry.id+'" aria-label="Edit">'+iconPencil(15)+'</button>';
+        html+='<button class="icon-btn del" data-del-id="'+entry.id+'" aria-label="Delete">'+iconTrash(15)+'</button></div>';
+        html+='</div>';
         if(state.deleteConfirmId===entry.id){
-          html += '<div class="confirm-row"'+(idx===entries.length-1?' style="border-bottom:none;"':'')+'><span>Delete this entry?</span>';
-          html += '<div class="confirm-actions"><button class="btn-keep" data-keep-id="'+entry.id+'">Keep it</button><button class="btn-del" data-confirm-del-id="'+entry.id+'">Delete</button></div></div>';
+          html+='<div class="confirm-row"'+(last?' style="border-bottom:none;"':"")+'><span>'+t("deleteConfirm")+'</span>';
+          html+='<div class="confirm-actions"><button class="btn-keep" data-keep-id="'+entry.id+'">'+t("keepIt")+'</button><button class="btn-del" data-confirm-del-id="'+entry.id+'">'+t("deleteBtn")+'</button></div></div>';
         }
       });
-      html += '<div class="ledger-total"><span class="lbl">Month total</span><span class="val">'+fmtNum(totalQty)+'L &middot; '+fmtMoney(totalAmount,currency)+'</span></div>';
-      html += '</div>';
+      html+='<div class="ledger-total"><span class="lbl">'+t("monthTotal")+'</span><span class="val">'+fmtNum(totalQty)+'L &middot; '+fmtMoney(totalAmount,currency)+'</span></div>';
+      html+='</div>';
+      html+='<button class="receipt-btn" id="btn-download-receipt">'+iconDownload(16)+' '+t("downloadReceipt")+'</button>';
     }
-    html += '</div>'; // section-gap
+    html+='</div>';
 
-    if(!state.storageOk){
-      html += '<div class="storage-warn">Saving may not be available right now &mdash; entries could be lost if you close this window.</div>';
-    }
-
-    html += '<div class="footer-note">Fresh from the dairy, tallied with care &#127808;</div>';
+    if(!state.storageOk){ html+='<div class="storage-warn">'+t("storageWarn")+'</div>'; }
+    html+='<div class="footer-note">'+t("footerNote")+' \ud83e\udd5b</div>';
 
     /* Settings sheet */
-    html += '<div class="overlay'+(state.settingsOpen?' open':'')+'" id="overlay">';
-    html += '<div class="sheet" onclick="event.stopPropagation()">';
-    html += '<div class="sheet-handle"></div><div class="sheet-title">Settings</div>';
-    html += '<label class="field-label">Dairy name</label>';
-    html += '<input type="text" id="input-dairy-name" value="'+escapeHtml(state.settingsDraft.dairyName||"")+'" placeholder="Daily Dairy" style="margin-bottom:14px;" />';
-    html += '<div class="field-row"><div><label class="field-label">Currency symbol</label><input type="text" id="input-currency" maxlength="2" value="'+escapeHtml(state.settingsDraft.currency||"")+'" style="font-family:\'JetBrains Mono\', monospace;" /></div>';
-    html += '<div style="flex:1.4;"><label class="field-label">Default rate / litre</label><input type="number" min="0" step="0.5" id="input-default-rate" value="'+(state.settingsDraft.rate!==undefined?state.settingsDraft.rate:'')+'" style="font-family:\'JetBrains Mono\', monospace;" /></div></div>';
-    html += '<div class="field-hint">New entries use this rate by default. Past entries keep their own rate.</div>';
-    html += '<div class="sheet-actions"><button class="btn-cancel" id="btn-settings-cancel">Cancel</button><button class="btn-save" id="btn-settings-save">Save settings</button></div>';
-    html += '</div></div>';
+    html+='<div class="overlay'+(state.settingsOpen?" open":"")+'" id="overlay">';
+    html+='<div class="sheet" onclick="event.stopPropagation()">';
+    html+='<div class="sheet-handle"></div><div class="sheet-title">'+t("settingsTitle")+'</div>';
 
-    html += '<div class="toast" id="toast"></div>';
+    html+='<div class="field-block"><label class="field-label">'+t("yourName")+'</label>';
+    html+='<input type="text" id="input-username" value="'+escapeHtml(state.settingsDraft.userName||"")+'" placeholder="'+escapeHtml(t("namePlaceholder"))+'" /></div>';
 
-    app.innerHTML = html;
+    html+='<div class="field-block"><label class="field-label">'+t("dairyName")+'</label>';
+    html+='<input type="text" id="input-dairy-name" value="'+escapeHtml(state.settingsDraft.dairyName||"")+'" placeholder="Daily Dairy" /></div>';
+
+    html+='<div class="field-row field-block"><div><label class="field-label">'+t("currencySymbol")+'</label><input type="text" id="input-currency" maxlength="2" value="'+escapeHtml(state.settingsDraft.currency||"")+'" style="font-family:\'JetBrains Mono\', monospace;" /></div>';
+    html+='<div style="flex:1.4;"><label class="field-label">'+t("defaultRate")+'</label><input type="number" min="0" step="0.5" id="input-default-rate" value="'+(state.settingsDraft.rate!==undefined?state.settingsDraft.rate:"")+'" style="font-family:\'JetBrains Mono\', monospace;" /></div></div>';
+    html+='<div class="field-hint" style="margin-bottom:16px;">'+t("rateHint")+'</div>';
+
+    html+='<div class="field-block"><label class="field-label">'+t("language")+'</label>';
+    html+='<div class="lang-row"><button class="'+(state.settingsDraft.lang==="en"?"active":"")+'" id="set-lang-en">English</button><button class="'+(state.settingsDraft.lang==="hi"?"active":"")+'" id="set-lang-hi">\u0939\u093f\u0902\u0926\u0940</button></div></div>';
+
+    html+='<div class="sheet-actions"><button class="btn-cancel" id="btn-settings-cancel">'+t("cancel")+'</button><button class="btn-save" id="btn-settings-save">'+t("saveSettings")+'</button></div>';
+    html+='</div></div>';
+
+    html+='<div class="toast" id="toast"></div>';
+
+    app.innerHTML=html;
     bindEvents();
   }
 
   function bindEvents(){
-    var byId = function(id){ return document.getElementById(id); };
+    var byId=function(id){ return document.getElementById(id); };
 
-    if(byId("btn-settings")) byId("btn-settings").addEventListener("click", openSettings);
-    if(byId("btn-prev-month")) byId("btn-prev-month").addEventListener("click", function(){ changeMonth(-1); });
-    if(byId("btn-next-month")) byId("btn-next-month").addEventListener("click", function(){ changeMonth(1); });
-    if(byId("btn-toggle-paid")) byId("btn-toggle-paid").addEventListener("click", togglePaid);
-    if(byId("btn-cancel-edit")) byId("btn-cancel-edit").addEventListener("click", function(){ resetFormDefaults(); render(); });
-    if(byId("btn-toggle-rate")) byId("btn-toggle-rate").addEventListener("click", function(){ state.rateEditOpen = !state.rateEditOpen; render(); });
-    if(byId("btn-qty-minus")) byId("btn-qty-minus").addEventListener("click", function(){ adjustQty(-0.5); });
-    if(byId("btn-qty-plus")) byId("btn-qty-plus").addEventListener("click", function(){ adjustQty(0.5); });
-    if(byId("btn-submit")) byId("btn-submit").addEventListener("click", submitForm);
-    if(byId("btn-settings-cancel")) byId("btn-settings-cancel").addEventListener("click", function(){ state.settingsOpen=false; render(); });
-    if(byId("btn-settings-save")) byId("btn-settings-save").addEventListener("click", function(){
-      state.settingsDraft.dairyName = byId("input-dairy-name").value;
-      state.settingsDraft.currency = byId("input-currency").value;
-      state.settingsDraft.rate = byId("input-default-rate").value;
+    if(byId("btn-settings")) byId("btn-settings").addEventListener("click",openSettings);
+    if(byId("btn-lang-en")) byId("btn-lang-en").addEventListener("click",function(){ setLang("en"); });
+    if(byId("btn-lang-hi")) byId("btn-lang-hi").addEventListener("click",function(){ setLang("hi"); });
+    if(byId("btn-prev-month")) byId("btn-prev-month").addEventListener("click",function(){ changeMonth(-1); });
+    if(byId("btn-next-month")) byId("btn-next-month").addEventListener("click",function(){ changeMonth(1); });
+    if(byId("btn-toggle-paid")) byId("btn-toggle-paid").addEventListener("click",togglePaid);
+    if(byId("btn-cancel-edit")) byId("btn-cancel-edit").addEventListener("click",cancelEdit);
+    if(byId("btn-toggle-na")) byId("btn-toggle-na").addEventListener("click",toggleNA);
+    if(byId("btn-toggle-rate")) byId("btn-toggle-rate").addEventListener("click",function(){ state.rateEditOpen=!state.rateEditOpen; render(); });
+    if(byId("btn-qty-minus")) byId("btn-qty-minus").addEventListener("click",function(){ adjustQty(-0.5); });
+    if(byId("btn-qty-plus")) byId("btn-qty-plus").addEventListener("click",function(){ adjustQty(0.5); });
+    if(byId("btn-submit")) byId("btn-submit").addEventListener("click",submitForm);
+    if(byId("btn-download-receipt")) byId("btn-download-receipt").addEventListener("click",downloadReceipt);
+
+    if(byId("btn-settings-cancel")) byId("btn-settings-cancel").addEventListener("click",function(){ state.settingsOpen=false; render(); });
+    if(byId("btn-settings-save")) byId("btn-settings-save").addEventListener("click",function(){
+      state.settingsDraft.userName=byId("input-username").value;
+      state.settingsDraft.dairyName=byId("input-dairy-name").value;
+      state.settingsDraft.currency=byId("input-currency").value;
+      state.settingsDraft.rate=byId("input-default-rate").value;
       saveSettings();
     });
+    if(byId("set-lang-en")) byId("set-lang-en").addEventListener("click",function(){ state.settingsDraft.lang="en"; render(); });
+    if(byId("set-lang-hi")) byId("set-lang-hi").addEventListener("click",function(){ state.settingsDraft.lang="hi"; render(); });
 
-    var overlay = byId("overlay");
-    if(overlay) overlay.addEventListener("click", function(){ state.settingsOpen=false; render(); });
+    var overlay=byId("overlay"); if(overlay) overlay.addEventListener("click",function(){ state.settingsOpen=false; render(); });
 
-    var inputDate = byId("input-date");
-    if(inputDate) inputDate.addEventListener("change", function(e){ handleDateChange(e.target.value); });
+    var inputDate=byId("input-date"); if(inputDate) inputDate.addEventListener("change",function(e){ handleDateChange(e.target.value); });
+    var inputQty=byId("input-qty");
+    if(inputQty){ inputQty.addEventListener("input",function(e){ state.formQty=parseFloat(e.target.value)||0; }); inputQty.addEventListener("change",function(){ render(); }); }
+    var inputRate=byId("input-rate");
+    if(inputRate){ inputRate.addEventListener("input",function(e){ state.formRate=parseFloat(e.target.value)||0; }); inputRate.addEventListener("change",function(){ render(); }); }
 
-    var inputQty = byId("input-qty");
-    if(inputQty) inputQty.addEventListener("input", function(e){ state.formQty = parseFloat(e.target.value)||0; });
-    if(inputQty) inputQty.addEventListener("change", function(){ render(); });
-
-    var inputRate = byId("input-rate");
-    if(inputRate) inputRate.addEventListener("input", function(e){ state.formRate = parseFloat(e.target.value)||0; });
-    if(inputRate) inputRate.addEventListener("change", function(){ render(); });
-
-    document.querySelectorAll("[data-qty]").forEach(function(btn){
-      btn.addEventListener("click", function(){ state.formQty = parseFloat(btn.getAttribute("data-qty")); render(); });
-    });
-    document.querySelectorAll("[data-edit-id]").forEach(function(btn){
-      btn.addEventListener("click", function(){ startEdit(btn.getAttribute("data-edit-id")); });
-    });
-    document.querySelectorAll("[data-del-id]").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        var id = btn.getAttribute("data-del-id");
-        state.deleteConfirmId = (state.deleteConfirmId===id) ? null : id;
-        render();
-      });
-    });
-    document.querySelectorAll("[data-keep-id]").forEach(function(btn){
-      btn.addEventListener("click", function(){ state.deleteConfirmId=null; render(); });
-    });
-    document.querySelectorAll("[data-confirm-del-id]").forEach(function(btn){
-      btn.addEventListener("click", function(){ deleteEntry(btn.getAttribute("data-confirm-del-id")); });
-    });
+    document.querySelectorAll("[data-qty]").forEach(function(btn){ btn.addEventListener("click",function(){ state.formQty=parseFloat(btn.getAttribute("data-qty")); render(); }); });
+    document.querySelectorAll("[data-edit-id]").forEach(function(btn){ btn.addEventListener("click",function(){ startEdit(btn.getAttribute("data-edit-id")); }); });
+    document.querySelectorAll("[data-del-id]").forEach(function(btn){ btn.addEventListener("click",function(){ var id=btn.getAttribute("data-del-id"); state.deleteConfirmId=(state.deleteConfirmId===id)?null:id; render(); }); });
+    document.querySelectorAll("[data-keep-id]").forEach(function(btn){ btn.addEventListener("click",function(){ state.deleteConfirmId=null; render(); }); });
+    document.querySelectorAll("[data-confirm-del-id]").forEach(function(btn){ btn.addEventListener("click",function(){ deleteEntry(btn.getAttribute("data-confirm-del-id")); }); });
   }
 
   loadData();
