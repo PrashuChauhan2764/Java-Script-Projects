@@ -20,3 +20,12 @@
 5. add english to hindi toggle option.
 6. Take name on very first page who add the entry like in room scout.
 7. make the UI more proffessional, premium, clear, simple, attractive, beautifull.
+
+# milky v4.0
+Now make some changes keep the rest same some changes are:
+
+1. improved the dowloaded reciept  remove the space when write amount, and use Rupee sign "₹"in front of amount,  
+2.  added option: who add entry mention its name 
+3. remove currency symbol from the setting.
+4. improve toggle on front very first page
+5.  highlight and make darker the paid stamp on 2nd page.
