@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="theme-color" content="#0D47A1" />
@@ -13,6 +12,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <style>
   :root{
     --page:#F2F7FD;
@@ -312,6 +314,41 @@
 (function(){
   "use strict";
 
+  /* =====================================================================
+     FIREBASE — connected to your "milk-log-f3f98" project.
+     Firestore + Anonymous Authentication must be turned on in the
+     Firebase console for this to work (see chat for the exact steps
+     and the security rules to paste in).
+     ===================================================================== */
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCXmqqlkR-sOvc9B1OU4IupTDczo7EH9EE",
+    authDomain: "milk-log-f3f98.firebaseapp.com",
+    projectId: "milk-log-f3f98",
+    storageBucket: "milk-log-f3f98.firebasestorage.app",
+    messagingSenderId: "339294878738",
+    appId: "1:339294878738:web:ebe6c519bc6dee3ae9accb"
+  };
+  var FIREBASE_READY = true;
+  var db = null, auth = null, unsubscribeSnapshot = null;
+  /* Everyone who opens this app reads and writes the same single document —
+     simple, no codes, no rooms, like a shared notebook. */
+  function sharedDoc(){ return db.collection("milky").doc("shared"); }
+
+  /* Device-local storage (just name + language for this phone). Uses
+     Claude's window.storage when running inside Claude.ai; falls back to
+     plain localStorage when this file is opened as a normal web page
+     (e.g. hosted on Firebase Hosting) where window.storage doesn't exist. */
+  var deviceStore = {
+    async get(key){
+      if(window.storage){ try{ return await window.storage.get(key,false); }catch(e){ return null; } }
+      try{ var v=localStorage.getItem(key); return v!==null?{value:v}:null; }catch(e){ return null; }
+    },
+    async set(key,value){
+      if(window.storage){ try{ await window.storage.set(key,value,false); return true; }catch(e){ return false; } }
+      try{ localStorage.setItem(key,value); return true; }catch(e){ return false; }
+    }
+  };
+
   var CUR_DEFAULT = "\u20B9";
   var DEFAULT_SETTINGS = { rate:60, currency:CUR_DEFAULT, dairyName:"Daily Dairy", userName:"", lang:"en", payments:{} };
   var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -350,7 +387,9 @@
       toastPaid:"Marked as paid", toastPending:"Marked as pending", toastSettingsSaved:"Settings saved",
       toastPickDate:"Pick a date", toastEnterQty:"Enter quantity", toastEnterRate:"Enter a valid rate",
       toastReceiptDown:"Receipt downloaded", toastNoEntries:"No entries to include in receipt",
-      greetingPrefix:"Hello,", byLabel:"by"
+      greetingPrefix:"Hello,", byLabel:"by",
+      toastSyncError:"Couldn't save \u2014 check your connection",
+      syncSynced:"Synced", syncConnecting:"Connecting\u2026", syncError:"Sync error"
     },
     hi: {
       brand:"\u092e\u093f\u0932\u094d\u0915\u0940", tagline:"\u0921\u0947\u0932\u0940 \u0921\u0947\u092f\u0930\u0940",
@@ -377,7 +416,9 @@
       toastPaid:"\u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091a\u093f\u0939\u094d\u0928\u093f\u0924", toastPending:"\u0932\u0902\u092c\u093f\u0924 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091a\u093f\u0939\u094d\u0928\u093f\u0924", toastSettingsSaved:"\u0938\u0947\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0939\u0947\u091c\u0940 \u0917\u0908\u0902",
       toastPickDate:"\u0924\u093e\u0930\u0940\u0916 \u091a\u0941\u0928\u0947\u0902", toastEnterQty:"\u092e\u093e\u0924\u094d\u0930\u093e \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902", toastEnterRate:"\u092e\u093e\u0928\u094d\u092f \u0926\u0930 \u0926\u0930\u094d\u091c \u0915\u0930\u0947\u0902",
       toastReceiptDown:"\u0930\u0938\u0940\u0926 \u0921\u093e\u0909\u0928\u0932\u094b\u0921 \u0939\u0941\u0908", toastNoEntries:"\u0930\u0938\u0940\u0926 \u0915\u0947 \u0932\u093f\u090f \u0915\u094b\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0928\u0939\u0940\u0902",
-      greetingPrefix:"\u0928\u092e\u0938\u094d\u0924\u0947,", byLabel:"\u0926\u094d\u0935\u093e\u0930\u093e"
+      greetingPrefix:"\u0928\u092e\u0938\u094d\u0924\u0947,", byLabel:"\u0926\u094d\u0935\u093e\u0930\u093e",
+      toastSyncError:"\u0938\u0939\u0947\u091c \u0928\u0939\u0940\u0902 \u0938\u0915\u093e \u2014 \u0915\u0928\u0947\u0915\u094d\u0936\u0928 \u091c\u093e\u0902\u091a\u0947\u0902",
+      syncSynced:"\u0938\u093f\u0902\u0915 \u0939\u094b \u0917\u092f\u093e", syncConnecting:"\u091c\u0941\u0921\u093c\u0930\u0939\u0947 \u0939\u0948\u0902\u2026", syncError:"\u0938\u093f\u0902\u0915 \u0924\u094d\u0930\u0941\u091f\u093f"
     }
   };
 
@@ -416,26 +457,84 @@
   }
 
   async function loadData(){
-    var loadedEntries=[]; var loadedSettings=Object.assign({},DEFAULT_SETTINGS); var ok=true;
+    /* Local, device-only prefs: just the name and language this phone uses. */
+    var device={ userName:"", lang:"en" };
     try{
-      if(!window.storage) ok=false;
-      else{
-        try{ var r1=await window.storage.get("milky_entries",false); if(r1&&r1.value) loadedEntries=JSON.parse(r1.value); }catch(e){}
-        try{ var r2=await window.storage.get("milky_settings",false); if(r2&&r2.value) loadedSettings=Object.assign({},DEFAULT_SETTINGS,JSON.parse(r2.value)); }catch(e){}
-        try{
-          var legacy=await window.storage.get("milklog_entries",false);
-          if(legacy&&legacy.value&&loadedEntries.length===0){ loadedEntries=JSON.parse(legacy.value); }
-        }catch(e){}
+      var rd=await deviceStore.get("milky_device");
+      if(rd&&rd.value) device=Object.assign({},device,JSON.parse(rd.value));
+    }catch(e){}
+    /* one-time migration from the pre-Firebase version, if this device had one */
+    if(!device.userName){
+      try{ var legacySettings=await deviceStore.get("milky_settings"); if(legacySettings&&legacySettings.value){ var ls=JSON.parse(legacySettings.value); if(ls.userName) device.userName=ls.userName; if(ls.lang) device.lang=ls.lang; } }catch(e){}
+    }
+    state.settings.userName=device.userName; state.lang=device.lang||"en";
+    state.storageOk=true;
+
+    try{
+      if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      auth=firebase.auth(); db=firebase.firestore();
+      await new Promise(function(resolve,reject){
+        var unsub=auth.onAuthStateChanged(function(user){ unsub(); if(user) resolve(user); else auth.signInAnonymously().then(resolve).catch(reject); });
+      });
+    }catch(e){ state.storageOk=false; state.ready=true; render(); return; }
+
+    /* One shared document for everyone who opens this app — no codes, no rooms. */
+    try{
+      var oldEntries=[], oldSettings={};
+      try{ var re=await deviceStore.get("milky_entries"); if(re&&re.value) oldEntries=JSON.parse(re.value); }catch(e){}
+      try{ var rs=await deviceStore.get("milky_settings"); if(rs&&rs.value) oldSettings=JSON.parse(rs.value); }catch(e){}
+      if(oldEntries.length){
+        var already=await sharedDoc().get();
+        if(!already.exists || !(already.data().entries||[]).length){
+          await sharedDoc().set({
+            entries:oldEntries,
+            rate: oldSettings.rate||DEFAULT_SETTINGS.rate,
+            dairyName: oldSettings.dairyName||DEFAULT_SETTINGS.dairyName,
+            payments: oldSettings.payments||{}
+          },{merge:true});
+        }
       }
-    }catch(e){ ok=false; }
-    state.entries=loadedEntries; state.settings=loadedSettings;
-    state.lang = loadedSettings.lang || "en";
-    state.formRate=loadedSettings.rate; state.storageOk=ok;
-    resetFormDefaults(); state.ready=true; render();
+    }catch(e){}
+
+    subscribeShared();
   }
 
-  async function persistEntries(next){ state.entries=next; try{ await window.storage.set("milky_entries",JSON.stringify(next),false);}catch(e){ showToast("\u26a0 "+t("toastEnterQty")); } }
-  async function persistSettings(next){ state.settings=next; try{ await window.storage.set("milky_settings",JSON.stringify(next),false);}catch(e){} }
+  function subscribeShared(){
+    unsubscribeSnapshot=sharedDoc().onSnapshot(function(snap){
+      var data=snap.exists?snap.data():{};
+      state.entries=data.entries||[];
+      state.settings=Object.assign({},DEFAULT_SETTINGS,{
+        userName:state.settings.userName, lang:state.lang,
+        rate:data.rate!==undefined?data.rate:DEFAULT_SETTINGS.rate,
+        dairyName:data.dairyName||DEFAULT_SETTINGS.dairyName,
+        payments:data.payments||{}
+      });
+      state.formRate=state.settings.rate;
+      state.ready=true;
+      if(!state.editingId) resetFormDefaults();
+      render();
+    },function(err){
+      state.ready=true; render();
+    });
+  }
+
+  async function persistLocalDevice(){
+    var device={ userName:state.settings.userName, lang:state.lang };
+    try{ await deviceStore.set("milky_device",JSON.stringify(device)); }catch(e){}
+  }
+
+  async function persistEntries(next){
+    state.entries=next;
+    try{ await sharedDoc().set({entries:next},{merge:true}); }
+    catch(e){ showToast("\u26a0 "+t("toastSyncError")); }
+  }
+  async function persistSettings(next){
+    state.settings=next; state.lang=next.lang||state.lang;
+    await persistLocalDevice();
+    try{
+      await sharedDoc().set({ rate:next.rate, dairyName:next.dairyName, payments:next.payments },{merge:true});
+    }catch(e){ showToast("\u26a0 "+t("toastSyncError")); }
+  }
 
   function currentMonthKey(){ return state.viewYear+"-"+pad2(state.viewMonth+1); }
   function isCurrentCalendarMonth(){ var n=new Date(); return n.getFullYear()===state.viewYear && n.getMonth()===state.viewMonth; }
