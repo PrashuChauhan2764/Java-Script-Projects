@@ -29,3 +29,6 @@ Now make some changes keep the rest same some changes are:
 3. remove currency symbol from the setting.
 4. improve toggle on front very first page
 5.  highlight and make darker the paid stamp on 2nd page.
+
+# milky v4.1
+- added firebase npm commands script
