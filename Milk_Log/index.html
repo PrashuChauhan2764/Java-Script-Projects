@@ -1,4 +1,3 @@
-<!-- verion4.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -380,7 +379,7 @@
       defaultRate:"Default rate / litre",
       rateHint:"New entries use this rate by default. Past entries keep their own rate.",
       language:"Language", saveSettings:"Save settings",
-      storageWarn:"Saving may not be available right now \u2014 entries could be lost if you close this window.",
+      storageWarn:"Couldn't connect to the cloud database \u2014 entries you add now will only be saved on this device. Check the Firebase setup (Firestore rules + Anonymous auth).",
       footerNote:"Fresh from the dairy, tallied with care",
       welcomeTitle:"Welcome to Milky", welcomeSub:"Who's adding today's entries?",
       namePlaceholder:"Enter your name", continueBtn:"Continue", skipBtn:"Skip for now",
@@ -409,7 +408,7 @@
       defaultRate:"\u0921\u093f\u092b\u093c\u0949\u0932\u094d\u091f \u0926\u0930 / \u0932\u0940\u091f\u0930",
       rateHint:"\u0928\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0921\u093f\u092b\u093c\u0949\u0932\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u092f\u0939 \u0926\u0930 \u0909\u092a\u092f\u094b\u0917 \u0915\u0930\u0947\u0902\u0917\u0940\u0964 \u092a\u0941\u0930\u093e\u0928\u0940 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0905\u092a\u0928\u0940 \u0926\u0930 \u092c\u0928\u093e\u090f \u0930\u0916\u0947\u0902\u0917\u0940\u0964",
       language:"\u092d\u093e\u0937\u093e", saveSettings:"\u0938\u0947\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0939\u0947\u091c\u0947\u0902",
-      storageWarn:"\u0905\u092d\u0940 \u0938\u0939\u0947\u091c\u0928\u093e \u0938\u0902\u092d\u0935 \u0928\u0939\u0940\u0902 \u2014 \u0935\u093f\u0902\u0921\u094b \u092c\u0902\u0926 \u0915\u0930\u0928\u0947 \u092a\u0930 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0916\u094b \u0938\u0915\u0924\u0940 \u0939\u0948\u0902\u0964",
+      storageWarn:"\u0915\u094d\u0932\u093e\u0909\u0921 \u0921\u0947\u091f\u093e\u092c\u0947\u0938 \u0938\u0947 \u0915\u0928\u0947\u0915\u094d\u0936\u0928 \u0928\u0939\u0940\u0902 \u0939\u094b \u0938\u0915\u093e \u2014 \u0905\u092d\u0940 \u0915\u0940 \u0917\u0908 \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f\u092f\u093e\u0901 \u0938\u093f\u0930\u094d\u092b \u0907\u0938\u0940 \u0921\u093f\u0935\u093e\u0907\u0938 \u092a\u0930 \u0938\u0939\u0947\u091c\u0940 \u091c\u093e\u090f\u0902\u0917\u0940\u0964 Firebase \u0938\u0947\u091f\u0905\u092a \u091c\u093e\u0902\u091a\u0947\u0902\u0964",
       footerNote:"\u0921\u0947\u092f\u0930\u0940 \u0938\u0947 \u0924\u093e\u091c\u093e, \u092a\u094d\u092f\u093e\u0930 \u0938\u0947 \u0939\u093f\u0938\u093e\u092c",
       welcomeTitle:"\u092e\u093f\u0932\u094d\u0915\u0940 \u092e\u0947\u0902 \u0906\u092a\u0915\u093e \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948", welcomeSub:"\u0906\u091c \u092a\u094d\u0930\u0935\u093f\u0937\u094d\u091f\u093f \u0915\u094c\u0928 \u091c\u094b\u0921\u093c \u0930\u0939\u093e \u0939\u0948?",
       namePlaceholder:"\u0905\u092a\u0928\u093e \u0928\u093e\u092e \u0932\u093f\u0916\u0947\u0902", continueBtn:"\u091c\u093e\u0930\u0940 \u0930\u0916\u0947\u0902", skipBtn:"\u0905\u092d\u0940 \u0915\u0947 \u0932\u093f\u090f \u091b\u094b\u0921\u093c\u0947\u0902",
@@ -458,7 +457,8 @@
   }
 
   async function loadData(){
-    /* Local, device-only prefs: just the name and language this phone uses. */
+    /* Phase 1 — local, device-only prefs (name + language). No network
+       needed, so the name screen can appear instantly. */
     var device={ userName:"", lang:"en" };
     try{
       var rd=await deviceStore.get("milky_device");
@@ -469,7 +469,16 @@
       try{ var legacySettings=await deviceStore.get("milky_settings"); if(legacySettings&&legacySettings.value){ var ls=JSON.parse(legacySettings.value); if(ls.userName) device.userName=ls.userName; if(ls.lang) device.lang=ls.lang; } }catch(e){}
     }
     state.settings.userName=device.userName; state.lang=device.lang||"en";
-    state.storageOk=true;
+    render(); // shows the name screen right away if there's no name yet
+
+    if(state.settings.userName){
+      await connectFirebase();
+    }
+    // if there's no name yet, connectFirebase() runs after completeOnboarding()
+  }
+
+  async function connectFirebase(){
+    state.ready=false; render(); // show "Loading Milky…" while we connect
 
     try{
       if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
@@ -477,7 +486,10 @@
       await new Promise(function(resolve,reject){
         var unsub=auth.onAuthStateChanged(function(user){ unsub(); if(user) resolve(user); else auth.signInAnonymously().then(resolve).catch(reject); });
       });
-    }catch(e){ state.storageOk=false; state.ready=true; render(); return; }
+    }catch(e){
+      console.error("Milky: Firebase sign-in failed —", e);
+      state.storageOk=false; state.ready=true; render(); return;
+    }
 
     /* One shared document for everyone who opens this app — no codes, no rooms. */
     try{
@@ -495,7 +507,7 @@
           },{merge:true});
         }
       }
-    }catch(e){}
+    }catch(e){ console.error("Milky: local-data migration skipped —", e); }
 
     subscribeShared();
   }
@@ -508,14 +520,15 @@
         userName:state.settings.userName, lang:state.lang,
         rate:data.rate!==undefined?data.rate:DEFAULT_SETTINGS.rate,
         dairyName:data.dairyName||DEFAULT_SETTINGS.dairyName,
-        payments:data.payments||{}
+        payments:(data.payments&&typeof data.payments==="object")?data.payments:{}
       });
       state.formRate=state.settings.rate;
-      state.ready=true;
+      state.storageOk=true; state.ready=true;
       if(!state.editingId) resetFormDefaults();
       render();
     },function(err){
-      state.ready=true; render();
+      console.error("Milky: Firestore sync error —", err.code||err.message||err);
+      state.storageOk=false; state.ready=true; render();
     });
   }
 
@@ -641,9 +654,11 @@
 
   /* ---------- Onboarding ---------- */
   function completeOnboarding(name){
-    var finalName=(name||"").trim();
-    persistSettings(Object.assign({},state.settings,{userName:finalName||"Friend"}));
-    render();
+    var finalName=(name||"").trim()||"Friend";
+    state.settings.userName=finalName;
+    persistLocalDevice();
+    render(); // show the loading spinner right away
+    connectFirebase(); // now actually connect and pull the shared data
   }
 
   /* ---------- Receipt (PDF) ---------- */
@@ -792,8 +807,8 @@
   /* ---------- Render: Main ---------- */
   function render(){
     var app=document.getElementById("app");
-    if(!state.ready){ app.innerHTML='<div class="loading-wrap">Loading Milky&hellip;</div>'; return; }
     if(!state.settings.userName){ renderOnboarding(); return; }
+    if(!state.ready){ app.innerHTML='<div class="loading-wrap">Loading Milky&hellip;</div>'; return; }
 
     var entries=monthEntries();
     var delivered=entries.filter(function(e){return !e.na;});
@@ -878,6 +893,9 @@
     /* Ledger */
     html+='<div class="section-gap">';
     html+='<div class="card-head" style="padding:0 2px;"><div class="card-title">'+t("entriesTitle")+'</div><div class="ledger-count">'+entries.length+'</div></div>';
+    if(entries.length>0){
+      html+='<button class="receipt-btn" id="btn-download-receipt" style="margin-top:0; margin-bottom:12px;">'+iconDownload(16)+' '+t("downloadReceipt")+'</button>';
+    }
     if(entries.length===0){
       html+='<div class="ledger-empty">'+iconMilk(28,"#93A4C0")+'<div style="margin-top:10px;">'+t("emptyLine1")+'<br/>'+t("emptyLine2")+'</div></div>';
     } else {
@@ -902,9 +920,9 @@
       });
       html+='<div class="ledger-total"><span class="lbl">'+t("monthTotal")+'</span><span class="val">'+fmtNum(totalQty)+'L &middot; '+fmtMoney(totalAmount,currency)+'</span></div>';
       html+='</div>';
-      html+='<button class="receipt-btn" id="btn-download-receipt">'+iconDownload(16)+' '+t("downloadReceipt")+'</button>';
     }
     html+='</div>';
+
 
     if(!state.storageOk){ html+='<div class="storage-warn">'+t("storageWarn")+'</div>'; }
     html+='<div class="footer-note">'+t("footerNote")+' \ud83e\udd5b</div>';
